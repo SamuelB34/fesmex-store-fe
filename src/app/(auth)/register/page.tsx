@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, FormEvent } from "react";
+import Link from "next/link";
 import { useAuth } from "@/shared/auth/AuthProvider";
 import styles from "./register.module.scss";
 
@@ -146,6 +147,11 @@ export default function RegisterPage() {
             {isSubmitting ? "Registering..." : "Register"}
           </button>
         </form>
+
+        <p className={styles.linkText}>
+          Already have an account?{" "}
+          <Link href="/login" className={styles.link}>Login</Link>
+        </p>
       </div>
     </div>
   );

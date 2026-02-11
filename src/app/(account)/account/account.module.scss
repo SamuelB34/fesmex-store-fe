@@ -1,5 +1,5 @@
 .container {
-  padding: 2rem;
+  padding: 1rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -13,17 +13,42 @@
   color: #666;
 }
 
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 1.5rem;
+}
+
+.navBrand {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #007bff;
+}
+
+.navLinks {
+  display: flex;
+  gap: 1.5rem;
+  a {
+    color: #333;
+    font-weight: 500;
+    &:hover { color: #007bff; }
+  }
+}
+
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #ddd;
 }
 
 .title {
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: 600;
   color: #333;
 }
@@ -42,6 +67,35 @@
   &:hover {
     background-color: #c82333;
   }
+}
+
+.quickLinks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.quickLink {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  font-weight: 500;
+  color: #333;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: #007bff;
+    color: #007bff;
+  }
+}
+
+.quickLinkIcon {
+  font-size: 1.5rem;
 }
 
 .card {
@@ -81,12 +135,25 @@
   }
 }
 
-.userInfo {
-  background-color: #f8f9fa;
-  padding: 1rem;
-  border-radius: 4px;
-  overflow: auto;
-  font-size: 0.875rem;
-  font-family: monospace;
-  color: #333;
+.userDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.userField {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.9375rem;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.userFieldLabel {
+  font-weight: 500;
+  color: #666;
 }

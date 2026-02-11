@@ -1,11 +1,15 @@
 "use client";
 
 import { useState, FormEvent } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/shared/auth/AuthProvider";
 import styles from "./login.module.scss";
 
 export default function LoginPage() {
   const { login } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -18,6 +22,8 @@ export default function LoginPage() {
 
     try {
       await login({ email, password });
+      const next = searchParams.get("next") || "/account";
+      router.push(next);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -70,6 +76,11 @@ export default function LoginPage() {
             {isSubmitting ? "Logging in..." : "Login"}
           </button>
         </form>
+
+        <p className={styles.linkText}>
+          Don&apos;t have an account?{" "}
+          <Link href="/register" className={styles.link}>Register</Link>
+        </p>
       </div>
     </div>
   );

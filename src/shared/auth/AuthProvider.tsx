@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { setAccessToken, subscribeToAccessToken, ApiError } from "@/shared/api/axios";
-import { authApi, AuthUser } from "@/features/auth/services/auth.api";
+import { authApi, AuthUser } from "@/features/services/auth.api";
 
 type AuthContextValue = {
   accessToken: string | null;
