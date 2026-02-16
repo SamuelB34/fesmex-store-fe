@@ -2,14 +2,15 @@
 	display: flex;
 	padding: var(--Spacing-huge, 64px);
 	align-items: flex-start;
-	gap: 8px;
+	gap: 24px;
 	align-self: stretch;
 	border-radius: 48px 0 0 48px;
 	background: var(--secondary, #e6f0fa);
+	overflow-x: scroll;
 
 	&__discount {
 		display: flex;
-		width: 280px;
+		min-width: 280px;
 		height: 628px;
 		padding: var(--Spacing-huge, 64px) var(--Spacing-large, 32px);
 		flex-direction: column;

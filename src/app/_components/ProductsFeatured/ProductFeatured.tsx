@@ -1,4 +1,5 @@
 import styles from './ProductFeatured.module.scss'
+import { Product } from '@/components/Product/Product'
 
 export const ProductFeatured = () => {
 	return (
@@ -16,6 +17,13 @@ export const ProductFeatured = () => {
 
 				<div className={styles.last__circle}></div>
 			</div>
+
+			<Product />
+			<Product />
+			<Product />
+			<Product />
+			<Product />
+			<Product />
 		</div>
 	)
 }
