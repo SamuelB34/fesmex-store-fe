@@ -5,6 +5,7 @@
 		background: var(--background, #fff);
 		padding: var(--Spacing-regular, 16px) var(--Spacing-large, 32px);
 		width: 100%;
+		cursor: text;
 	}
 
 	&__inactive {
@@ -19,7 +20,7 @@
 		border: none;
 		outline: none;
 		width: 100%;
-		color: var(--disabled, #ccc);
+		color: var(--text, #333);
 		font-family: 'IBM Plex Sans', sans-serif;
 		font-size: var(--Font-Size-medium, 16px);
 		font-style: normal;

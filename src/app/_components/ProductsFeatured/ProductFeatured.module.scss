@@ -7,6 +7,7 @@
 	border-radius: 48px 0 0 48px;
 	background: var(--secondary, #e6f0fa);
 	overflow-x: scroll;
+	max-width: 1280px;
 
 	&__discount {
 		display: flex;

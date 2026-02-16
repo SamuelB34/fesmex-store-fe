@@ -43,6 +43,7 @@ export const Cover = () => {
 					</div>
 				</div>
 			</div>
+			<div></div>
 		</div>
 	)
 }
