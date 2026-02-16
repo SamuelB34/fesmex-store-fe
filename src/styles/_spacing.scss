@@ -1,0 +1,38 @@
+$spacing-nano: 2px;
+$spacing-tiny: 4px;
+$spacing-small: 8px;
+$spacing-compact: 12px;
+$spacing-regular: 16px;
+$spacing-big: 24px;
+$spacing-large: 32px;
+$spacing-larger: 48px;
+$spacing-huge: 64px;
+$spacing-enormous: 80px;
+$spacing-gigantous: 96px;
+
+// Map for semantic access
+$spacings: (
+  nano: $spacing-nano,
+  tiny: $spacing-tiny,
+  small: $spacing-small,
+  compact: $spacing-compact,
+  regular: $spacing-regular,
+  big: $spacing-big,
+  large: $spacing-large,
+  larger: $spacing-larger,
+  huge: $spacing-huge,
+  enormous: $spacing-enormous,
+  gigantous: $spacing-gigantous,
+);
+
+// Function to get spacing by token name
+@function spacing($key) {
+  @return map-get($spacings, $key);
+}
+
+// Mixin to expose the spacing scale as CSS variables
+@mixin expose-spacing-vars($map: $spacings, $prefix: '--space-') {
+  @each $name, $value in $map {
+    #{$prefix}#{$name}: #{$value};
+  }
+}

@@ -1,0 +1,78 @@
+// Font sizes
+$font-sizes-standard: (
+  tiny: 8px,
+  small: 10px,
+  compact: 12px,
+  regular: 14px,
+  medium: 16px,
+  big: 18px,
+  large: 24px,
+  huge: 32px,
+  giant: 40px,
+  enormous: 64px,
+);
+
+$font-sizes-comfort: (
+  tiny: 9px,
+  small: 12px,
+  compact: 14px,
+  regular: 16px,
+  medium: 18px,
+  big: 21px,
+  large: 27px,
+  huge: 36px,
+  giant: 44px,
+  enormous: 64px,
+);
+
+@function font-size($key, $scale: $font-sizes-standard) {
+  @return map-get($scale, $key);
+}
+
+@mixin expose-font-size-vars(
+  $scale: $font-sizes-standard,
+  $prefix: '--font-size-'
+) {
+  @each $name, $value in $scale {
+    #{$prefix}#{$name}: #{$value};
+  }
+}
+
+// Line heights
+$line-heights: (
+  tight: 16px,
+  regular: 24px,
+  loose: 32px,
+  wide: 40px,
+  broad: 48px,
+  spacious: 80px,
+);
+
+@function line-height($key) {
+  @return map-get($line-heights, $key);
+}
+
+@mixin expose-line-height-vars($map: $line-heights, $prefix: '--line-height-') {
+  @each $name, $value in $map {
+    #{$prefix}#{$name}: #{$value};
+  }
+}
+
+// Paragraph spacing
+$paragraph-space: (
+  small: 8px,
+  regular: 16px,
+);
+
+@function paragraph-space($key) {
+  @return map-get($paragraph-space, $key);
+}
+
+@mixin expose-paragraph-space-vars(
+  $map: $paragraph-space,
+  $prefix: '--paragraph-space-'
+) {
+  @each $name, $value in $map {
+    #{$prefix}#{$name}: #{$value};
+  }
+}

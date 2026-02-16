@@ -1,0 +1,14 @@
+.nav {
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	max-width: 1280px;
+
+	&__btns {
+		display: flex;
+
+		.cart {
+			padding-left: 16px;
+		}
+	}
+}

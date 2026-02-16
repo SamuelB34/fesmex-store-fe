@@ -1,0 +1,29 @@
+.input {
+	&__active {
+		border-radius: var(--Radius-large, 16px);
+		border: var(--Stroke-regular, 1.5px) solid var(--light-gray, #ebebeb);
+		background: var(--background, #fff);
+		padding: var(--Spacing-regular, 16px) var(--Spacing-large, 32px);
+		width: 100%;
+	}
+
+	&__inactive {
+		border-radius: var(--Radius-large, 16px);
+		border: var(--Stroke-regular, 1.5px) solid var(--light-gray, #ebebeb);
+		background: var(--background, #fff);
+		padding: var(--Spacing-regular, 16px) var(--Spacing-large, 32px);
+		width: 100%;
+	}
+
+	&__field {
+		border: none;
+		outline: none;
+		width: 100%;
+		color: var(--disabled, #ccc);
+		font-family: 'IBM Plex Sans', sans-serif;
+		font-size: var(--Font-Size-medium, 16px);
+		font-style: normal;
+		font-weight: 400;
+		line-height: var(--Line-Height-regular, 24px); /* 150% */
+	}
+}

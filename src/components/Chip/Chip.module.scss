@@ -1,0 +1,50 @@
+.primary {
+	&_active_chip {
+		display: flex;
+		padding: var(--Spacing-small, 8px) var(--Spacing-regular, 16px);
+		justify-content: center;
+		align-items: center;
+		gap: 8px;
+		border-radius: var(--Radius-huge, 24px);
+		border: 1px solid var(--secondary-text, #6b7280);
+	}
+
+	&_inactive_chip {
+		display: inline-flex;
+		padding: var(--Spacing-small, 8px) var(--Spacing-regular, 16px);
+		justify-content: center;
+		align-items: center;
+		gap: 8px;
+		border-radius: var(--Radius-huge, 24px);
+		border: 1px solid var(--secondary-text, #6b7280);
+		background: var(--medium-gray, #6b7280);
+	}
+}
+
+.secondary {
+	&_active_chip {
+		display: inline-flex;
+		padding: var(--Spacing-small, 8px) var(--Spacing-regular, 16px);
+		justify-content: center;
+		align-items: center;
+		gap: 8px;
+		border-radius: var(--Radius-huge, 24px);
+		border: 1px solid var(--high-contrast-a, #fff);
+		.text {
+			color: #fff;
+		}
+	}
+
+	&_inactive_chip {
+		display: inline-flex;
+		padding: var(--Spacing-small, 8px) var(--Spacing-regular, 16px);
+		justify-content: center;
+		align-items: center;
+		gap: 8px;
+		border-radius: var(--Radius-huge, 24px);
+		border: 1px solid var(--secondary, #e6f0fa);
+		.text {
+			color: #e6f0fa;
+		}
+	}
+}
