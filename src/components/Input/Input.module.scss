@@ -6,6 +6,7 @@
 		padding: var(--Spacing-regular, 16px) var(--Spacing-large, 32px);
 		width: 100%;
 		cursor: text;
+		box-shadow: 0 2px 4px 2px rgba(32, 30, 28, 0.15);
 	}
 
 	&__inactive {

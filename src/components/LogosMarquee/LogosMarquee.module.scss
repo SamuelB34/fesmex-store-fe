@@ -1,0 +1,38 @@
+.container {
+	background: #ffffff;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	overflow: hidden;
+}
+
+.row {
+	width: 100%;
+}
+
+.logo {
+	padding: 0 40px;
+	margin: 0 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--Radius-regular, 8px);
+	border: var(--Stroke-regular, 1.5px) solid var(--shade-blue, #f2f9ff);
+	background: var(--background, #fff);
+	width: 200px;
+	height: 112px;
+
+	box-shadow: 0 2px 4px 2px rgba(32, 30, 28, 0.15);
+
+	img {
+		filter: grayscale(100%);
+		transition: all 0.3s ease;
+		opacity: 0.8;
+	}
+
+	&:hover img {
+		filter: grayscale(0%);
+		transform: scale(1.1);
+		opacity: 1;
+	}
+}

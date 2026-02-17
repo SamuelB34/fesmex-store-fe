@@ -8,9 +8,13 @@
 	height: 628px;
 	border-radius: var(--Radius-regular, 8px);
 	background: var(--high-contrast-a, #fff);
-
-	/* Elevation 1 */
 	box-shadow: 0 2px 4px 0 rgba(32, 30, 28, 0.15);
+
+	&__image {
+		width: 100%;
+		height: 240px;
+		object-fit: cover;
+	}
 
 	&__stock {
 		display: flex;

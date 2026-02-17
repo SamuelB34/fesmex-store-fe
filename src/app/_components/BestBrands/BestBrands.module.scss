@@ -1,0 +1,62 @@
+.best_brands {
+	padding: var(--Spacing-gigantous, 96px) var(--Spacing-huge, 64px);
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	gap: var(--Spacing-huge, 64px);
+
+	&__txt {
+		position: relative;
+		z-index: 2;
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		align-items: center;
+	}
+
+	&__h1 {
+		color: var(--primary, #0b4c8c);
+		font-family: 'IBM Plex Sans', sans-serif;
+		font-size: var(--Font-Size-enormous, 64px);
+		font-style: normal;
+		font-weight: 700;
+		line-height: 60px; /* 93.75% */
+		letter-spacing: 1.28px;
+	}
+
+	&__h2 {
+		color: var(--text, #201e1c);
+		font-family: 'IBM Plex Sans', sans-serif;
+		font-size: var(--Font-Size-giant, 40px);
+		font-style: normal;
+		font-weight: 600;
+		line-height: var(--Line-Height-wide, 40px); /* 100% */
+		letter-spacing: 0.8px;
+		z-index: 3;
+	}
+
+	&__highlight {
+		.text {
+			z-index: 3;
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+	}
+
+	&__brands {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+	}
+}
+
+.selected {
+	position: absolute;
+	right: 214.5px;
+	bottom: -12px;
+	z-index: 0;
+}

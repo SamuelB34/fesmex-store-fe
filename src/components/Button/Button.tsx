@@ -3,7 +3,7 @@ import { ReactNode } from 'react'
 
 interface ButtonProps {
 	leftIcon?: ReactNode
-	text: string
+	text?: string
 	variant?: 'primary' | 'secondary' | 'accent'
 	filled?: boolean
 }
@@ -21,7 +21,7 @@ export const Button = ({
 	return (
 		<button className={classes}>
 			{leftIcon && leftIcon}
-			{text}
+			{text && text}
 		</button>
 	)
 }

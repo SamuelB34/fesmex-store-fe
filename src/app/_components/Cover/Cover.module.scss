@@ -1,6 +1,7 @@
 .cover {
 	display: flex;
-	padding: var(--Spacing-gigantous, 96px) var(--Spacing-huge, 64px);
+	justify-content: space-between;
+	padding: var(--Spacing-gigantous, 96px) 0;
 	gap: var(--Spacing-large, 32px);
 	max-width: 1280px;
 	width: 100%;
@@ -9,6 +10,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: 32px;
+		z-index: 3;
 
 		.hero {
 			display: flex;
@@ -75,6 +77,33 @@
 				align-self: stretch;
 				flex-wrap: wrap;
 			}
+		}
+	}
+
+	&__right {
+		display: flex;
+		position: relative;
+
+		.circle {
+			border-radius: 451px;
+			background: var(--shade-blue, #f2f9ff);
+			width: 451px;
+			height: 451px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+
+			.engine {
+				z-index: 2;
+			}
+		}
+		.shade {
+			position: absolute;
+			width: 1152px;
+			height: 508px;
+			right: -390px;
+			bottom: -82px;
+			z-index: 1;
 		}
 	}
 }

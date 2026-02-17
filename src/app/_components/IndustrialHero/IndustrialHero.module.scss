@@ -1,0 +1,257 @@
+.hero {
+	position: relative;
+	padding: 48px 24px;
+	display: flex;
+	justify-content: center;
+	width: 100%;
+	background: #ffffff;
+	//overflow: hidden;
+}
+
+.hero__card {
+	position: relative;
+	background: var(--primary, #0b4c8c);
+	border-radius: 28px;
+	padding: 40px 32px;
+	width: min(calc(1152px + 80px), 100%);
+	min-height: 420px;
+	display: grid;
+	grid-template-columns: 1.05fr 1fr;
+	align-items: center;
+	box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
+	color: #fff;
+	//overflow: hidden;
+}
+
+.hero__text {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	max-width: 520px;
+	position: relative;
+	z-index: 2;
+
+	.btn {
+		width: 320px;
+		padding-top: 24px;
+	}
+}
+
+.hero__eyebrow {
+	color: var(--high-contrast-a, #fff);
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: var(--Font-Size-enormous, 64px);
+	font-style: normal;
+	font-weight: 700;
+	line-height: 60px; /* 93.75% */
+	letter-spacing: 1.28px;
+}
+
+.hero__title {
+	color: var(--high-contrast-a, #fff);
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: var(--Font-Size-giant, 40px);
+	font-style: normal;
+	font-weight: 600;
+	line-height: var(--Line-Height-wide, 40px); /* 100% */
+	letter-spacing: 0.8px;
+}
+
+.hero__headline {
+	color: var(--high-contrast-a, #fff);
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: 75px;
+	font-style: normal;
+	font-weight: 700;
+	line-height: var(--Line-Height-spacious, 80px); /* 106.667% */
+	letter-spacing: 1.5px;
+}
+
+.hero__cta {
+	margin-top: 20px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	align-self: flex-start;
+	padding: 12px 20px;
+	border-radius: 12px;
+	background: var(--accent, #d35400);
+	color: #fff;
+	font-weight: 600;
+	font-size: 15px;
+	box-shadow: 0 12px 24px rgba(211, 84, 0, 0.3);
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease,
+		background 0.2s ease;
+
+	&:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 16px 28px rgba(211, 84, 0, 0.35);
+		background: #c54c00;
+	}
+}
+
+.hero__engines {
+	position: relative;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 8px;
+	z-index: 1;
+}
+
+.engine {
+	position: absolute;
+	filter: drop-shadow(0px 16px 22px rgba(0, 0, 0, 0.28));
+	transition: transform 0.25s ease;
+
+	&:hover {
+		transform: translateY(-6px) scale(1.01);
+	}
+}
+
+.engine__top {
+	right: 289px;
+	top: -151.333px;
+	width: 300px;
+	height: 300px;
+}
+
+.engine__right {
+	right: -80px;
+	top: 25.667px;
+	width: 300px;
+	height: 300px;
+}
+
+.engine__bottom {
+	right: 101px;
+	bottom: -165.667px;
+	width: 300px;
+	height: 300px;
+}
+
+/* Decorative circles */
+.hero__card::before {
+	content: '';
+	position: absolute;
+	width: 650px;
+	height: 650px;
+	left: -134px;
+	top: -275.667px;
+	border-radius: 626px;
+	border: 8px solid var(--shade-blue, #f2f9ff);
+	opacity: 0.2;
+}
+
+.hero__card::after {
+	content: '';
+	position: absolute;
+	width: 650px;
+	height: 650px;
+	right: -363px;
+	bottom: -89.333px;
+	border-radius: 626px;
+	border: 8px solid var(--shade-blue, #f2f9ff);
+	opacity: 0.2;
+}
+
+@media (max-width: 1024px) {
+	.hero__card {
+		grid-template-columns: 1fr;
+		padding: 36px 28px 280px;
+	}
+
+	.hero__engines {
+		height: 240px;
+	}
+
+	.engine__top {
+		top: -6px;
+		left: 16%;
+	}
+
+	.engine__right {
+		top: 60px;
+		right: 10%;
+	}
+
+	.engine__bottom {
+		bottom: -4px;
+		left: 32%;
+	}
+}
+
+@media (max-width: 768px) {
+	.hero {
+		padding: 32px 18px;
+	}
+
+	.hero__card {
+		padding: 28px 22px 240px;
+		border-radius: 22px;
+		min-height: 360px;
+	}
+
+	.hero__title {
+		font-size: 22px;
+		line-height: 28px;
+	}
+
+	.hero__headline {
+		font-size: 32px;
+		line-height: 36px;
+	}
+
+	.hero__cta {
+		width: fit-content;
+	}
+
+	.hero__engines {
+		height: 210px;
+	}
+
+	.engine__top {
+		left: 8%;
+	}
+
+	.engine__right {
+		right: 4%;
+	}
+
+	.engine__bottom {
+		left: 22%;
+	}
+}
+
+@media (max-width: 540px) {
+	.hero__card {
+		padding: 24px 18px 210px;
+	}
+
+	.hero__headline {
+		font-size: 26px;
+		line-height: 30px;
+	}
+
+	.hero__engines {
+		height: 180px;
+	}
+
+	.engine__top {
+		left: 0;
+		transform: scale(0.9);
+	}
+
+	.engine__right {
+		right: -8%;
+		transform: scale(0.9);
+	}
+
+	.engine__bottom {
+		left: 10%;
+		transform: scale(0.92);
+	}
+}

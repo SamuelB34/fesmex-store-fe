@@ -15,6 +15,13 @@
 	align-items: center;
 	padding-top: 32px;
 	padding-bottom: 24px;
+	overflow: hidden;
+}
+
+.product_featured {
+	width: 100%;
+	display: flex;
+	justify-content: right;
 }
 
 .navBrand {

@@ -46,6 +46,6 @@
 }
 
 .outlined.accent {
-	border-color: #d35400;
+	border-color: var(--accent, #d35400);
 	color: #d35400;
 }

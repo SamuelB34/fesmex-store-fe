@@ -6,6 +6,7 @@ import { Chip } from '@/components/Chip/Chip'
 export const Cover = () => {
 	return (
 		<div className={styles.cover}>
+			{/*Search*/}
 			<div className={styles.cover__left}>
 				<div className={styles.hero}>
 					<span className={styles.hero__txt}>
@@ -43,7 +44,26 @@ export const Cover = () => {
 					</div>
 				</div>
 			</div>
-			<div></div>
+
+			{/*Images*/}
+			<div className={styles.cover__right}>
+				<div className={styles.circle}>
+					<Image
+						src={'/illustrations/motor.svg'}
+						className={styles.engine}
+						alt={'engine'}
+						width={447}
+						height={447}
+					/>
+				</div>
+				<Image
+					src={'/illustrations/shade.svg'}
+					className={styles.shade}
+					alt={'cover'}
+					width={1152}
+					height={508}
+				/>
+			</div>
 		</div>
 	)
 }

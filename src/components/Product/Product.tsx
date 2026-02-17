@@ -3,7 +3,11 @@ import Image from 'next/image'
 import { Button } from '@/components/Button/Button'
 import { Chip } from '@/components/Chip/Chip'
 
-export const Product = () => {
+interface ProductProps {
+	short?: boolean
+}
+
+export const Product = ({ short }: ProductProps) => {
 	return (
 		<div className={styles.product}>
 			<Image
@@ -11,6 +15,7 @@ export const Product = () => {
 				alt={'motor'}
 				width={272}
 				height={272}
+				className={styles.product__image}
 			/>
 			<div className={styles.tags}>
 				{/*Discount*/}
@@ -31,7 +36,7 @@ export const Product = () => {
 					</div>
 
 					{/*Old price*/}
-					<span className={styles.prices__old}>$ 254.00</span>
+					{!short && <span className={styles.prices__old}>$ 254.00</span>}
 				</div>
 			</div>
 
@@ -54,7 +59,7 @@ export const Product = () => {
 							height={24}
 						/>
 					}
-					text={'Agregar al carrito'}
+					text={!short ? 'Agregar al carrito' : undefined}
 				/>
 			</div>
 		</div>

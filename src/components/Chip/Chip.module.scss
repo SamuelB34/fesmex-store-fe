@@ -7,6 +7,8 @@
 		gap: 8px;
 		border-radius: var(--Radius-huge, 24px);
 		border: 1px solid var(--secondary-text, #6b7280);
+		color: var(--secondary-text, #6b7280);
+		font-family: 'IBM Plex Sans', sans-serif;
 	}
 
 	&_inactive_chip {
