@@ -1,9 +1,7 @@
-"use client";
+'use client'
 
-import { AuthProvider } from "@/shared/auth/AuthProvider";
+import { AuthProvider } from '@/shared/auth/AuthProvider'
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  return (
-    <AuthProvider>{children}</AuthProvider>
-  );
+	return <AuthProvider>{children}</AuthProvider>
 }

@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect } from 'react'
+// import { useEffect } from 'react'
 // import { useRouter } from 'next/navigation'
-import { useArticles } from '@/features/articles/hooks/useArticles'
+// import { useArticles } from '@/features/articles/hooks/useArticles'
 // import { useCart } from '@/features/cart/hooks/useCart'
 // import { useAuth } from '@/shared/auth/AuthProvider'
 // import { ArticleListItem } from '@/features/services/articles.api'
@@ -19,14 +19,14 @@ import { Footer } from '@/app/_components/Footer/Footer'
 export default function Home() {
 	// const router = useRouter()
 	// const { accessToken } = useAuth()
-	const { fetchArticles } = useArticles()
+	// const { fetchArticles } = useArticles()
 	// const { addItem } = useCart()
 	// const [_, setAddingId] = useState<string | null>(null)
 	// const [searchQuery, _] = useState('')
 
-	useEffect(() => {
-		fetchArticles({ page: 1, limit: 12 })
-	}, [fetchArticles])
+	// useEffect(() => {
+	// 	fetchArticles({ page: 1, limit: 12 })
+	// }, [fetchArticles])
 
 	// const handleAddToCart = async (article: ArticleListItem) => {
 	// 	if (!accessToken) {
