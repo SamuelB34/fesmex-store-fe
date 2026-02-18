@@ -1,0 +1,97 @@
+.cart {
+	display: flex;
+	padding: var(--Spacing-regular, 16px) 0;
+	flex-direction: column;
+	align-items: flex-start;
+	position: absolute;
+	right: 0;
+	top: 84px;
+	border-radius: var(--Radius-large, 16px);
+	border: var(--Stroke-regular, 1.5px) solid var(--primary, #0b4c8c);
+	background: var(--high-contrast-a, #fff);
+	box-shadow: 0 2px 4px 2px rgba(32, 30, 28, 0.15);
+	z-index: 5;
+	width: 510px;
+	max-height: 50vh;
+	overflow-y: auto;
+
+	&__btn {
+		display: flex;
+		padding: var(--Spacing-big, 24px);
+		justify-content: center;
+		align-items: center;
+		gap: 8px;
+		align-self: stretch;
+	}
+}
+
+.cartItem {
+	display: flex;
+	height: 189px;
+	padding: var(--Spacing-big, 24px) var(--Spacing-large, 32px)
+		var(--Spacing-large, 32px) var(--Spacing-big, 24px);
+	align-items: flex-start;
+	gap: var(--Spacing-regular, 16px);
+
+	&__details {
+		display: flex;
+		align-items: flex-start;
+		gap: 6px;
+
+		.left {
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+
+			&__top {
+				display: flex;
+				flex-direction: column;
+				gap: 4px;
+
+				.description {
+					color: #000;
+					font-family: 'IBM Plex Sans', sans-serif;
+					font-size: var(--Font-Size-big, 18px);
+					font-style: normal;
+					font-weight: 400;
+					line-height: var(--Line-Height-regular, 24px); /* 133.333% */
+					letter-spacing: 0.36px;
+				}
+
+				.brand {
+					color: var(--body-text, #2c2c2c);
+					font-family: 'IBM Plex Sans', sans-serif;
+					font-size: var(--Font-Size-regular, 14px);
+					font-style: normal;
+					font-weight: 700;
+					line-height: var(--Line-Height-tight, 16px); /* 114.286% */
+					letter-spacing: 0.28px;
+				}
+			}
+		}
+	}
+
+	&__price {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		color: var(--text, #201e1c);
+		font-family: 'IBM Plex Sans', sans-serif;
+		font-size: var(--Font-Size-big, 18px);
+		font-style: normal;
+		font-weight: 700;
+		line-height: var(--Line-Height-regular, 24px); /* 133.333% */
+		letter-spacing: 0.36px;
+	}
+
+	&__coin {
+		color: var(--text, #201e1c);
+		font-family: 'IBM Plex Sans', sans-serif;
+		font-size: var(--Font-Size-regular, 14px);
+		font-style: normal;
+		font-weight: 500;
+		line-height: var(--Line-Height-tight, 16px); /* 114.286% */
+		letter-spacing: 0.28px;
+		text-transform: uppercase;
+	}
+}

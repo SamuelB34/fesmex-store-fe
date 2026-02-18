@@ -1,0 +1,15 @@
+.menu_container {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	width: 320px;
+	padding: var(--Spacing-regular, 16px) 0;
+	align-items: flex-start;
+	border-radius: var(--Radius-large, 16px);
+	border: var(--Stroke-regular, 1.5px) solid var(--primary, #0b4c8c);
+	background: var(--high-contrast-a, #fff);
+	position: absolute;
+	left: 0;
+	top: 84px;
+	box-shadow: 0 8px 8px 4px rgba(32, 30, 28, 0.15);
+}

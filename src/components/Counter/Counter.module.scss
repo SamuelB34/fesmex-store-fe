@@ -1,0 +1,39 @@
+.counter {
+	display: flex;
+	align-items: center;
+	gap: var(--Spacing-small, 8px);
+
+	.btn {
+		width: 40px;
+		height: 40px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		cursor: pointer;
+		background: none;
+		border: none;
+	}
+
+	&__input {
+		width: 50px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: var(--Spacing-small, 8px) var(--Spacing-regular, 16px);
+		border-radius: var(--Radius-small, 4px);
+		border: var(--Stroke-regular, 2px) solid var(--high-contrast-b, #201e1c);
+		background: var(--background, #fff);
+		-moz-appearance: textfield;
+		color: var(--high-contrast-b, #201e1c);
+		font-family: 'IBM Plex Sans', sans-serif;
+		font-size: var(--Font-Size-medium, 16px);
+		font-style: normal;
+		font-weight: 400;
+		line-height: var(--Line-Height-regular, 24px); /* 150% */
+		&::-webkit-outer-spin-button,
+		&::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+	}
+}

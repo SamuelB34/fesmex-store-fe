@@ -1,46 +1,108 @@
 import styles from './Nav.module.scss'
 import Image from 'next/image'
+import { useState } from 'react'
 import { MenuItem } from '@/components/MenuItem/MenuItem'
 import { CartButton } from '@/app/_components/CartButton/CartButton'
+import { Cart } from '@/app/_components/Nav/_components/Cart/Cart'
+import { MenuContainer } from '@/app/_components/Nav/_components/MenuContainer/MenuContainer'
+import { BrandsList, ProductsList } from '@/app/_components/Nav/variables'
 
 export const Nav = () => {
-	return (
-		<div className={styles.nav}>
-			<Image
-				src={'/illustrations/lg-logo.svg'}
-				alt={'logo'}
-				width="186"
-				height="48"
-			/>
+	const [isCartOpen, setIsCartOpen] = useState(false)
+	const [openMenu, setOpenMenu] = useState<'products' | 'brands' | null>(null)
+	const [items, setItems] = useState([
+		{
+			id: '782783sajhd2',
+			image: '/illustrations/motor.svg',
+			description: 'Motor Globetrotter Propósito general',
+			brand: 'Marathon',
+			quantity: 1,
+			price: 127,
+		},
+	])
 
-			<div className={styles.nav__btns}>
-				<MenuItem text={'Inicio'} />
-				<MenuItem
-					text={'Productos'}
-					rightIcon={
-						<Image
-							src={'/icons/chevron-down.svg'}
-							alt={'chevron-down'}
-							height={24}
-							width={24}
-						/>
-					}
+	const toggleCart = () => {
+		setIsCartOpen((prev) => !prev)
+		setOpenMenu(null)
+	}
+
+	const toggleMenu = (menu: 'products' | 'brands') => {
+		setOpenMenu((prev) => (prev === menu ? null : menu))
+		setIsCartOpen(false)
+	}
+
+	const closeAll = () => {
+		setIsCartOpen(false)
+		setOpenMenu(null)
+	}
+	const handleQuantityChange = (id: string, quantity: number) => {
+		setItems((prev) =>
+			prev.map((item) => (item.id === id ? { ...item, quantity } : item)),
+		)
+	}
+
+	return (
+		<>
+			{(isCartOpen || openMenu) && (
+				<div className={styles.overlay} onClick={closeAll} />
+			)}
+			<div className={styles.nav}>
+				<Image
+					src={'/illustrations/lg-logo.svg'}
+					alt={'logo'}
+					width="186"
+					height="48"
 				/>
-				<MenuItem
-					text={'Marcas'}
-					rightIcon={
-						<Image
-							src={'/icons/chevron-down.svg'}
-							alt={'chevron-down'}
-							height={24}
-							width={24}
+
+				<div className={styles.nav__btns}>
+					<MenuItem text={'Inicio'} />
+					<div className={styles.brands}>
+						<MenuItem
+							text={'Productos'}
+							rightIcon={
+								<Image
+									src={'/icons/chevron-down.svg'}
+									alt={'chevron-down'}
+									height={24}
+									width={24}
+								/>
+							}
+							onClick={() => toggleMenu('products')}
+							isActive={openMenu === 'products'}
 						/>
-					}
-				/>
-				<div className={styles.cart}>
-					<CartButton />
+						{openMenu === 'products' && <MenuContainer items={ProductsList} />}
+					</div>
+
+					<div className={styles.brands}>
+						<MenuItem
+							text={'Marcas'}
+							rightIcon={
+								<Image
+									src={'/icons/chevron-down.svg'}
+									alt={'chevron-down'}
+									height={24}
+									width={24}
+								/>
+							}
+							onClick={() => toggleMenu('brands')}
+							isActive={openMenu === 'brands'}
+						/>
+						{openMenu === 'brands' && <MenuContainer items={BrandsList} />}
+					</div>
+
+					<div className={styles.cart}>
+						<CartButton
+							count={items.length}
+							isActive={isCartOpen}
+							onClick={toggleCart}
+						/>
+
+						{isCartOpen && (
+							<Cart items={items} onQuantityChange={handleQuantityChange} />
+						)}
+					</div>
 				</div>
 			</div>
-		</div>
+		</>
 	)
 }
