@@ -7,6 +7,7 @@ import { Nav } from '@/app/_components/Nav/Nav'
 import { ReactNode } from 'react'
 import { Footer } from '@/app/_components/Footer/Footer'
 import { IndustrialHero } from '@/app/_components/IndustrialHero/IndustrialHero'
+import { CartProvider } from '@/features/cart/context/CartContext'
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -38,13 +39,14 @@ export default function RootLayout({
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} ${IBMPlexSans.variable}`}
 			>
-				<Header />
-				<div className={'content'}>
-					<Nav />
-				</div>
-				<Providers>{children}</Providers>
-
-				<Footer />
+				<CartProvider>
+					<Header />
+					<div className={'content'}>
+						<Nav />
+					</div>
+					<Providers>{children}</Providers>
+					<Footer />
+				</CartProvider>
 			</body>
 		</html>
 	)

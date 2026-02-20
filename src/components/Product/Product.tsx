@@ -4,7 +4,8 @@ import styles from './Product.module.scss'
 import Image from 'next/image'
 import { Button } from '@/components/Button/Button'
 import type { Product as ProductType } from '@/app/mock'
-import { MouseEvent } from 'react'
+import { MouseEvent, useMemo } from 'react'
+import { useCart } from '@/features/cart/context/CartContext'
 
 interface ProductProps {
 	product: ProductType
@@ -13,6 +14,13 @@ interface ProductProps {
 }
 
 export const Product = ({ product, short, onSelect }: ProductProps) => {
+	const { addItem, removeItem, items } = useCart()
+
+	const inCartItem = useMemo(
+		() => items.find((i) => i.id === product.id),
+		[items, product.id],
+	)
+
 	const handleSelect = () => {
 		console.log('Product selected:', product.id)
 		onSelect?.(product.id)
@@ -20,6 +28,21 @@ export const Product = ({ product, short, onSelect }: ProductProps) => {
 
 	const handleButtonClick = (event: MouseEvent<HTMLButtonElement>) => {
 		event.stopPropagation()
+		if (inCartItem) {
+			removeItem(product.id)
+		} else {
+			addItem(
+				{
+					id: product.id,
+					image: product.image,
+					name: product.name,
+					brand: product.brand,
+					unitPrice: product.price,
+					quantity: 1,
+				},
+				{ maxStock: product.stock },
+			)
+		}
 	}
 
 	return (
@@ -67,13 +90,14 @@ export const Product = ({ product, short, onSelect }: ProductProps) => {
 			<div className={styles.product__btn}>
 				<Button
 					onClick={handleButtonClick}
-					filled={false}
+					filled={Boolean(inCartItem)}
 					leftIcon={
 						<Image
 							src={'/icons/cart.svg'}
 							alt={'cart'}
 							width={24}
 							height={24}
+							className={Boolean(inCartItem) ? styles.icon : ''}
 						/>
 					}
 					text={!short ? 'Agregar al carrito' : undefined}

@@ -8,20 +8,12 @@ import { Cart } from '@/app/_components/Nav/_components/Cart/Cart'
 import { MenuContainer } from '@/app/_components/Nav/_components/MenuContainer/MenuContainer'
 import { BrandsList, ProductsList } from '@/app/_components/Nav/variables'
 import Link from 'next/link'
+import { useCart } from '@/features/cart/context/CartContext'
 
 export const Nav = () => {
 	const [isCartOpen, setIsCartOpen] = useState(false)
 	const [openMenu, setOpenMenu] = useState<'products' | 'brands' | null>(null)
-	const [items, setItems] = useState([
-		{
-			id: '782783sajhd2',
-			image: '/illustrations/motor.svg',
-			description: 'Motor Globetrotter Propósito general',
-			brand: 'Marathon',
-			quantity: 1,
-			price: 127,
-		},
-	])
+	const { cartCount } = useCart()
 
 	const toggleCart = () => {
 		setIsCartOpen((prev) => !prev)
@@ -37,12 +29,6 @@ export const Nav = () => {
 		setIsCartOpen(false)
 		setOpenMenu(null)
 	}
-	const handleQuantityChange = (id: string, quantity: number) => {
-		setItems((prev) =>
-			prev.map((item) => (item.id === id ? { ...item, quantity } : item)),
-		)
-	}
-
 	return (
 		<>
 			{(isCartOpen || openMenu) && (
@@ -96,14 +82,12 @@ export const Nav = () => {
 
 					<div className={styles.cart}>
 						<CartButton
-							count={items.length}
+							count={cartCount}
 							isActive={isCartOpen}
 							onClick={toggleCart}
 						/>
 
-						{isCartOpen && (
-							<Cart items={items} onQuantityChange={handleQuantityChange} />
-						)}
+						{isCartOpen && <Cart />}
 					</div>
 				</div>
 			</div>
