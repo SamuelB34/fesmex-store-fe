@@ -1,13 +1,13 @@
 'use client'
 
 import Image from 'next/image'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import styles from './ProductDetail.module.scss'
 import { Counter } from '@/components/Counter/Counter'
 import type { Product } from '@/app/mock'
 import { Button } from '@/components/Button/Button'
 import { Chip } from '@/components/Chip/Chip'
-import { ProductFeatured } from '@/app/_components/ProductsFeatured/ProductFeatured'
+import { useCart } from '@/features/cart/context/CartContext'
 
 interface ProductDetailClientProps {
 	product: Product
@@ -15,6 +15,30 @@ interface ProductDetailClientProps {
 
 export const ProductDetailClient = ({ product }: ProductDetailClientProps) => {
 	const [quantity, setQuantity] = useState(1)
+	const { addItem, removeItem, items } = useCart()
+
+	const inCart = useMemo(
+		() => items.some((i) => i.id === product.id),
+		[items, product.id],
+	)
+
+	const handleToggleCart = () => {
+		if (inCart) {
+			removeItem(product.id)
+			return
+		}
+		addItem(
+			{
+				id: product.id,
+				image: product.image,
+				name: product.name,
+				brand: product.brand,
+				unitPrice: product.price,
+				quantity,
+			},
+			{ maxStock: product.stock },
+		)
+	}
 
 	return (
 		<div className={styles.product_details}>
@@ -58,15 +82,15 @@ export const ProductDetailClient = ({ product }: ProductDetailClientProps) => {
 						</div>
 
 						<Button
-							filled={true}
-							text={'Agregar al carrito'}
+							onClick={handleToggleCart}
+							filled={inCart}
+							text={inCart ? 'En el carrito' : 'Agregar al carrito'}
 							leftIcon={
 								<Image
-									src={'/icons/cart.svg'}
-									alt={'cart'}
+									src={inCart ? '/icons/check.svg' : '/icons/cart.svg'}
+									alt={inCart ? 'checked' : 'cart'}
 									width={24}
 									height={24}
-									className={styles.icon}
 								/>
 							}
 						/>
