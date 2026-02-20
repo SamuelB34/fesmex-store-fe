@@ -7,13 +7,11 @@
 // import { useAuth } from '@/shared/auth/AuthProvider'
 // import { ArticleListItem } from '@/features/services/articles.api'
 import styles from './page.module.scss'
-import { Nav } from '@/app/_components/Nav/Nav'
 import { Cover } from '@/app/_components/Cover/Cover'
 import { IndustrialHero } from '@/app/_components/IndustrialHero/IndustrialHero'
 import { ProductFeatured } from '@/app/_components/ProductsFeatured/ProductFeatured'
 import { Products } from '@/app/_components/Products/Products'
 import { BestBrands } from '@/app/_components/BestBrands/BestBrands'
-import { Footer } from '@/app/_components/Footer/Footer'
 import { sections } from '@/app/mock'
 
 export default function Home() {

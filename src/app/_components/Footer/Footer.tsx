@@ -38,10 +38,18 @@ export const Footer = () => {
 					</div>
 					<div className={styles.footer__contacts}>
 						<Link className={styles.contactChip} href="tel:+526865614616">
-							<Image src="/icons/phone.svg" alt="phone" width={18} height={18} />
+							<Image
+								src="/icons/phone.svg"
+								alt="phone"
+								width={18}
+								height={18}
+							/>
 							<span>(686) 561 4616</span>
 						</Link>
-						<Link className={styles.contactChip} href="mailto:contact@fesmex.com">
+						<Link
+							className={styles.contactChip}
+							href="mailto:contact@fesmex.com"
+						>
 							<Image src="/icons/mail.svg" alt="email" width={18} height={18} />
 							<span>contact@fesmex.com</span>
 						</Link>

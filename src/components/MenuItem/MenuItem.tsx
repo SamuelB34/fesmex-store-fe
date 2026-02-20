@@ -8,7 +8,12 @@ interface MenuItemProps {
 	isActive?: boolean
 }
 
-export const MenuItem = ({ text, rightIcon, onClick, isActive = false }: MenuItemProps) => {
+export const MenuItem = ({
+	text,
+	rightIcon,
+	onClick,
+	isActive = false,
+}: MenuItemProps) => {
 	return (
 		<div
 			className={`${styles.menu_item} ${isActive ? styles.active : ''}`.trim()}

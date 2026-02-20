@@ -10,25 +10,25 @@ $size-enormous: 80px;
 
 // Map for semantic access
 $sizes: (
-  tiny: $size-tiny,
-  small: $size-small,
-  compact: $size-compact,
-  regular: $size-regular,
-  big: $size-big,
-  large: $size-large,
-  larger: $size-larger,
-  huge: $size-huge,
-  enormous: $size-enormous,
+	tiny: $size-tiny,
+	small: $size-small,
+	compact: $size-compact,
+	regular: $size-regular,
+	big: $size-big,
+	large: $size-large,
+	larger: $size-larger,
+	huge: $size-huge,
+	enormous: $size-enormous,
 );
 
 // Function to get size by token name
 @function size($key) {
-  @return map-get($sizes, $key);
+	@return map-get($sizes, $key);
 }
 
 // Mixin to expose the size scale as CSS variables
 @mixin expose-size-vars($map: $sizes, $prefix: '--size-') {
-  @each $name, $value in $map {
-    #{$prefix}#{$name}: #{$value};
-  }
+	@each $name, $value in $map {
+		#{$prefix}#{$name}: #{$value};
+	}
 }

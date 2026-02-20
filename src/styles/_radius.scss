@@ -6,21 +6,21 @@ $radius-huge: 24px;
 
 // Map for semantic access
 $radius-scale: (
-  tiny: $radius-tiny,
-  small: $radius-small,
-  regular: $radius-regular,
-  large: $radius-large,
-  huge: $radius-huge,
+	tiny: $radius-tiny,
+	small: $radius-small,
+	regular: $radius-regular,
+	large: $radius-large,
+	huge: $radius-huge,
 );
 
 // Function to get radius by token name
 @function radius($key) {
-  @return map-get($radius-scale, $key);
+	@return map-get($radius-scale, $key);
 }
 
 // Mixin to expose the radius scale as CSS variables
 @mixin expose-radius-vars($map: $radius-scale, $prefix: '--radius-') {
-  @each $name, $value in $map {
-    #{$prefix}#{$name}: #{$value};
-  }
+	@each $name, $value in $map {
+		#{$prefix}#{$name}: #{$value};
+	}
 }

@@ -35,12 +35,14 @@ export const Nav = () => {
 				<div className={styles.overlay} onClick={closeAll} />
 			)}
 			<div className={styles.nav}>
-				<Image
-					src={'/illustrations/lg-logo.svg'}
-					alt={'logo'}
-					width="186"
-					height="48"
-				/>
+				<Link href={'/'}>
+					<Image
+						src={'/illustrations/lg-logo.svg'}
+						alt={'logo'}
+						width="186"
+						height="48"
+					/>
+				</Link>
 
 				<div className={styles.nav__btns}>
 					<Link href={'/'}>

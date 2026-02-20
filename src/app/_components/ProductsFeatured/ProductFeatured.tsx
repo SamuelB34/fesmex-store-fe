@@ -1,8 +1,17 @@
+'use client'
+
 import styles from './ProductFeatured.module.scss'
 import { Product } from '@/components/Product/Product'
 import { products } from '@/app/mock'
+import { useRouter } from 'next/navigation'
 
 export const ProductFeatured = () => {
+	const router = useRouter()
+
+	const handleSelect = (productId: string) => {
+		router.push(`/productos/${productId}`)
+	}
+
 	return (
 		<div className={styles.products_featured}>
 			<div className={styles.products_featured__discount}>
@@ -20,7 +29,7 @@ export const ProductFeatured = () => {
 			</div>
 
 			{products.map((product) => (
-				<Product key={product.id} product={product} />
+				<Product key={product.id} product={product} onSelect={handleSelect} short />
 			))}
 		</div>
 	)

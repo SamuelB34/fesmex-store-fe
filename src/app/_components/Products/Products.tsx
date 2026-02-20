@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import styles from './Products.module.scss'
 import { Brand } from '@/components/Brand/Brand'
@@ -14,7 +14,12 @@ interface ProductProps {
 	onSelectProduct?: (productId: string) => void
 }
 
-export const Products = ({ sections, brands, types, onSelectProduct }: ProductProps) => {
+export const Products = ({
+	sections,
+	brands,
+	types,
+	onSelectProduct,
+}: ProductProps) => {
 	const router = useRouter()
 
 	const handleSelectProduct = (productId: string) => {
@@ -80,7 +85,11 @@ export const Products = ({ sections, brands, types, onSelectProduct }: ProductPr
 					<div className={styles.products_list__content}>
 						{products.map((product) => (
 							<div className={styles.item} key={product.id}>
-								<Product product={product} short onSelect={handleSelectProduct} />
+								<Product
+									product={product}
+									short
+									onSelect={handleSelectProduct}
+								/>
 							</div>
 						))}
 					</div>
