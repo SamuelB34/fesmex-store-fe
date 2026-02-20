@@ -1,19 +1,19 @@
 export const ProductsList = [
 	{
 		title: 'Sistemas de Bombeo',
-		url: '/productos/bombeo',
+		url: '/productos/',
 	},
 	{
 		title: 'HVAC & Ventilación',
-		url: '/productos/hvac',
+		url: '/productos/=',
 	},
 	{
 		title: 'Válvulas & Actuadores',
-		url: '/productos/valvulas',
+		url: '/productos/',
 	},
 	{
 		title: 'Motores',
-		url: '/productos/otores',
+		url: '/productos/',
 	},
 ]
 

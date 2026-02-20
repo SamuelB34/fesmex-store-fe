@@ -21,11 +21,27 @@
 		display: flex;
 		gap: var(--Spacing-large, 32px);
 
+		.left {
+			display: flex;
+			flex-direction: column;
+			gap: 32px;
+		}
+
 		.sections {
 			display: flex;
 			flex-direction: column;
 			gap: 16px;
 			min-width: 320px;
+
+			&__subtitle {
+				color: var(--text, #201e1c);
+				font-family: 'IBM Plex Sans', sans-serif;
+				font-size: var(--Font-Size-huge, 32px);
+				font-style: normal;
+				font-weight: 600;
+				line-height: var(--Line-Height-loose, 32px); /* 100% */
+				letter-spacing: 0.64px;
+			}
 		}
 
 		.products_list {

@@ -1,5 +1,6 @@
 import styles from './ProductFeatured.module.scss'
 import { Product } from '@/components/Product/Product'
+import { products } from '@/app/mock'
 
 export const ProductFeatured = () => {
 	return (
@@ -18,12 +19,9 @@ export const ProductFeatured = () => {
 				<div className={styles.last__circle}></div>
 			</div>
 
-			<Product />
-			<Product />
-			<Product />
-			<Product />
-			<Product />
-			<Product />
+			{products.map((product) => (
+				<Product key={product.id} product={product} />
+			))}
 		</div>
 	)
 }

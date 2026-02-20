@@ -1,5 +1,17 @@
 .primary {
 	&_active_chip {
+		display: inline-flex;
+		padding: var(--Spacing-small, 8px) var(--Spacing-regular, 16px);
+		justify-content: center;
+		align-items: center;
+		gap: 8px;
+		border-radius: var(--Radius-huge, 24px);
+		border: 1px solid var(--secondary-text, #6b7280);
+		background: var(--medium-gray, #6b7280);
+		color: var(--high-contrast-a, #fff);
+	}
+
+	&_inactive_chip {
 		display: flex;
 		padding: var(--Spacing-small, 8px) var(--Spacing-regular, 16px);
 		justify-content: center;
@@ -9,17 +21,6 @@
 		border: 1px solid var(--secondary-text, #6b7280);
 		color: var(--secondary-text, #6b7280);
 		font-family: 'IBM Plex Sans', sans-serif;
-	}
-
-	&_inactive_chip {
-		display: inline-flex;
-		padding: var(--Spacing-small, 8px) var(--Spacing-regular, 16px);
-		justify-content: center;
-		align-items: center;
-		gap: 8px;
-		border-radius: var(--Radius-huge, 24px);
-		border: 1px solid var(--secondary-text, #6b7280);
-		background: var(--medium-gray, #6b7280);
 	}
 }
 

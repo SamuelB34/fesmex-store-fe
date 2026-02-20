@@ -1,3 +1,4 @@
+'use client'
 import styles from './Nav.module.scss'
 import Image from 'next/image'
 import { useState } from 'react'
@@ -6,6 +7,7 @@ import { CartButton } from '@/app/_components/CartButton/CartButton'
 import { Cart } from '@/app/_components/Nav/_components/Cart/Cart'
 import { MenuContainer } from '@/app/_components/Nav/_components/MenuContainer/MenuContainer'
 import { BrandsList, ProductsList } from '@/app/_components/Nav/variables'
+import Link from 'next/link'
 
 export const Nav = () => {
 	const [isCartOpen, setIsCartOpen] = useState(false)
@@ -55,7 +57,9 @@ export const Nav = () => {
 				/>
 
 				<div className={styles.nav__btns}>
-					<MenuItem text={'Inicio'} />
+					<Link href={'/'}>
+						<MenuItem text={'Inicio'} />
+					</Link>
 					<div className={styles.brands}>
 						<MenuItem
 							text={'Productos'}

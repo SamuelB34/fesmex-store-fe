@@ -7,7 +7,6 @@
 // import { useAuth } from '@/shared/auth/AuthProvider'
 // import { ArticleListItem } from '@/features/services/articles.api'
 import styles from './page.module.scss'
-import { Header } from '@/app/_components/Header/Header'
 import { Nav } from '@/app/_components/Nav/Nav'
 import { Cover } from '@/app/_components/Cover/Cover'
 import { IndustrialHero } from '@/app/_components/IndustrialHero/IndustrialHero'
@@ -15,6 +14,7 @@ import { ProductFeatured } from '@/app/_components/ProductsFeatured/ProductFeatu
 import { Products } from '@/app/_components/Products/Products'
 import { BestBrands } from '@/app/_components/BestBrands/BestBrands'
 import { Footer } from '@/app/_components/Footer/Footer'
+import { sections } from '@/app/mock'
 
 export default function Home() {
 	// const router = useRouter()
@@ -52,9 +52,7 @@ export default function Home() {
 
 	return (
 		<div className={styles.container}>
-			<Header />
 			<div className={styles.content}>
-				<Nav />
 				<Cover />
 			</div>
 
@@ -63,16 +61,14 @@ export default function Home() {
 			</div>
 
 			<div className={styles.content}>
-				<Products />
+				<Products sections={sections} />
 			</div>
 
 			<BestBrands />
 
-			<div className={styles.content}>
+			<div className={'content'}>
 				<IndustrialHero />
 			</div>
-
-			<Footer />
 		</div>
 	)
 }

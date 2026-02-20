@@ -2,6 +2,11 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono, IBM_Plex_Sans } from 'next/font/google'
 import './globals.scss'
 import { Providers } from './providers'
+import { Header } from '@/app/_components/Header/Header'
+import { Nav } from '@/app/_components/Nav/Nav'
+import { ReactNode } from 'react'
+import { Footer } from '@/app/_components/Footer/Footer'
+import { IndustrialHero } from '@/app/_components/IndustrialHero/IndustrialHero'
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -26,14 +31,20 @@ export const metadata: Metadata = {
 export default function RootLayout({
 	children,
 }: Readonly<{
-	children: React.ReactNode
+	children: ReactNode
 }>) {
 	return (
 		<html lang="en">
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} ${IBMPlexSans.variable}`}
 			>
+				<Header />
+				<div className={'content'}>
+					<Nav />
+				</div>
 				<Providers>{children}</Providers>
+
+				<Footer />
 			</body>
 		</html>
 	)
