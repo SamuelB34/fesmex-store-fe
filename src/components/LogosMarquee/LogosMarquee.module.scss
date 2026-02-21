@@ -6,8 +6,34 @@
 	overflow: hidden;
 }
 
-.row {
-	width: 100%;
+.marquee {
+	display: flex;
+	overflow: hidden;
+	user-select: none;
+
+	&:hover .marqueeContent {
+		animation-play-state: paused;
+	}
+
+	&.reverse .marqueeContent {
+		animation-direction: reverse;
+	}
+}
+
+.marqueeContent {
+	flex-shrink: 0;
+	display: flex;
+	gap: 24px;
+	animation: scroll 120s linear infinite;
+}
+
+@keyframes scroll {
+	0% {
+		transform: translateX(0);
+	}
+	100% {
+		transform: translateX(calc(-100% - 24px));
+	}
 }
 
 .logo {

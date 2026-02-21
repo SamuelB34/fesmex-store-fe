@@ -5,6 +5,9 @@ import { logos } from '@/app/_components/BestBrands/logos'
 import { Button } from '@/components/Button/Button'
 
 export const BestBrands = () => {
+	const firstGroupLogos = logos.slice(0, 6)
+	const secondGroupLogos = logos.slice(6)
+
 	return (
 		<div className={styles.best_brands}>
 			{/*Text*/}
@@ -22,8 +25,8 @@ export const BestBrands = () => {
 			</div>
 
 			<div className={styles.best_brands__brands}>
-				<LogosMarquee logos={logos} direction={'right'} />
-				<LogosMarquee logos={logos} direction={'left'} />
+				<LogosMarquee logos={firstGroupLogos} direction={'right'} />
+				<LogosMarquee logos={secondGroupLogos} direction={'left'} />
 			</div>
 
 			<div>

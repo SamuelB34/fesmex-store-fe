@@ -1,8 +1,7 @@
 .products {
 	display: flex;
 	flex-direction: column;
-	padding: var(--Spacing-huge, 64px) var(--Spacing-huge, 64px)
-		var(--Spacing-gigantous, 96px) var(--Spacing-huge, 64px);
+	padding: var(--Spacing-huge, 64px) 0 var(--Spacing-gigantous, 96px) 0;
 	gap: 32px;
 	width: 100%;
 	max-width: calc(1280px + 128px);
@@ -65,7 +64,7 @@
 				gap: 32px;
 
 				.item {
-					width: 245px;
+					width: 320px;
 				}
 			}
 		}

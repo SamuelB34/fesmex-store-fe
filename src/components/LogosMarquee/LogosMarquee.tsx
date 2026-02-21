@@ -1,6 +1,5 @@
 'use client'
 
-import Marquee from 'react-fast-marquee'
 import Image from 'next/image'
 import styles from './LogosMarquee.module.scss'
 
@@ -20,19 +19,21 @@ interface LogosMarqueeProps {
 export const LogosMarquee = ({ logos, direction }: LogosMarqueeProps) => {
 	return (
 		<div className={styles.container}>
-			<div className={styles.row}>
-				<Marquee speed={40} pauseOnHover gradient={false} direction={direction}>
-					{logos.map((logo) => (
-						<div key={logo.id} className={styles.logo}>
-							<Image
-								src={logo.src}
-								alt={logo.alt}
-								width={logo.width}
-								height={logo.height}
-							/>
-						</div>
-					))}
-				</Marquee>
+			<div className={`${styles.marquee} ${direction === 'right' ? styles.reverse : ''}`}>
+				{Array.from({ length: 6 }).map((_, index) => (
+					<div key={index} className={styles.marqueeContent} aria-hidden={index > 0}>
+						{logos.map((logo) => (
+							<div key={`${logo.id}-${index}`} className={styles.logo}>
+								<Image
+									src={logo.src}
+									alt={logo.alt}
+									width={logo.width}
+									height={logo.height}
+								/>
+							</div>
+						))}
+					</div>
+				))}
 			</div>
 		</div>
 	)
