@@ -6,6 +6,7 @@ interface ButtonProps {
 	text?: string
 	variant?: 'primary' | 'secondary' | 'accent'
 	filled?: boolean
+	disabled?: boolean
 	onClick?: MouseEventHandler<HTMLButtonElement>
 }
 
@@ -14,6 +15,7 @@ export const Button = ({
 	leftIcon,
 	variant = 'primary',
 	filled = true,
+	disabled = false,
 	onClick,
 }: ButtonProps) => {
 	const classes = [styles.btn, styles[variant], !filled ? styles.outlined : '']
@@ -21,7 +23,7 @@ export const Button = ({
 		.join(' ')
 
 	return (
-		<button className={classes} onClick={onClick}>
+		<button className={classes} onClick={onClick} disabled={disabled}>
 			{leftIcon && leftIcon}
 			{text && text}
 		</button>

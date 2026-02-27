@@ -13,6 +13,22 @@ export type ArticleStock = {
 	max_stock?: number
 }
 
+export type ArticleStockWeb = ArticleStock & { warehouse_id: string }
+
+export type ArticleFile = {
+	key: string
+	filename: string
+	mime_type: string
+	size: number
+	uploaded_at: string
+	url: string
+}
+
+export type ArticleFiles = {
+	images?: ArticleFile[]
+	datasheets?: ArticleFile[]
+}
+
 export type Article = {
 	_id: string
 	name: string
@@ -24,6 +40,8 @@ export type Article = {
 	sku?: string
 	barcode?: string
 	image_url?: string
+	files?: ArticleFiles
+	stock_web?: ArticleStockWeb | null
 	created_at?: string
 	updated_at?: string
 }
@@ -57,11 +75,21 @@ const unwrap = async <T>(
 
 const list = (query?: ListArticlesQuery) =>
 	unwrap<ArticlesListResponse>(api.get('/articles', { params: query }))
-
 const getById = (id: string) =>
-	unwrap<{ article: Article | null; stock?: ArticleStock | null }>(
+	unwrap<{
+		article: Article | null
+		stock?: ArticleStock | null
+		stock_web?: ArticleStockWeb | null
+		price?: number | null
+	}>(
 		api.get(`/articles/${id}`),
 	)
+
+export const getArticleImageUrl = (article?: Article | null) => {
+	if (!article) return ''
+	const presigned = article.files?.images?.[0]?.url
+	return presigned ?? article.image_url ?? ''
+}
 
 export const articlesApi = {
 	list,

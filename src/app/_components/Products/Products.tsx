@@ -3,9 +3,11 @@
 import styles from './Products.module.scss'
 import { Brand } from '@/components/Brand/Brand'
 import { Product } from '@/components/Product/Product'
-import { products } from '@/app/mock'
 import type { Section } from '@/app/mock'
 import { useRouter } from 'next/navigation'
+import { useEffect, useMemo } from 'react'
+import { useArticles } from '@/features/articles/hooks/useArticles'
+import { getArticleImageUrl } from '@/features/services/articles.api'
 
 interface ProductProps {
 	sections: Section[]
@@ -21,11 +23,30 @@ export const Products = ({
 	onSelectProduct,
 }: ProductProps) => {
 	const router = useRouter()
+	const { items, isLoading, fetchArticles } = useArticles()
+
+	useEffect(() => {
+		fetchArticles({ page: 1, limit: 12 })
+	}, [fetchArticles])
 
 	const handleSelectProduct = (productId: string) => {
 		onSelectProduct?.(productId)
 		router.push(`/productos/${productId}`)
 	}
+
+	const products = useMemo(
+		() =>
+			items.map((item) => ({
+				id: item._id,
+				name: item.description || item.name,
+				brand: item.brand || '',
+				price: item.price,
+				currency: 'MXN',
+				stock: item.stock_web?.count ?? item.stock?.count ?? 0,
+				image: getArticleImageUrl(item),
+			})),
+		[items],
+	)
 
 	return (
 		<div className={styles.products}>
@@ -81,7 +102,11 @@ export const Products = ({
 
 				{/*Products*/}
 				<div className={styles.products_list}>
-					<span className={styles.products_list__title}>365 Productos</span>
+					<span className={styles.products_list__title}>
+						{isLoading
+							? 'Cargando productos...'
+							: `${products.length} Productos`}
+					</span>
 					<div className={styles.products_list__content}>
 						{products.map((product) => (
 							<div className={styles.item} key={product.id}>

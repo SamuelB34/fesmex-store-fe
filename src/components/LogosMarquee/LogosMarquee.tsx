@@ -19,9 +19,15 @@ interface LogosMarqueeProps {
 export const LogosMarquee = ({ logos, direction }: LogosMarqueeProps) => {
 	return (
 		<div className={styles.container}>
-			<div className={`${styles.marquee} ${direction === 'right' ? styles.reverse : ''}`}>
+			<div
+				className={`${styles.marquee} ${direction === 'right' ? styles.reverse : ''}`}
+			>
 				{Array.from({ length: 6 }).map((_, index) => (
-					<div key={index} className={styles.marqueeContent} aria-hidden={index > 0}>
+					<div
+						key={index}
+						className={styles.marqueeContent}
+						aria-hidden={index > 0}
+					>
 						{logos.map((logo) => (
 							<div key={`${logo.id}-${index}`} className={styles.logo}>
 								<Image

@@ -43,12 +43,17 @@ export const ProductDetailClient = ({ product }: ProductDetailClientProps) => {
 	return (
 		<div className={styles.product_details}>
 			<div className={styles.detail__content}>
-				<Image
-					src={product.image}
-					alt={product.name}
-					width={600}
-					height={600}
-				/>
+				{product.image ? (
+					<Image
+						src={product.image}
+						alt={product.name}
+						width={600}
+						height={600}
+						className={styles.detail__image}
+					/>
+				) : (
+					<div className={styles.image_placeholder}>No hay imagen</div>
+				)}
 
 				<div className={styles.detail__info}>
 					<div className={styles.name_brand}>

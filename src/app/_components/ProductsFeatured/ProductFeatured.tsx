@@ -29,7 +29,12 @@ export const ProductFeatured = () => {
 			</div>
 
 			{products.map((product) => (
-				<Product key={product.id} product={product} onSelect={handleSelect} short />
+				<Product
+					key={product.id}
+					product={product}
+					onSelect={handleSelect}
+					short
+				/>
 			))}
 		</div>
 	)

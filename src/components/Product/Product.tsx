@@ -6,6 +6,7 @@ import { Button } from '@/components/Button/Button'
 import type { Product as ProductType } from '@/app/mock'
 import { MouseEvent, useMemo } from 'react'
 import { useCart } from '@/features/cart/context/CartContext'
+import { formatCurrency } from '@/shared/utils/format'
 
 interface ProductProps {
 	product: ProductType
@@ -22,22 +23,23 @@ export const Product = ({ product, short, onSelect }: ProductProps) => {
 	)
 
 	const handleSelect = () => {
-		console.log('Product selected:', product.id)
 		onSelect?.(product.id)
 	}
 
 	const handleButtonClick = (event: MouseEvent<HTMLButtonElement>) => {
 		event.stopPropagation()
+
+		if (product.stock <= 0) return
 		if (inCartItem) {
 			removeItem(product.id)
 		} else {
 			addItem(
 				{
 					id: product.id,
-					image: product.image,
+					image: product.image ?? '',
 					name: product.name,
 					brand: product.brand,
-					unitPrice: product.price,
+					unitPrice: Number(product.price) || 0,
 					quantity: 1,
 				},
 				{ maxStock: product.stock },
@@ -45,35 +47,45 @@ export const Product = ({ product, short, onSelect }: ProductProps) => {
 		}
 	}
 
+	const altText = product.name || product.brand || 'Producto'
+
+	const isOutOfStock = product.stock <= 0
+
 	return (
 		<div className={styles.product} onClick={handleSelect} role={'button'}>
-			<Image
-				src={product.image}
-				alt={product.name}
-				width={272}
-				height={272}
-				className={styles.product__image}
-			/>
-			<div className={styles.tags}>
-				{/*Discount*/}
+			{product.image ? (
+				<Image
+					src={product.image}
+					alt={altText}
+					width={272}
+					height={272}
+					className={styles.product__image}
+				/>
+			) : (
+				<div className={styles.product__image_placeholder}>No hay imagen</div>
+			)}
+			{/*<div className={styles.tags}>*/}
+			{/*	/!*Discount*!/*/}
 
-				{/*New*/}
-			</div>
+			{/*	/!*New*!/*/}
+			{/*</div>*/}
 
 			<div className={styles.product__info}>
-				<span className={styles.name}>{product.name}</span>
+				<span className={styles.name} title={product.name}>
+					{product.name}
+				</span>
 				<span className={styles.brand}>{product.brand}</span>
 
 				<div className={styles.prices}>
 					<div className={styles.prices__original_price}>
-						<span className={styles.txt}>$ {product.price.toFixed(2)}</span>
+						<span className={styles.txt}>{formatCurrency(product.price)}</span>
 						<span className={styles.coin}>{product.currency}</span>
 					</div>
 
 					{/*Old price*/}
 					{!short && product.oldPrice && (
 						<span className={styles.prices__old}>
-							$ {product.oldPrice.toFixed(2)}
+							{formatCurrency(product.oldPrice)}
 						</span>
 					)}
 				</div>
@@ -100,7 +112,14 @@ export const Product = ({ product, short, onSelect }: ProductProps) => {
 							className={Boolean(inCartItem) ? styles.icon : ''}
 						/>
 					}
-					text={!short ? 'Agregar al carrito' : undefined}
+					disabled={isOutOfStock}
+					text={
+						!short
+							? isOutOfStock
+								? 'Agotado'
+								: 'Agregar al carrito'
+							: undefined
+					}
 				/>
 			</div>
 		</div>
