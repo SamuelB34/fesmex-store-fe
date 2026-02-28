@@ -35,6 +35,7 @@ export const LogosMarquee = ({ logos, direction }: LogosMarqueeProps) => {
 									alt={logo.alt}
 									width={logo.width}
 									height={logo.height}
+									style={{ height: 'auto', width: 'auto' }}
 								/>
 							</div>
 						))}

@@ -53,17 +53,19 @@ export const Product = ({ product, short, onSelect }: ProductProps) => {
 
 	return (
 		<div className={styles.product} onClick={handleSelect} role={'button'}>
-			{product.image ? (
-				<Image
-					src={product.image}
-					alt={altText}
-					width={272}
-					height={272}
-					className={styles.product__image}
-				/>
-			) : (
-				<div className={styles.product__image_placeholder}>No hay imagen</div>
-			)}
+			<div className={styles.product__image_container}>
+				{product.image ? (
+					<Image
+						src={product.image}
+						alt={altText}
+						fill
+						sizes="(max-width: 640px) 100vw, 272px"
+						className={styles.product__image}
+					/>
+				) : (
+					<div className={styles.product__image_placeholder}>No hay imagen</div>
+				)}
+			</div>
 			{/*<div className={styles.tags}>*/}
 			{/*	/!*Discount*!/*/}
 
