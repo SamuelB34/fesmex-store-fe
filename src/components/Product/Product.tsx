@@ -7,6 +7,7 @@ import type { Product as ProductType } from '@/app/mock'
 import { MouseEvent, useMemo } from 'react'
 import { useCart } from '@/features/cart/context/CartContext'
 import { formatCurrency } from '@/shared/utils/format'
+import { sileo } from 'sileo'
 
 interface ProductProps {
 	product: ProductType
@@ -29,7 +30,13 @@ export const Product = ({ product, short, onSelect }: ProductProps) => {
 	const handleButtonClick = (event: MouseEvent<HTMLButtonElement>) => {
 		event.stopPropagation()
 
-		if (product.stock <= 0) return
+		if (product.stock <= 0) {
+			sileo.error({
+				title: 'Sin stock disponible',
+				description: 'Este producto está agotado por ahora',
+			})
+			return
+		}
 		if (inCartItem) {
 			removeItem(product.id)
 		} else {
@@ -44,12 +51,15 @@ export const Product = ({ product, short, onSelect }: ProductProps) => {
 				},
 				{ maxStock: product.stock },
 			)
+			// Confirmación visual cuando se agrega un nuevo artículo
+			sileo.success({
+				title: 'Producto añadido',
+				description: `${product.name} fue agregado al carrito`,
+			})
 		}
 	}
 
 	const altText = product.name || product.brand || 'Producto'
-
-	const isOutOfStock = product.stock <= 0
 
 	return (
 		<div className={styles.product} onClick={handleSelect} role={'button'}>
@@ -114,14 +124,7 @@ export const Product = ({ product, short, onSelect }: ProductProps) => {
 							className={Boolean(inCartItem) ? styles.icon : ''}
 						/>
 					}
-					disabled={isOutOfStock}
-					text={
-						!short
-							? isOutOfStock
-								? 'Agotado'
-								: 'Agregar al carrito'
-							: undefined
-					}
+					text={!short ? 'Agregar al carrito' : undefined}
 				/>
 			</div>
 		</div>
