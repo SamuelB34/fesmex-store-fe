@@ -1,14 +1,13 @@
 import styles from './page.module.scss'
 import { Cover } from '@/app/_components/Cover/Cover'
 import { ProductFeatured } from '@/app/_components/ProductsFeatured/ProductFeatured'
-import { Products } from '@/app/_components/Products/Products'
 import { BestBrands } from '@/app/_components/BestBrands/BestBrands'
 import { IndustrialHero } from '@/app/_components/IndustrialHero/IndustrialHero'
+import { HomeProducts } from '@/app/_components/HomeProducts/HomeProducts'
 import { fetchHomeCategories } from '@/features/categories/homeCategories.server'
 
 export default async function Home() {
 	const sections = await fetchHomeCategories()
-
 	return (
 		<div className={styles.container}>
 			<div className={styles.content}>
@@ -20,7 +19,7 @@ export default async function Home() {
 			</div>
 
 			<div className={styles.content}>
-				<Products sections={sections} />
+				<HomeProducts sections={sections} />
 			</div>
 
 			<BestBrands />

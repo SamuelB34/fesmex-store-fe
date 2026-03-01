@@ -5,6 +5,7 @@ interface Category {
 	name: string
 	slug: string
 	is_active: boolean
+	article_count?: number
 }
 
 interface CategoriesResponse {
@@ -14,7 +15,7 @@ interface CategoriesResponse {
 	}
 }
 
-const FETCH_REVALIDATE_SECONDS = 3600
+// const FETCH_REVALIDATE_SECONDS = 3600
 
 function getDefaultSections(): Section[] {
 	return [
@@ -40,7 +41,7 @@ export async function fetchHomeCategories(): Promise<Section[]> {
 
 	try {
 		const response = await fetch(url, {
-			next: { revalidate: FETCH_REVALIDATE_SECONDS },
+			cache: 'no-store',
 			headers: {
 				'Content-Type': 'application/json',
 			},
@@ -53,15 +54,23 @@ export async function fetchHomeCategories(): Promise<Section[]> {
 
 		const result: CategoriesResponse = await response.json()
 
-		const sections: Section[] = result.data.items.map((category) => ({
+		const categorySections: Section[] = result.data.items.map((category) => ({
 			id: category._id,
 			text: category.name,
-			number: 0,
+			number: category.article_count ?? 0,
 			type: 'category',
 			active: false,
 		}))
+		const totalArticles = categorySections.reduce((sum, section) => sum + section.number, 0)
+		const allSection: Section = {
+			id: 'all',
+			text: 'Todos los productos',
+			number: totalArticles,
+			type: 'category',
+			active: true,
+		}
 
-		return [getDefaultSections()[0], ...sections]
+		return [allSection, ...categorySections]
 	} catch (error) {
 		console.error('Error fetching categories:', error)
 		return getDefaultSections()

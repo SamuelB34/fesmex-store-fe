@@ -5,48 +5,42 @@ import { Brand } from '@/components/Brand/Brand'
 import { Product } from '@/components/Product/Product'
 import type { Section } from '@/app/mock'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo } from 'react'
-import { useArticles } from '@/features/articles/hooks/useArticles'
-import { getArticleImageUrl } from '@/features/services/articles.api'
+
+interface ProductView {
+  id: string
+  name: string
+  brand: string
+  price: number
+  currency: string
+  stock: number
+  image: string
+}
 
 interface ProductProps {
-	sections: Section[]
-	brands?: Section[]
-	types?: Section[]
-	onSelectProduct?: (productId: string) => void
+  sections: Section[]
+  brands?: Section[]
+  types?: Section[]
+  products: ProductView[]
+  isLoading: boolean
+  onSectionSelect?: (sectionId: string) => void
+  onSelectProduct?: (productId: string) => void
 }
 
 export const Products = ({
-	sections,
-	brands,
-	types,
-	onSelectProduct,
+  sections,
+  brands,
+  types,
+  products,
+  isLoading,
+  onSectionSelect,
+  onSelectProduct,
 }: ProductProps) => {
-	const router = useRouter()
-	const { items, isLoading, fetchArticles } = useArticles()
+  const router = useRouter()
 
-	useEffect(() => {
-		fetchArticles({ page: 1, limit: 12 })
-	}, [fetchArticles])
-
-	const handleSelectProduct = (productId: string) => {
-		onSelectProduct?.(productId)
-		router.push(`/productos/${productId}`)
-	}
-
-	const products = useMemo(
-		() =>
-			items.map((item) => ({
-				id: item._id,
-				name: item.description || item.name,
-				brand: item.brand || '',
-				price: item.price,
-				currency: 'MXN',
-				stock: item.stock_web?.count ?? item.stock?.count ?? 0,
-				image: getArticleImageUrl(item),
-			})),
-		[items],
-	)
+  const handleSelectProduct = (productId: string) => {
+    onSelectProduct?.(productId)
+    router.push(`/productos/${productId}`)
+  }
 
 	return (
 		<div className={styles.products}>
@@ -58,11 +52,12 @@ export const Products = ({
 					<div className={styles.sections}>
 						{sections.map((section) => (
 							<Brand
-								key={section.text}
+								key={section.id}
 								text={section.text}
 								number={section.number}
 								type={section.type}
 								active={section.active}
+								onSelect={() => onSectionSelect?.(section.id)}
 							/>
 						))}
 					</div>
