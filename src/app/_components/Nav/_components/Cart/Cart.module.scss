@@ -33,6 +33,11 @@
 	align-items: flex-start;
 	gap: var(--Spacing-regular, 16px);
 
+	&__img {
+		object-fit: contain;
+		border-radius: var(--Radius-regular, 8px);
+	}
+
 	&__details {
 		display: flex;
 		align-items: flex-start;

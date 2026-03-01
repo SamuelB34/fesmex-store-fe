@@ -17,6 +17,7 @@ export type CartItem = {
 	brand: string
 	unitPrice: number
 	quantity: number
+	stock?: number
 }
 
 export type CartContextValue = {
@@ -92,12 +93,15 @@ export function CartProvider({ children }: CartProviderProps) {
 					: nextQuantity
 				const safeQuantity = Math.max(1, maxQuantity)
 
+				const stockValue = item.stock ?? options?.maxStock
 				if (existing) {
 					return prev.map((i) =>
-						i.id === item.id ? { ...i, quantity: safeQuantity } : i,
+						i.id === item.id
+							? { ...i, quantity: safeQuantity, stock: stockValue ?? i.stock }
+							: i,
 					)
 				}
-				return [...prev, { ...item, quantity: safeQuantity }]
+				return [...prev, { ...item, quantity: safeQuantity, stock: stockValue }]
 			})
 		},
 		[],

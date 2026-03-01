@@ -6,8 +6,8 @@ import { Header } from '@/app/_components/Header/Header'
 import { Nav } from '@/app/_components/Nav/Nav'
 import { ReactNode } from 'react'
 import { Footer } from '@/app/_components/Footer/Footer'
-import { IndustrialHero } from '@/app/_components/IndustrialHero/IndustrialHero'
 import { CartProvider } from '@/features/cart/context/CartContext'
+import { Toaster } from 'sileo'
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -39,6 +39,7 @@ export default function RootLayout({
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} ${IBMPlexSans.variable}`}
 			>
+				<Toaster position="top-right" theme="light" />
 				<CartProvider>
 					<Header />
 					<div className={'content'}>
