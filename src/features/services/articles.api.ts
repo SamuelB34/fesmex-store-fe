@@ -44,6 +44,8 @@ export type Article = {
 	stock_web?: ArticleStockWeb | null
 	created_at?: string
 	updated_at?: string
+	is_featured?: boolean
+	featured_order?: number
 }
 
 export type ArticleListItem = Article & { stock?: ArticleStock | null }
@@ -55,6 +57,8 @@ export type ListArticlesQuery = {
 	brand?: string
 	unit?: string
 	group_id?: string
+	category_id?: string
+	is_featured?: boolean
 	sort?: string
 }
 
@@ -75,6 +79,8 @@ const unwrap = async <T>(
 
 const list = (query?: ListArticlesQuery) =>
 	unwrap<ArticlesListResponse>(api.get('/articles', { params: query }))
+const listFeatured = (limit = 8) =>
+	list({ is_featured: true, limit, sort: 'featured_order' })
 const getById = (id: string) =>
 	unwrap<{
 		article: Article | null
@@ -93,5 +99,6 @@ export const getArticleImageUrl = (article?: Article | null) => {
 
 export const articlesApi = {
 	list,
+	listFeatured,
 	getById,
 }
