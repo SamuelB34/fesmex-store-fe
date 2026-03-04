@@ -167,28 +167,28 @@ export const Products = ({
               ))}
             </div>
           )}
-				</div>
+        </div>
 
-				{/*Products*/}
-				<div className={styles.products_list}>
-					<span className={styles.products_list__title}>
-						{isLoading
-							? 'Cargando productos...'
-							: `${products.length} Productos`}
-					</span>
-					<div className={styles.products_list__content}>
-						{products.map((product) => (
-							<div className={styles.item} key={product.id}>
-								<Product
-									product={product}
-									short
-									onSelect={handleSelectProduct}
-								/>
-							</div>
-						))}
-					</div>
-				</div>
-			</div>
-		</div>
-	)
+        {/*Products*/}
+        <div className={styles.products_list}>
+          <span className={styles.products_list__title}>
+            {isLoading
+              ? 'Cargando productos...'
+              : `${products.length} Productos`}
+          </span>
+          <div className={styles.products_list__content}>
+            {products.map((product) => (
+              <div className={styles.item} key={product.id}>
+                <Product
+                  product={product}
+                  short
+                  onSelect={handleSelectProduct}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }

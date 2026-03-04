@@ -58,7 +58,7 @@
 
 .subCategory {
 	&__active {
-		background: var(--primary, #0b4c8c);
+		border: 1px solid var(--primary, #0b4c8c);
 
 		&__text {
 			color: var(--text, #201e1c);

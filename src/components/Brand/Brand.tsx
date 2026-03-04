@@ -9,10 +9,11 @@ interface BrandProps {
 }
 
 export const Brand = ({ text, number, type, active, onSelect }: BrandProps) => {
+	const normalizedType = type === 'subcategory' ? 'subCategory' : type
 	const state =
-		type === 'disabled'
+		normalizedType === 'disabled'
 			? 'disabled'
-			: `${type}__${active ? 'active' : 'inactive'}`
+			: `${normalizedType}__${active ? 'active' : 'inactive'}`
 
 	return (
 		<div

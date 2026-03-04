@@ -30,10 +30,15 @@ export const MenuContainer = ({ items = [], type = 'products' }: MenuContainerPr
 			}))
 		}
 		if (type === 'brands' && brands.length > 0) {
-			return brands.map((brand) => ({
+			const allBrandsItem: MenuItemProps = {
+				title: 'Todas las marcas',
+				url: '/productos',
+			}
+			const brandItems = brands.map((brand) => ({
 				title: brand.text,
 				url: `/productos?brand=${encodeURIComponent(brand.id)}`,
 			}))
+			return [allBrandsItem, ...brandItems]
 		}
 		return items
 	}, [items, sections, type, brands])

@@ -31,7 +31,17 @@ export const Nav = () => {
 						number: item.article_count,
 						type: 'brand' as const,
 					}))
-					setBrands(nextBrands)
+					const totalBrandsCount = nextBrands.reduce(
+						(sum, brand) => sum + (brand.number ?? 0),
+						0,
+					)
+					const allBrandsEntry = {
+						id: 'all-brands',
+						text: 'Todas las marcas',
+						number: totalBrandsCount,
+						type: 'brand' as const,
+					}
+					setBrands([allBrandsEntry, ...nextBrands])
 				})
 				.catch((error) => {
 					console.error('Failed to fetch brands:', error)
