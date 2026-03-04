@@ -5,6 +5,7 @@ interface Category {
 	name: string
 	slug: string
 	is_active: boolean
+	parent_id?: string | null
 	article_count?: number
 }
 
@@ -12,6 +13,7 @@ interface CategoriesResponse {
 	ok: boolean
 	data: {
 		items: Category[]
+		totalArticles?: number
 	}
 }
 
@@ -29,7 +31,11 @@ function getDefaultSections(): Section[] {
 	]
 }
 
-export async function fetchHomeCategories(): Promise<Section[]> {
+type FetchCategoriesOptions = {
+	onlyRoots?: boolean
+}
+
+async function fetchCategoriesSections({ onlyRoots = true }: FetchCategoriesOptions): Promise<Section[]> {
 	const apiUrl = process.env.API_BASE_URL
 
 	if (!apiUrl) {
@@ -37,10 +43,14 @@ export async function fetchHomeCategories(): Promise<Section[]> {
 		return getDefaultSections()
 	}
 
-	const url = `${apiUrl}/categories?is_active=true&roots=true`
+	const url = new URL(`${apiUrl}/categories`)
+	url.searchParams.set('is_active', 'true')
+	if (onlyRoots) {
+		url.searchParams.set('roots', 'true')
+	}
 
 	try {
-		const response = await fetch(url, {
+		const response = await fetch(url.toString(), {
 			cache: 'no-store',
 			headers: {
 				'Content-Type': 'application/json',
@@ -58,10 +68,15 @@ export async function fetchHomeCategories(): Promise<Section[]> {
 			id: category._id,
 			text: category.name,
 			number: category.article_count ?? 0,
-			type: 'category',
+			type: category.parent_id ? 'subcategory' : 'category',
 			active: false,
+			parentId: category.parent_id ?? null,
 		}))
-		const totalArticles = categorySections.reduce((sum, section) => sum + section.number, 0)
+		const totalArticles =
+			result.data.totalArticles ??
+			categorySections
+				.filter((section) => !section.parentId)
+				.reduce((sum, section) => sum + section.number, 0)
 		const allSection: Section = {
 			id: 'all',
 			text: 'Todos los productos',
@@ -75,4 +90,12 @@ export async function fetchHomeCategories(): Promise<Section[]> {
 		console.error('Error fetching categories:', error)
 		return getDefaultSections()
 	}
+}
+
+export async function fetchHomeCategories(): Promise<Section[]> {
+	return fetchCategoriesSections({ onlyRoots: true })
+}
+
+export async function fetchAllCategories(): Promise<Section[]> {
+	return fetchCategoriesSections({ onlyRoots: false })
 }

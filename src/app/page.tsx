@@ -5,11 +5,13 @@ import { BestBrands } from '@/app/_components/BestBrands/BestBrands'
 import { IndustrialHero } from '@/app/_components/IndustrialHero/IndustrialHero'
 import { HomeProducts } from '@/app/_components/HomeProducts/HomeProducts'
 import { fetchHomeCategories } from '@/features/categories/homeCategories.server'
+import { SectionsInitializer } from '@/features/categories/components/SectionsInitializer'
 
 export default async function Home() {
 	const sections = await fetchHomeCategories()
 	return (
 		<div className={styles.container}>
+			<SectionsInitializer sections={sections} />
 			<div className={styles.content}>
 				<Cover />
 			</div>
@@ -19,7 +21,7 @@ export default async function Home() {
 			</div>
 
 			<div className={styles.content}>
-				<HomeProducts sections={sections} />
+				<HomeProducts />
 			</div>
 
 			<BestBrands />

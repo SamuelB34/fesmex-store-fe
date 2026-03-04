@@ -7,6 +7,8 @@ import { Nav } from '@/app/_components/Nav/Nav'
 import { ReactNode } from 'react'
 import { Footer } from '@/app/_components/Footer/Footer'
 import { CartProvider } from '@/features/cart/context/CartContext'
+import { SectionsProvider } from '@/features/categories/context/SectionsContext'
+import { BrandsProvider } from '@/features/brands/context/BrandsContext'
 import { Toaster } from 'sileo'
 
 const geistSans = Geist({
@@ -40,14 +42,18 @@ export default function RootLayout({
 				className={`${geistSans.variable} ${geistMono.variable} ${IBMPlexSans.variable}`}
 			>
 				<Toaster position="top-right" theme="light" />
-				<CartProvider>
-					<Header />
-					<div className={'content'}>
-						<Nav />
-					</div>
-					<Providers>{children}</Providers>
-					<Footer />
-				</CartProvider>
+				<SectionsProvider>
+					<BrandsProvider>
+						<CartProvider>
+							<Header />
+							<div className={'content'}>
+								<Nav />
+							</div>
+							<Providers>{children}</Providers>
+							<Footer />
+						</CartProvider>
+					</BrandsProvider>
+				</SectionsProvider>
 			</body>
 		</html>
 	)

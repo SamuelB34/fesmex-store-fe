@@ -2,8 +2,9 @@ export type Section = {
 	id: string
 	text: string
 	number: number
-	type: 'category' | 'subcategory'
+	type: 'category' | 'subcategory' | 'brand'
 	active?: boolean
+	parentId?: string | null
 }
 
 export type Product = {
