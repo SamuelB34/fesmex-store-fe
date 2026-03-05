@@ -10,6 +10,8 @@ import { CartProvider } from '@/features/cart/context/CartContext'
 import { SectionsProvider } from '@/features/categories/context/SectionsContext'
 import { BrandsProvider } from '@/features/brands/context/BrandsContext'
 import { Toaster } from 'sileo'
+import { LoginModalProvider } from '@/shared/login-modal/LoginModalProvider'
+import { LoginModalRenderer } from '@/shared/login-modal/LoginModalRenderer'
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -45,12 +47,17 @@ export default function RootLayout({
 				<SectionsProvider>
 					<BrandsProvider>
 						<CartProvider>
-							<Header />
-							<div className={'content'}>
-								<Nav />
-							</div>
-							<Providers>{children}</Providers>
-							<Footer />
+							<LoginModalProvider>
+								<Providers>
+									<Header />
+									<div className={'content'}>
+										<Nav />
+									</div>
+									{children}
+									<Footer />
+									<LoginModalRenderer />
+								</Providers>
+							</LoginModalProvider>
 						</CartProvider>
 					</BrandsProvider>
 				</SectionsProvider>

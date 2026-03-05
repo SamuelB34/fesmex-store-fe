@@ -3,19 +3,10 @@ import type { InputHTMLAttributes } from 'react'
 
 type InputProps = InputHTMLAttributes<HTMLInputElement>
 
-export const Input = ({ disabled, placeholder, value, onChange, onKeyDown, ...rest }: InputProps) => {
+export const Input = ({ disabled, ...rest }: InputProps) => {
 	return (
 		<label className={disabled ? styles.input__inactive : styles.input__active}>
-			<input
-				type="text"
-				className={styles.input__field}
-				placeholder={placeholder}
-				value={value}
-				onChange={onChange}
-				onKeyDown={onKeyDown}
-				disabled={disabled}
-				{...rest}
-			/>
+			<input className={styles.input__field} disabled={disabled} {...rest} />
 		</label>
 	)
 }

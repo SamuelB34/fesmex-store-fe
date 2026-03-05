@@ -1,21 +1,30 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/shared/auth/AuthProvider'
 import styles from './account.module.scss'
+import { FiscalProfileForm } from './_components/FiscalProfileForm/FiscalProfileForm'
 
 export default function AccountPage() {
-	const { accessToken, user, isBootstrapping, logout, fetchMe } = useAuth()
+	const { accessToken, user, isBootstrapping, fetchMe } = useAuth()
 	const router = useRouter()
 	const [isRefreshing, setIsRefreshing] = useState(false)
+	const [showFiscalSection, setShowFiscalSection] = useState(false)
+	const fiscalSectionRef = useRef<HTMLDivElement | null>(null)
 
 	useEffect(() => {
 		if (!isBootstrapping && !accessToken) {
 			router.push('/login')
 		}
 	}, [accessToken, isBootstrapping, router])
+
+	useEffect(() => {
+		if (showFiscalSection) {
+			fiscalSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+		}
+	}, [showFiscalSection])
 
 	if (isBootstrapping) {
 		return (
@@ -40,6 +49,10 @@ export default function AccountPage() {
 		}
 	}
 
+	const handleShowFiscalSection = () => {
+		setShowFiscalSection(true)
+	}
+
 	if (!user) {
 		return (
 			<div className={styles.container}>
@@ -59,22 +72,9 @@ export default function AccountPage() {
 
 	return (
 		<div className={styles.container}>
-			<nav className={styles.nav}>
-				<Link href="/" className={styles.navBrand}>
-					FESMEX Store
-				</Link>
-				<div className={styles.navLinks}>
-					<Link href="/">Articles</Link>
-					<Link href="/cart">Cart</Link>
-					<Link href="/orders">Orders</Link>
-				</div>
-			</nav>
 
 			<div className={styles.header}>
-				<h1 className={styles.title}>My Account</h1>
-				<button onClick={logout} className={styles.logoutButton}>
-					Logout
-				</button>
+				<h1 className={styles.title}>Bienvenido, {user.first_name || user.last_name ? `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() : user.email}</h1>
 			</div>
 
 			<div className={styles.quickLinks}>
@@ -82,10 +82,10 @@ export default function AccountPage() {
 					<span className={styles.quickLinkIcon}>📦</span>
 					<span>My Orders</span>
 				</Link>
-				<Link href="/cart" className={styles.quickLink}>
-					<span className={styles.quickLinkIcon}>🛒</span>
-					<span>Shopping Cart</span>
-				</Link>
+				<button type="button" className={styles.quickLink} onClick={handleShowFiscalSection}>
+					<span className={styles.quickLinkIcon}>📄</span>
+					<span>Mis Direcciones y Datos Fiscales</span>
+				</button>
 				<Link href="/" className={styles.quickLink}>
 					<span className={styles.quickLinkIcon}>🏪</span>
 					<span>Browse Articles</span>
@@ -134,6 +134,12 @@ export default function AccountPage() {
 					)}
 				</div>
 			</div>
+
+			{showFiscalSection && (
+				<div ref={fiscalSectionRef}>
+					<FiscalProfileForm />
+				</div>
+			)}
 		</div>
 	)
 }

@@ -1,0 +1,124 @@
+.login {
+	position: fixed;
+	inset: 0;
+
+	background: rgba(32, 30, 28, 0.2);
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	z-index: 1000;
+
+	&__modal {
+		border-radius: var(--Radius-regular, 8px);
+		background: #fff;
+		padding: 32px;
+		min-width: 320px;
+		width: 480px;
+		display: flex;
+		flex-direction: column;
+		gap: 64px;
+		max-height: 750px;
+		overflow-y: auto;
+
+		.form {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: var(--Spacing-large, 32px);
+			align-self: stretch;
+
+			.header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				width: 100%;
+
+				&__title {
+					color: #000;
+					font-family: 'IBM Plex Sans', sans-serif;
+					font-size: var(--Font-Size-huge, 32px);
+					font-style: normal;
+					font-weight: 600;
+					line-height: var(--Line-Height-loose, 32px); /* 100% */
+					letter-spacing: 0.64px;
+				}
+
+				&__close {
+					display: flex;
+					padding: var(--Spacing-small, 8px) var(--Spacing-regular, 16px);
+					justify-content: center;
+					align-items: center;
+					gap: 8px;
+					border-radius: var(--Radius-huge, 24px);
+					border: 1px solid var(--secondary-text, #6b7280);
+				}
+			}
+
+			form {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 16px;
+				align-self: stretch;
+
+				.input {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: var(--Spacing-small, 8px);
+					align-self: stretch;
+
+					span {
+						color: var(--text, #201e1c);
+						font-family: 'IBM Plex Sans', sans-serif;
+						font-size: var(--Font-Size-big, 18px);
+						font-style: normal;
+						font-weight: 700;
+						line-height: var(--Line-Height-regular, 24px); /* 133.333% */
+						letter-spacing: 0.36px;
+					}
+				}
+			}
+		}
+	}
+
+	.create_account {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--Spacing-regular, 16px);
+		align-self: stretch;
+
+		.btn {
+			width: 100%;
+		}
+
+		&__title {
+			color: #000;
+			font-family: 'IBM Plex Sans', sans-serif;
+			font-size: var(--Font-Size-medium, 16px);
+			font-style: normal;
+			font-weight: 700;
+			line-height: var(--Line-Height-regular, 24px); /* 150% */
+			letter-spacing: 0.32px;
+		}
+
+		&__info_row {
+			display: flex;
+			align-items: flex-start;
+			gap: var(--Spacing-small, 8px);
+			align-self: stretch;
+
+			span {
+				color: #000;
+				font-family: 'IBM Plex Sans', sans-serif;
+				font-size: var(--Font-Size-medium, 16px);
+				font-style: normal;
+				font-weight: 400;
+				line-height: var(--Line-Height-regular, 24px); /* 150% */
+			}
+		}
+	}
+}

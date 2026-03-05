@@ -50,9 +50,19 @@
 }
 
 .title {
-	font-size: 1.75rem;
+	color: var(--text, #201e1c);
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: var(--Font-Size-huge, 32px);
+	font-style: normal;
 	font-weight: 600;
-	color: #333;
+	line-height: var(--Line-Height-loose, 32px); /* 100% */
+	letter-spacing: 0.64px;
+}
+
+.subtitle {
+	margin: 0;
+	font-size: 1rem;
+	color: #4b5563;
 }
 
 .logoutButton {

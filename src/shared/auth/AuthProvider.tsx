@@ -14,6 +14,33 @@ import {
 	ApiError,
 } from '@/shared/api/axios'
 import { authApi, AuthUser } from '@/features/services/auth.api'
+import { sileo } from 'sileo'
+
+type RawAuthUser = AuthUser & {
+	firstName?: string
+	lastName?: string
+}
+
+const normalizeUser = (data: RawAuthUser): AuthUser => ({
+	...data,
+	first_name: data.first_name ?? data.firstName,
+	last_name: data.last_name ?? data.lastName,
+})
+
+const extractUserFromResponse = (data: unknown): RawAuthUser | null => {
+	if (!data || typeof data !== 'object') {
+		return null
+	}
+
+	const record = data as { user?: RawAuthUser; customer?: RawAuthUser }
+	if (record.user) {
+		return record.user
+	}
+	if (record.customer) {
+		return record.customer
+	}
+	return data as RawAuthUser
+}
 
 type AuthContextValue = {
 	accessToken: string | null
@@ -60,10 +87,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 		try {
 			const res = await authApi.me()
 			if (res.ok && res.data) {
-				const userData = (
-					'user' in res.data ? res.data.user : res.data
-				) as AuthUser
-				setUser(userData)
+				const userData = extractUserFromResponse(res.data)
+				setUser(userData ? normalizeUser(userData) : null)
 			} else {
 				setUser(null)
 			}
@@ -107,11 +132,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			const res = await authApi.register(normalizedPayload)
 			if (res.ok && res.data?.accessToken) {
 				setAccessToken(res.data.accessToken)
+				await fetchMe()
+				sileo.success({
+					title: 'Revisa tu correo',
+					description: 'Se envió un correo a tu correo registrado.',
+				})
 			} else {
 				throw new Error(res.error?.message || 'Registration failed')
 			}
 		},
-		[],
+		[fetchMe],
 	)
 
 	const login = useCallback(
@@ -126,6 +156,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 				if (res.ok && res.data?.accessToken) {
 					setAccessToken(res.data.accessToken)
 					await fetchMe()
+					sileo.success({
+						title: 'Sesión iniciada',
+						description: 'Bienvenido de nuevo.',
+					})
 					router.push('/account')
 				} else {
 					throw new Error(res.error?.message || 'Login failed')
@@ -148,7 +182,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 		} finally {
 			setAccessToken(null)
 			setUser(null)
-			router.push('/login')
+			router.push('/')
 		}
 	}, [router])
 
