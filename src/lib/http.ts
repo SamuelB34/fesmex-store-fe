@@ -32,14 +32,6 @@ export function setToken(token: string): void {
 	localStorage.setItem('auth_token', token)
 }
 
-function redirectToLogin(currentPath?: string): void {
-	if (typeof window === 'undefined') return
-
-	const next = currentPath || window.location.pathname + window.location.search
-	const loginUrl = `/login?next=${encodeURIComponent(next)}`
-	window.location.href = loginUrl
-}
-
 async function handleErrorResponse(res: Response): Promise<never> {
 	let errorData: unknown
 	const contentType = res.headers.get('content-type')
@@ -80,7 +72,6 @@ async function handleErrorResponse(res: Response): Promise<never> {
 
 	if (res.status === 401 || res.status === 403) {
 		clearToken()
-		redirectToLogin()
 	}
 
 	throw new ApiError(res.status, code, message, details, requestId)

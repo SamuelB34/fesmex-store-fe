@@ -21,6 +21,10 @@ export type ShippingAddress = {
 	country?: string
 }
 
+export type ShippingAddressesResponse = {
+	addresses: ShippingAddress[]
+}
+
 export type OrderItem = {
 	article_id: string
 	quantity: number
@@ -266,11 +270,19 @@ const updateShipping = async (id: string, payload: ShippingFeePayload) => {
 	return { order: normalizeOrder(data.order) }
 }
 
+const listShippingAddresses = async () => {
+	const data = await unwrapOrThrow<ShippingAddressesResponse>(
+		api.get('/orders/shipping-addresses'),
+	)
+	return data.addresses
+}
+
 export const ordersApi = {
 	createOrder,
 	listOrders,
 	getOrderById,
 	updateShipping,
+	listShippingAddresses,
 }
 
 // Example usage:

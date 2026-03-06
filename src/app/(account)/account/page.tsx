@@ -7,7 +7,7 @@ import styles from './account.module.scss'
 import { FiscalProfileForm } from './_components/FiscalProfileForm/FiscalProfileForm'
 import { ProfileForm } from './_components/ProfileForm/ProfileForm'
 import { Chip } from '@/components/Chip/Chip'
-import { useOrdersList } from '@/features/orders/hooks/useOrders'
+import { useOrdersList, useShippingAddresses } from '@/features/orders/hooks/useOrders'
 import { OrdersPanel } from './_components/OrdersPanel/OrdersPanel'
 
 export default function AccountPage() {
@@ -19,6 +19,8 @@ export default function AccountPage() {
 	const [isRefreshing, setIsRefreshing] = useState(false)
 	const ordersState = useOrdersList()
 	const { fetchOrders } = ordersState
+	const addressesState = useShippingAddresses()
+	const { fetchAddresses } = addressesState
 
 	useEffect(() => {
 		if (!isBootstrapping && !accessToken) {
@@ -29,6 +31,10 @@ export default function AccountPage() {
 	useEffect(() => {
 		fetchOrders({ page: 1, limit: 20 })
 	}, [fetchOrders])
+
+	useEffect(() => {
+		fetchAddresses()
+	}, [fetchAddresses])
 
 	if (isBootstrapping) {
 		return (
@@ -130,6 +136,38 @@ export default function AccountPage() {
 			)}
 
 			{activeTab === 'orders' && <OrdersPanel ordersState={ordersState} />}
+
+			{activeTab === 'address' && (
+				<div className={styles.addressesSection}>
+					<h2>Direcciones registradas</h2>
+					{addressesState.isLoading ? (
+						<p>Cargando direcciones...</p>
+					) : addressesState.error ? (
+						<p className={styles.error}>{addressesState.error}</p>
+					) : addressesState.addresses.length === 0 ? (
+						<p>No tienes direcciones registradas.</p>
+					) : (
+						<ul className={styles.addressesList}>
+							{addressesState.addresses.map((address, index) => (
+								<li key={`${address.line1}-${address.postal_code}-${index}`}>
+									<div className={styles.addressBadge}>{index + 1}</div>
+									<div>
+										<strong>{address.full_name}</strong>
+										<p>
+											{address.line1}
+											{address.line2 ? `, ${address.line2}` : ''}
+										</p>
+										<p>
+											{address.city}, {address.state} {address.postal_code}
+										</p>
+										<p>{address.phone}</p>
+									</div>
+								</li>
+							))}
+						</ul>
+					)}
+				</div>
+			)}
 		</div>
 	)
 }
