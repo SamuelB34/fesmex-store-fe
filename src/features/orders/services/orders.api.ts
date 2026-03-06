@@ -26,6 +26,11 @@ export type OrderItem = {
 	quantity: number
 	unit_price: number
 	total: number
+	article?: {
+		description: string
+		brand?: string
+		image?: string
+	}
 }
 
 export type Order = {
@@ -51,6 +56,11 @@ type RawOrderItem = {
 	quantity?: number | string
 	unit_price?: number | string
 	total?: number | string
+	article?: {
+		description?: string
+		brand?: string
+		image?: string
+	}
 }
 
 type RawShippingAddress = {
@@ -117,12 +127,22 @@ const toStringOrNull = (
 }
 
 const normalizeOrderItem = (item: RawOrderItem): OrderItem => {
-	return {
+	const normalized: OrderItem = {
 		article_id: String(item.article_id ?? ''),
 		quantity: toNumber(item.quantity),
 		unit_price: toNumber(item.unit_price),
 		total: toNumber(item.total),
 	}
+
+	if (item.article) {
+		normalized.article = {
+			description: String(item.article.description ?? ''),
+			brand: item.article.brand,
+			image: item.article.image,
+		}
+	}
+
+	return normalized
 }
 
 const normalizeShippingAddress = (

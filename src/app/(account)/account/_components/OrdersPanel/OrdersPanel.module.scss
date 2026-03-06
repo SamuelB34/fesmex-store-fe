@@ -1,0 +1,143 @@
+.container {
+	padding: 32px 0;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+
+	.eyebrow {
+		margin: 0;
+		font-size: 0.8125rem;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: #6b7280;
+	}
+
+	.title {
+		color: var(--text, #201e1c);
+		font-family: 'IBM Plex Sans', sans-serif;
+		font-size: var(--Font-Size-large, 24px);
+		font-style: normal;
+		font-weight: 600;
+		line-height: var(--Line-Height-regular, 24px); /* 100% */
+		letter-spacing: 0.48px;
+	}
+
+	.subtitle {
+		margin: 0;
+		color: #6b7280;
+		font-size: 0.95rem;
+	}
+}
+
+.refreshButton {
+	border: 1px solid #111827;
+	background: transparent;
+	color: #111827;
+	font-weight: 600;
+	padding: 0.6rem 1.25rem;
+	border-radius: 999px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	&:not(:disabled):hover {
+		background: #111827;
+		color: white;
+	}
+}
+
+.error {
+	background: #fee2e2;
+	color: #b91c1c;
+	padding: 0.75rem 1rem;
+	border-radius: 8px;
+	font-size: 0.9rem;
+}
+
+.loading,
+.empty {
+	padding: 2rem;
+	text-align: center;
+	color: #6b7280;
+	background: #f9fafb;
+	border-radius: 8px;
+}
+
+.list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.listItem {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+	align-items: center;
+	gap: 1rem;
+	padding: 1rem 1.25rem;
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+	background: #fcfcfc;
+}
+
+.orderId {
+	margin: 0;
+	font-weight: 600;
+	color: #111827;
+}
+
+.date {
+	margin: 0.2rem 0 0;
+	color: #6b7280;
+	font-size: 0.85rem;
+}
+
+.badges {
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+}
+
+.badge {
+	padding: 0.25rem 0.75rem;
+	border-radius: 999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+.status {
+	background: #e0e7ff;
+	color: #3730a3;
+}
+
+.payment {
+	background: #dcfce7;
+	color: #15803d;
+}
+
+.total {
+	margin: 0;
+	font-weight: 600;
+	color: #111827;
+}
+
+.items {
+	margin: 0.2rem 0 0;
+	color: #6b7280;
+	font-size: 0.85rem;
+}

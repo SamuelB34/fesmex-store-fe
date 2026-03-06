@@ -22,13 +22,16 @@ export type CreateFiscalProfilePayload = {
 
 export type UpdateFiscalProfilePayload = Partial<CreateFiscalProfilePayload>
 
-type ApiResponse<T> = {
-	ok: boolean
-	data?: T
+type ApiSuccess<T> = { ok: true } & T
+
+type ApiError = {
+	ok: false
 	error?: { code?: string; message?: string; requestId?: string }
 }
 
-const unwrap = async <T>(promise: Promise<{ data: ApiResponse<T> }>): Promise<ApiResponse<T>> => {
+export type ApiResponse<T> = ApiSuccess<T> | ApiError
+
+const unwrap = async <T>(promise: Promise<{ data: ApiResponse<T> }>) => {
 	const res = await promise
 	return res.data
 }

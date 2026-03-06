@@ -1,6 +1,5 @@
 .container {
-	padding: 1rem 2rem;
-	max-width: 1200px;
+	max-width: 1280px;
 	margin: 0 auto;
 }
 
@@ -42,11 +41,36 @@
 
 .header {
 	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 1.5rem;
-	padding-bottom: 1rem;
-	border-bottom: 1px solid #ddd;
+	flex-direction: column;
+	gap: 16px;
+	padding: 32px 0;
+
+	&__chips {
+		display: flex;
+		gap: 16px;
+
+		.count {
+			border-radius: 100px;
+			background: var(--shade-blue, #dee2e5);
+			display: flex;
+			width: 24px;
+			padding: var(--Spacing-tiny, 4px) var(--Spacing-small, 8px);
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			gap: 8px;
+
+			span {
+				color: var(--body-text, #2c2c2c);
+				font-family: 'IBM Plex Sans', sans-serif;
+				font-size: var(--Font-Size-regular, 14px);
+				font-style: normal;
+				font-weight: 700;
+				line-height: var(--Line-Height-tight, 16px); /* 114.286% */
+				letter-spacing: 0.28px;
+			}
+		}
+	}
 }
 
 .title {
@@ -168,4 +192,14 @@
 .userFieldLabel {
 	font-weight: 500;
 	color: #666;
+}
+
+.profile {
+	width: 100%;
+	display: flex;
+	gap: 32px;
+}
+
+.pointer {
+	cursor: pointer;
 }

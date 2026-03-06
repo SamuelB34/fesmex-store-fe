@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, useEffect, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
 import styles from './FiscalProfileForm.module.scss'
 import { Input } from '@/components/Input/Input'
 import {
@@ -14,7 +14,14 @@ export const FiscalProfileForm = () => {
 	const [fiscalProfile, setFiscalProfile] = useState<FiscalProfile | null>(null)
 	const [isLoading, setIsLoading] = useState(true)
 	const [isSubmitting, setIsSubmitting] = useState(false)
-	const [error, setError] = useState<string | null>(null)
+
+	const [initialValues, setInitialValues] = useState({
+		rfc: '',
+		razon_social: '',
+		uso_cfdi: '',
+		regimen_fiscal: '',
+		cp: '',
+	})
 
 	const [rfc, setRfc] = useState('')
 	const [razonSocial, setRazonSocial] = useState('')
@@ -28,12 +35,18 @@ export const FiscalProfileForm = () => {
 
 	const fetchFiscalProfile = async () => {
 		setIsLoading(true)
-		setError(null)
 		try {
 			const res = await fiscalProfileApi.getFiscalProfile()
-			if (res.ok && res.data?.fiscalProfile) {
-				const profile = res.data.fiscalProfile
+			if (res.ok) {
+				const profile = res.fiscalProfile
 				setFiscalProfile(profile)
+				setInitialValues({
+					rfc: profile.rfc,
+					razon_social: profile.razon_social,
+					uso_cfdi: profile.uso_cfdi,
+					regimen_fiscal: profile.regimen_fiscal,
+					cp: profile.cp,
+				})
 				setRfc(profile.rfc)
 				setRazonSocial(profile.razon_social)
 				setUsoCfdi(profile.uso_cfdi)
@@ -43,17 +56,31 @@ export const FiscalProfileForm = () => {
 		} catch (err) {
 			if (err instanceof Error && err.message.includes('not found')) {
 				setFiscalProfile(null)
-			} else {
-				setError('Error al cargar datos fiscales')
+				setInitialValues({
+					rfc: '',
+					razon_social: '',
+					uso_cfdi: '',
+					regimen_fiscal: '',
+					cp: '',
+				})
 			}
 		} finally {
 			setIsLoading(false)
 		}
 	}
 
+	const isDirty = useMemo(() => {
+		return (
+			rfc !== initialValues.rfc ||
+			razonSocial !== initialValues.razon_social ||
+			usoCfdi !== initialValues.uso_cfdi ||
+			regimenFiscal !== initialValues.regimen_fiscal ||
+			cp !== initialValues.cp
+		)
+	}, [cp, initialValues, razonSocial, regimenFiscal, rfc, usoCfdi])
+
 	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
-		setError(null)
 		setIsSubmitting(true)
 
 		const payload: CreateFiscalProfilePayload = {
@@ -67,8 +94,15 @@ export const FiscalProfileForm = () => {
 		try {
 			if (fiscalProfile) {
 				const res = await fiscalProfileApi.updateFiscalProfile(payload)
-				if (res.ok && res.data?.fiscalProfile) {
-					setFiscalProfile(res.data.fiscalProfile)
+				if (res.ok) {
+					setFiscalProfile(res.fiscalProfile)
+					setInitialValues({
+						rfc: res.fiscalProfile.rfc,
+						razon_social: res.fiscalProfile.razon_social,
+						uso_cfdi: res.fiscalProfile.uso_cfdi,
+						regimen_fiscal: res.fiscalProfile.regimen_fiscal,
+						cp: res.fiscalProfile.cp,
+					})
 					sileo.success({
 						title: 'Datos actualizados',
 						description: 'Tu información fiscal se actualizó correctamente.',
@@ -78,8 +112,15 @@ export const FiscalProfileForm = () => {
 				}
 			} else {
 				const res = await fiscalProfileApi.createFiscalProfile(payload)
-				if (res.ok && res.data?.fiscalProfile) {
-					setFiscalProfile(res.data.fiscalProfile)
+				if (res.ok) {
+					setFiscalProfile(res.fiscalProfile)
+					setInitialValues({
+						rfc: res.fiscalProfile.rfc,
+						razon_social: res.fiscalProfile.razon_social,
+						uso_cfdi: res.fiscalProfile.uso_cfdi,
+						regimen_fiscal: res.fiscalProfile.regimen_fiscal,
+						cp: res.fiscalProfile.cp,
+					})
 					sileo.success({
 						title: 'Datos guardados',
 						description: 'Tu información fiscal se guardó correctamente.',
@@ -90,9 +131,15 @@ export const FiscalProfileForm = () => {
 			}
 		} catch (err) {
 			if (err instanceof Error) {
-				setError(err.message)
+				sileo.error({
+					title: 'Error al guardar',
+					description: err.message,
+				})
 			} else {
-				setError('No se pudo guardar la información fiscal')
+				sileo.error({
+					title: 'Error al guardar',
+					description: 'No se pudo guardar la información fiscal',
+				})
 			}
 		} finally {
 			setIsSubmitting(false)
@@ -110,12 +157,11 @@ export const FiscalProfileForm = () => {
 	return (
 		<div id="fiscal-profile" className={styles.container}>
 			<div className={styles.header}>
-				<h2 className={styles.title}>Datos Fiscales</h2>
+				<h2 className={styles.title}>Datos de Facturación</h2>
+				<p className={styles.subtitle}>Actualiza tus datos de facturación.</p>
 			</div>
 
 			<form onSubmit={handleSubmit} className={styles.form}>
-				{error && <div className={styles.error}>{error}</div>}
-
 				<div className={styles.field}>
 					<label htmlFor="rfc">RFC</label>
 					<Input
@@ -182,8 +228,12 @@ export const FiscalProfileForm = () => {
 				</div>
 
 				<div className={styles.actions}>
-					<button type="submit" disabled={isSubmitting} className={styles.submitButton}>
-						{isSubmitting ? 'Guardando...' : fiscalProfile ? 'Actualizar' : 'Guardar'}
+					<button
+						type="submit"
+						className={styles.submitButton}
+						disabled={isSubmitting || !isDirty}
+					>
+						{isSubmitting ? 'Guardando...' : 'Guardar cambios'}
 					</button>
 				</div>
 			</form>

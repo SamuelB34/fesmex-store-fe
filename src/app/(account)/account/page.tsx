@@ -1,18 +1,24 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/shared/auth/AuthProvider'
 import styles from './account.module.scss'
 import { FiscalProfileForm } from './_components/FiscalProfileForm/FiscalProfileForm'
+import { ProfileForm } from './_components/ProfileForm/ProfileForm'
+import { Chip } from '@/components/Chip/Chip'
+import { useOrdersList } from '@/features/orders/hooks/useOrders'
+import { OrdersPanel } from './_components/OrdersPanel/OrdersPanel'
 
 export default function AccountPage() {
 	const { accessToken, user, isBootstrapping, fetchMe } = useAuth()
+	const [activeTab, setActiveTab] = useState<
+		'profile' | 'address' | 'payments' | 'orders'
+	>('profile')
 	const router = useRouter()
 	const [isRefreshing, setIsRefreshing] = useState(false)
-	const [showFiscalSection, setShowFiscalSection] = useState(false)
-	const fiscalSectionRef = useRef<HTMLDivElement | null>(null)
+	const ordersState = useOrdersList()
+	const { fetchOrders } = ordersState
 
 	useEffect(() => {
 		if (!isBootstrapping && !accessToken) {
@@ -21,10 +27,8 @@ export default function AccountPage() {
 	}, [accessToken, isBootstrapping, router])
 
 	useEffect(() => {
-		if (showFiscalSection) {
-			fiscalSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-		}
-	}, [showFiscalSection])
+		fetchOrders({ page: 1, limit: 20 })
+	}, [fetchOrders])
 
 	if (isBootstrapping) {
 		return (
@@ -49,10 +53,6 @@ export default function AccountPage() {
 		}
 	}
 
-	const handleShowFiscalSection = () => {
-		setShowFiscalSection(true)
-	}
-
 	if (!user) {
 		return (
 			<div className={styles.container}>
@@ -72,74 +72,64 @@ export default function AccountPage() {
 
 	return (
 		<div className={styles.container}>
-
 			<div className={styles.header}>
-				<h1 className={styles.title}>Bienvenido, {user.first_name || user.last_name ? `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() : user.email}</h1>
-			</div>
+				<h1 className={styles.title}>
+					Bienvenido,{' '}
+					{user.first_name || user.last_name
+						? `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim()
+						: user.email}
+				</h1>
 
-			<div className={styles.quickLinks}>
-				<Link href="/orders" className={styles.quickLink}>
-					<span className={styles.quickLinkIcon}>📦</span>
-					<span>My Orders</span>
-				</Link>
-				<button type="button" className={styles.quickLink} onClick={handleShowFiscalSection}>
-					<span className={styles.quickLinkIcon}>📄</span>
-					<span>Mis Direcciones y Datos Fiscales</span>
-				</button>
-				<Link href="/" className={styles.quickLink}>
-					<span className={styles.quickLinkIcon}>🏪</span>
-					<span>Browse Articles</span>
-				</Link>
-			</div>
-
-			<div className={styles.card}>
-				<div className={styles.cardHeader}>
-					<h2 className={styles.cardTitle}>User Information</h2>
-					<button
-						onClick={handleRefresh}
-						className={styles.refreshButton}
-						disabled={isRefreshing}
+				<div className={styles.header__chips}>
+					<div
+						className={styles.pointer}
+						onClick={() => setActiveTab('profile')}
 					>
-						{isRefreshing ? 'Refreshing...' : 'Refresh My Info'}
-					</button>
-				</div>
-				<div className={styles.userDetails}>
-					<div className={styles.userField}>
-						<span className={styles.userFieldLabel}>Email</span>
-						<span>{user.email}</span>
+						<Chip
+							text={'Mis datos y Facturación'}
+							active={activeTab === 'profile'}
+						/>
 					</div>
-					{user.first_name && (
-						<div className={styles.userField}>
-							<span className={styles.userFieldLabel}>First Name</span>
-							<span>{user.first_name}</span>
-						</div>
-					)}
-					{user.last_name && (
-						<div className={styles.userField}>
-							<span className={styles.userFieldLabel}>Last Name</span>
-							<span>{user.last_name}</span>
-						</div>
-					)}
-					{user.mobile && (
-						<div className={styles.userField}>
-							<span className={styles.userFieldLabel}>Mobile</span>
-							<span>{user.mobile}</span>
-						</div>
-					)}
-					{user.status && (
-						<div className={styles.userField}>
-							<span className={styles.userFieldLabel}>Status</span>
-							<span>{user.status}</span>
-						</div>
-					)}
+					<div
+						className={styles.pointer}
+						onClick={() => setActiveTab('orders')}
+					>
+						<Chip
+							text={'Mis pedidos'}
+							active={activeTab === 'orders'}
+							rightIcon={
+								<div className={styles.count}>
+									<span>{ordersState.total}</span>
+								</div>
+							}
+						/>
+					</div>
+					<div
+						className={styles.pointer}
+						onClick={() => setActiveTab('address')}
+					>
+						<Chip text={'Mis Direcciones'} active={activeTab === 'address'} />
+					</div>
+					<div
+						className={styles.pointer}
+						onClick={() => setActiveTab('payments')}
+					>
+						<Chip
+							text={'Mis Métodos de Pago'}
+							active={activeTab === 'payments'}
+						/>
+					</div>
 				</div>
 			</div>
 
-			{showFiscalSection && (
-				<div ref={fiscalSectionRef}>
+			{activeTab === 'profile' && (
+				<div className={styles.profile}>
+					<ProfileForm />
 					<FiscalProfileForm />
 				</div>
 			)}
+
+			{activeTab === 'orders' && <OrdersPanel ordersState={ordersState} />}
 		</div>
 	)
 }
