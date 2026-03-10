@@ -89,7 +89,11 @@ export const Header = () => {
 								/>
 							</div>
 
-							<button type="button" className={styles.text} onClick={openRegister}>
+							<button
+								type="button"
+								className={styles.text}
+								onClick={openRegister}
+							>
 								Regístrate
 							</button>
 						</>

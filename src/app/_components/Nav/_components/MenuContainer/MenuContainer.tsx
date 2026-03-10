@@ -15,7 +15,10 @@ interface MenuContainerProps {
 	type?: 'products' | 'brands'
 }
 
-export const MenuContainer = ({ items = [], type = 'products' }: MenuContainerProps) => {
+export const MenuContainer = ({
+	items = [],
+	type = 'products',
+}: MenuContainerProps) => {
 	const { sections } = useSections()
 	const { brands } = useBrands()
 

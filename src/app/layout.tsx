@@ -44,11 +44,11 @@ export default function RootLayout({
 				className={`${geistSans.variable} ${geistMono.variable} ${IBMPlexSans.variable}`}
 			>
 				<Toaster position="top-right" theme="light" />
-				<SectionsProvider>
-					<BrandsProvider>
-						<CartProvider>
-							<LoginModalProvider>
-								<Providers>
+				<Providers>
+					<SectionsProvider>
+						<BrandsProvider>
+							<CartProvider>
+								<LoginModalProvider>
 									<Header />
 									<div className={'content'}>
 										<Nav />
@@ -56,11 +56,11 @@ export default function RootLayout({
 									{children}
 									<Footer />
 									<LoginModalRenderer />
-								</Providers>
-							</LoginModalProvider>
-						</CartProvider>
-					</BrandsProvider>
-				</SectionsProvider>
+								</LoginModalProvider>
+							</CartProvider>
+						</BrandsProvider>
+					</SectionsProvider>
+				</Providers>
 			</body>
 		</html>
 	)

@@ -1,0 +1,507 @@
+.checkoutPage {
+	min-height: 100vh;
+	background: white;
+	padding: 2rem 0;
+	display: flex;
+	justify-content: center;
+}
+
+.checkoutWrapper {
+	max-width: 1280px;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	width: 100%;
+	background: white;
+}
+
+.checkoutNav {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.checkoutNav a {
+	color: #0b4c8c;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.checkoutNavLinks {
+	display: flex;
+	gap: 1.5rem;
+	font-size: 0.95rem;
+	color: #6b7280;
+}
+
+.checkoutGrid {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--Spacing-huge, 64px);
+	align-self: stretch;
+}
+
+.formColumn,
+.summaryColumn {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	width: fit-content;
+}
+
+.formColumn {
+	width: 100%;
+}
+
+.sectionCard {
+	background: #fff;
+	border-radius: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: var(--Spacing-big, 24px);
+}
+
+.sectionHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+
+	.top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+		width: 100%;
+	}
+}
+
+.sectionTitle {
+	color: #000;
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: var(--Font-Size-medium, 16px);
+	font-style: normal;
+	font-weight: 400;
+	line-height: var(--Line-Height-regular, 24px);
+	display: flex;
+	gap: var(--Spacing-small, 8px);
+}
+
+.sectionSubtitle {
+	color: var(--text, #201e1c);
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: var(--Font-Size-huge, 32px);
+	font-style: normal;
+	font-weight: 600;
+	line-height: var(--Line-Height-loose, 32px); /* 100% */
+	letter-spacing: 0.64px;
+}
+
+.fieldGrid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1rem;
+	width: 100%;
+}
+
+.fieldGrid.full {
+	grid-template-columns: 1fr;
+}
+
+.field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+}
+
+.label {
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: #4b5563;
+}
+
+.input {
+	padding: 0.75rem 0.9rem;
+	border-radius: 10px;
+	border: 1px solid #d3dae6;
+	background: #fff;
+	font-size: 0.95rem;
+	transition: border 0.2s ease;
+}
+
+.input:focus {
+	outline: none;
+	border-color: #0b4c8c;
+	box-shadow: 0 0 0 3px rgba(11, 76, 140, 0.12);
+}
+
+.radioGroup {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	width: 100%;
+}
+
+.radioOption {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: var(--Spacing-regular, 16px);
+	cursor: pointer;
+	transition:
+		border 0.2s ease,
+		background 0.2s ease;
+	background: white;
+	border-radius: var(--Radius-regular, 8px);
+	border: 1px solid var(--dark-gray, #58544f);
+
+	span {
+		font-family: 'IBM Plex Sans', sans-serif;
+		font-size: var(--Font-Size-medium, 16px);
+		font-style: normal;
+		font-weight: 700;
+		line-height: var(--Line-Height-regular, 24px); /* 150% */
+		letter-spacing: 0.32px;
+	}
+
+	strong {
+		font-family: 'IBM Plex Sans', sans-serif;
+		font-size: var(--Font-Size-medium, 16px);
+		font-style: normal;
+		font-weight: 700;
+		line-height: var(--Line-Height-regular, 24px); /* 150% */
+		letter-spacing: 0.32px;
+	}
+
+	.radioBtn {
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+		border: 2px solid #201e1c;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition:
+			border 0.2s ease,
+			background 0.2s ease;
+		position: relative;
+
+		&__inner {
+			width: 10px;
+			height: 10px;
+			border-radius: 50%;
+			background: transparent;
+			transition:
+				background 0.2s ease,
+				transform 0.2s ease;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%) scale(0);
+		}
+	}
+}
+
+.radioOption.active {
+	border-radius: var(--Radius-regular, 8px);
+	background: var(--primary, #364b60);
+	color: white;
+
+	.radioMain {
+		color: white;
+
+		span {
+			color: var(--high-contrast-a, #fff);
+			font-family: 'IBM Plex Sans', sans-serif;
+			font-size: var(--Font-Size-medium, 16px);
+			font-style: normal;
+			font-weight: 700;
+			line-height: var(--Line-Height-regular, 24px); /* 150% */
+			letter-spacing: 0.32px;
+		}
+	}
+
+	.radioBtn {
+		border-color: white;
+		background: transparent;
+
+		&__inner {
+			background: white;
+			transform: translate(-50%, -50%) scale(1);
+		}
+	}
+}
+
+.radioMain {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	font-weight: 600;
+	color: #111827;
+}
+
+.radioMeta {
+	font-size: 0.85rem;
+	color: #6b7280;
+}
+
+.summaryCard {
+	position: sticky;
+	top: 1.5rem;
+	border-radius: 18px;
+	display: flex;
+	flex-direction: column;
+	gap: var(--Spacing-big, 24px);
+}
+
+.summaryTitle {
+	font-size: 1.2rem;
+	font-weight: 600;
+	margin-bottom: 1rem;
+	color: #111827;
+}
+
+.summaryItems {
+	display: flex;
+	flex-direction: column;
+	gap: var(--Spacing-big, 24px);
+}
+
+.summaryItem {
+	display: flex;
+	height: 189px;
+	padding: 24px var(--Spacing-big, 24px) 32px var(--Spacing-big, 24px);
+	align-items: flex-start;
+	gap: var(--Spacing-large, 32px);
+	align-self: stretch;
+	width: 100%;
+	max-width: 100%;
+	border-radius: var(--Radius-regular, 8px);
+	border: 1px solid var(--medium-gray, #6b7280);
+	box-sizing: border-box;
+	background: white;
+}
+
+.itemBadge {
+	width: 28px;
+	height: 28px;
+	border-radius: var(--Radius-regular, 8px);
+	background: var(--high-contrast-b, #201e1c);
+	color: var(--high-contrast-a, #fff);
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: 18px;
+	font-style: normal;
+	font-weight: 700;
+	line-height: var(--Line-Height-regular, 24px); /* 133.333% */
+	letter-spacing: 0.36px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+
+.itemThumb {
+	position: relative;
+	width: 133px;
+	height: 133px;
+	border-radius: 12px;
+	background: #fff;
+
+	.img {
+		display: flex;
+		object-fit: cover;
+		justify-content: center;
+		align-items: center;
+		aspect-ratio: 1/1;
+	}
+}
+
+.itemInfo {
+	display: flex;
+	flex-direction: column;
+	gap: 0.15rem;
+	max-width: 130px;
+	width: 130px;
+}
+
+.itemName {
+	color: var(--text, #201e1c);
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: var(--Font-Size-medium, 16px);
+	font-style: normal;
+	font-weight: 700;
+	line-height: var(--Line-Height-regular, 24px); /* 150% */
+	letter-spacing: 0.32px;
+	-webkit-line-clamp: 3;
+	line-clamp: 3;
+	-webkit-box-orient: vertical;
+	display: -webkit-box;
+	overflow: hidden;
+}
+
+.itemBrand {
+	color: var(--body-text, #2c2c2c);
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: var(--Font-Size-regular, 14px);
+	font-style: normal;
+	font-weight: 500;
+	line-height: var(--Line-Height-tight, 16px); /* 114.286% */
+	letter-spacing: 0.28px;
+}
+
+.itemPrice {
+	color: var(--text, #201e1c);
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: var(--Font-Size-big, 18px);
+	font-style: normal;
+	font-weight: 700;
+	line-height: var(--Line-Height-regular, 24px); /* 133.333% */
+	letter-spacing: 0.36px;
+	display: flex;
+	gap: 4px;
+	align-items: center;
+	width: fit-content;
+
+	span {
+		color: var(--text, #201e1c);
+		font-family: 'IBM Plex Sans', sans-serif;
+		font-size: var(--Font-Size-regular, 14px);
+		font-style: normal;
+		font-weight: 500;
+		line-height: var(--Line-Height-tight, 16px); /* 114.286% */
+		letter-spacing: 0.28px;
+		text-transform: uppercase;
+	}
+}
+
+.summaryTotals {
+	display: flex;
+	flex-direction: column;
+	border-radius: var(--Radius-regular, 8px);
+	padding: var(--Spacing-regular, 16px) var(--Spacing-regular, 16px)
+		var(--Spacing-big, 24px) var(--Spacing-regular, 16px);
+	align-items: flex-start;
+	gap: var(--Spacing-big, 24px);
+	align-self: stretch;
+	background: var(--shade-blue, #dee2e5);
+
+	.top_price {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--Spacing-small, 8px);
+		align-self: stretch;
+	}
+}
+
+.totalRow {
+	display: flex;
+	justify-content: space-between;
+	font-size: 0.95rem;
+	color: #4b5563;
+	width: 100%;
+
+	.label {
+		color: var(--secondary-text, #6b7280);
+		font-family: 'IBM Plex Sans', sans-serif;
+		font-size: var(--Font-Size-regular, 14px);
+		font-style: normal;
+		font-weight: 500;
+		line-height: var(--Line-Height-tight, 16px); /* 114.286% */
+		letter-spacing: 0.28px;
+	}
+
+	.price {
+		color: var(--primary, #364b60);
+		font-family: 'IBM Plex Sans', sans-serif;
+		font-size: var(--Font-Size-big, 18px);
+		font-style: normal;
+		font-weight: 700;
+		line-height: var(--Line-Height-regular, 24px); /* 133.333% */
+		letter-spacing: 0.36px;
+		display: flex;
+		align-items: center;
+		gap: var(--Spacing-small, 8px);
+	}
+}
+
+.totalRow strong {
+	color: var(--primary, #364b60);
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: var(--Font-Size-large, 24px);
+	font-style: normal;
+	font-weight: 600;
+	line-height: var(--Line-Height-regular, 24px); /* 100% */
+	letter-spacing: 0.48px;
+}
+
+.payButton {
+	width: 100%;
+	border: none;
+	background: linear-gradient(135deg, #0b4c8c, #1d5fa7);
+	color: #fff;
+	padding: 0.9rem 1.2rem;
+	border-radius: 999px;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition:
+		opacity 0.2s ease,
+		transform 0.2s ease;
+}
+
+.payButton:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+.payButton:not(:disabled):hover {
+	transform: translateY(-1px);
+}
+
+.emptyState {
+	text-align: center;
+	padding: 3rem 1rem;
+	background: #fff;
+	border-radius: 16px;
+	border: 1px solid #e5e7eb;
+}
+
+@media (max-width: 960px) {
+	.checkoutGrid {
+		grid-template-columns: 1fr;
+	}
+
+	.summaryCard {
+		position: static;
+	}
+}
+
+.icon {
+	filter: brightness(0) saturate(100%) invert(32%) sepia(6%) saturate(643%)
+		hue-rotate(353deg) brightness(90%) contrast(80%);
+}
+
+.form {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--Spacing-large, 32px);
+	flex: 1 0 0;
+	width: 100%;
+
+	.delivery {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: var(--Spacing-big, 24px);
+		align-items: flex-start;
+	}
+}
+
+.card_icon {
+	filter: brightness(0) saturate(100%) invert(7%) sepia(6%) saturate(1114%)
+		hue-rotate(349deg) brightness(95%) contrast(88%);
+}

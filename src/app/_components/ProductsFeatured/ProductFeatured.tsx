@@ -4,7 +4,10 @@ import styles from './ProductFeatured.module.scss'
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Product } from '@/components/Product/Product'
-import { articlesApi, type ArticleListItem } from '@/features/services/articles.api'
+import {
+	articlesApi,
+	type ArticleListItem,
+} from '@/features/services/articles.api'
 import type { Product as ProductType } from '@/app/mock'
 
 export const ProductFeatured = () => {
@@ -37,7 +40,8 @@ export const ProductFeatured = () => {
 	}, [])
 
 	const content = useMemo(() => {
-		if (loading && featured.length === 0) return <span>Cargando destacados...</span>
+		if (loading && featured.length === 0)
+			return <span>Cargando destacados...</span>
 		if (!featured.length) return <span>No hay productos destacados</span>
 		return featured
 	}, [featured, loading])
@@ -60,14 +64,10 @@ export const ProductFeatured = () => {
 
 			{Array.isArray(content)
 				? content.map((product) => (
-					<div key={product.id}>
-						<Product
-							product={product}
-							onSelect={handleSelect}
-							short
-						/>
-					</div>
-				  ))
+						<div key={product.id}>
+							<Product product={product} onSelect={handleSelect} short />
+						</div>
+					))
 				: content}
 		</div>
 	)
@@ -83,6 +83,8 @@ function mapArticleToProduct(article: ArticleListItem): ProductType {
 		currency: 'MXN',
 		stock: article.stock_web?.count ?? 0,
 		image:
-			article.files?.images?.[0]?.url || article.image_url || '/illustrations/motor.svg',
+			article.files?.images?.[0]?.url ||
+			article.image_url ||
+			'/illustrations/motor.svg',
 	}
 }

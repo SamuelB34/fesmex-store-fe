@@ -7,7 +7,10 @@ import styles from './account.module.scss'
 import { FiscalProfileForm } from './_components/FiscalProfileForm/FiscalProfileForm'
 import { ProfileForm } from './_components/ProfileForm/ProfileForm'
 import { Chip } from '@/components/Chip/Chip'
-import { useOrdersList, useShippingAddresses } from '@/features/orders/hooks/useOrders'
+import {
+	useOrdersList,
+	useShippingAddresses,
+} from '@/features/orders/hooks/useOrders'
 import { OrdersPanel } from './_components/OrdersPanel/OrdersPanel'
 
 export default function AccountPage() {

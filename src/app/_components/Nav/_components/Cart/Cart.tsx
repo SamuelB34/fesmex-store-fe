@@ -1,5 +1,6 @@
 import styles from './Cart.module.scss'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { Counter } from '@/components/Counter/Counter'
 import { Button } from '@/components/Button/Button'
 import { useCart } from '@/features/cart/context/CartContext'
@@ -7,7 +8,9 @@ import { formatCurrency } from '@/shared/utils/format'
 import { sileo } from 'sileo'
 
 export const Cart = () => {
+	const router = useRouter()
 	const { items, updateQuantity } = useCart()
+	const hasItems = items.length > 0
 
 	return (
 		<div className={styles.cart}>
@@ -24,6 +27,11 @@ export const Cart = () => {
 					filled={true}
 					text={'CHECKOUT'}
 					variant={'accent'}
+					disabled={!hasItems}
+					onClick={() => {
+						if (!hasItems) return
+						router.push('/checkout')
+					}}
 					leftIcon={
 						<Image
 							src={'/icons/credit-card.svg'}
@@ -67,13 +75,20 @@ const CartItem = ({
 	}
 	return (
 		<div className={styles.cartItem}>
-			<Image
-				src={image}
-				alt={name}
-				width={133}
-				height={133}
-				className={styles.cartItem__img}
-			/>
+			<div className={styles.cartItem__imgContainer}>
+				{image ? (
+					<Image
+						src={image}
+						alt={name}
+						fill
+						sizes="133px"
+						className={styles.cartItem__img}
+						unoptimized
+					/>
+				) : (
+					<div className={styles.cartItem__imgPlaceholder}>Sin imagen</div>
+				)}
+			</div>
 			<div className={styles.cartItem__details}>
 				{/*Description*/}
 				<div className={styles.left}>

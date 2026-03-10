@@ -64,7 +64,12 @@ export const Login = () => {
 							className={styles.header__close}
 							onClick={close}
 						>
-							<Image src={'/icons/close.svg'} alt={'close'} width={24} height={24} />
+							<Image
+								src={'/icons/close.svg'}
+								alt={'close'}
+								width={24}
+								height={24}
+							/>
 						</button>
 					</div>
 

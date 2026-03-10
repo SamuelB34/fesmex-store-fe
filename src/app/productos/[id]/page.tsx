@@ -2,7 +2,10 @@ import { notFound } from 'next/navigation'
 import styles from './ProductDetail.module.scss'
 import { ProductDetailClient } from './ProductDetailClient'
 import { ProductFeatured } from '@/app/_components/ProductsFeatured/ProductFeatured'
-import { articlesApi, getArticleImageUrl } from '@/features/services/articles.api'
+import {
+	articlesApi,
+	getArticleImageUrl,
+} from '@/features/services/articles.api'
 import { ApiError } from '@/shared/api/axios'
 import type { Product } from '@/app/mock'
 
@@ -32,12 +35,14 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 	}
 
 	const price = articleRes.data?.price ?? article.price ?? 0
-	const stock = articleRes.data?.stock_web?.count ?? articleRes.data?.stock?.count ?? 0
+	const stock =
+		articleRes.data?.stock_web?.count ?? articleRes.data?.stock?.count ?? 0
 	const image = getArticleImageUrl(article)
 
 	const product: Product = {
 		id: article._id as string,
-		name: (article.description as string) || (article.name as string) || 'Producto',
+		name:
+			(article.description as string) || (article.name as string) || 'Producto',
 		brand: (article.brand as string) || '',
 		price,
 		currency: 'MXN',

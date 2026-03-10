@@ -10,9 +10,11 @@ type ApiResponse<T> = {
 export type CartItem = {
 	article_id: string
 	name?: string
+	brand?: string
+	image?: string
 	quantity: number
 	unit_price: number
-	total: number
+	line_subtotal?: number
 }
 
 export type Cart = {

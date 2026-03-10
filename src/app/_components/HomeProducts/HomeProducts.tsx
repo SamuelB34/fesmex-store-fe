@@ -25,20 +25,28 @@ interface HomeProductsProps {
 	initialProducts?: ProductView[]
 }
 
-export const HomeProducts = ({ brands, types, initialProducts = [] }: HomeProductsProps) => {
+export const HomeProducts = ({
+	brands,
+	types,
+	initialProducts = [],
+}: HomeProductsProps) => {
 	const router = useRouter()
 	const searchParams = useSearchParams()
 	const { sections } = useSections()
 	const { items, isLoading, fetchArticles } = useArticles()
 	const [hasFetched, setHasFetched] = useState(false)
-	
+
 	const urlCategoryId = searchParams.get('category')
 	const urlBrandId = searchParams.get('brand')
 	const urlSearchQuery = searchParams.get('q')
-	
-	const [userSelectedCategory, setUserSelectedCategory] = useState<string | null>(null)
-	const [userSelectedBrand, setUserSelectedBrand] = useState<string | null>(null)
-	
+
+	const [userSelectedCategory, setUserSelectedCategory] = useState<
+		string | null
+	>(null)
+	const [userSelectedBrand, setUserSelectedBrand] = useState<string | null>(
+		null,
+	)
+
 	const activeSectionId = userSelectedCategory ?? urlCategoryId ?? 'all'
 	const activeBrandId = userSelectedBrand ?? urlBrandId ?? 'all-brands'
 

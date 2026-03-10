@@ -153,7 +153,9 @@ export const RegisterModal = () => {
 					</div>
 
 					<div className={styles.requirements}>
-						<strong>Ingresa una nueva contraseña. Tu contraseña debe incluir al menos</strong>
+						<strong>
+							Ingresa una nueva contraseña. Tu contraseña debe incluir al menos
+						</strong>
 						<ul>
 							{PASSWORD_REQUIREMENTS.map(({ key, label }) => (
 								<li key={key}>
@@ -195,7 +197,9 @@ export const RegisterModal = () => {
 					</div>
 
 					<div className={styles.field}>
-						<label htmlFor="register-confirm-password">Confirmar contraseña</label>
+						<label htmlFor="register-confirm-password">
+							Confirmar contraseña
+						</label>
 						<input
 							id="register-confirm-password"
 							type={showConfirmPassword ? 'text' : 'password'}
@@ -214,11 +218,16 @@ export const RegisterModal = () => {
 					</div>
 
 					<p className={styles.terms}>
-						Al crear la cuenta aceptas los Términos y Condiciones y el Aviso de privacidad.
+						Al crear la cuenta aceptas los Términos y Condiciones y el Aviso de
+						privacidad.
 					</p>
 
 					<div className={styles.actions}>
-						<button type="submit" className={styles.submitButton} disabled={isSubmitting}>
+						<button
+							type="submit"
+							className={styles.submitButton}
+							disabled={isSubmitting}
+						>
 							{isSubmitting ? 'Creando cuenta…' : 'Crear Cuenta'}
 						</button>
 

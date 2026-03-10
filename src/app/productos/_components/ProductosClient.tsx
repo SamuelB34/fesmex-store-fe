@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { Search } from '@/app/productos/_components/search/Search'
 import { HomeProducts } from '@/app/_components/HomeProducts/HomeProducts'

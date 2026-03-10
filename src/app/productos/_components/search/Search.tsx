@@ -35,7 +35,12 @@ export const Search = ({ onSearch, initialValue = '' }: SearchProps) => {
 					onChange={(event) => setValue(event.target.value)}
 					onKeyDown={handleKeyDown}
 				/>
-				<div className={styles.btn} onClick={handleSearch} role="button" tabIndex={0}>
+				<div
+					className={styles.btn}
+					onClick={handleSearch}
+					role="button"
+					tabIndex={0}
+				>
 					<Image
 						src={'/icons/search.svg'}
 						alt={'search'}
