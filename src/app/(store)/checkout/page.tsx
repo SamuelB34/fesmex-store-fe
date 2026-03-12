@@ -1,11 +1,9 @@
 'use client'
 
 import { useMemo, useState, FormEvent } from 'react'
-import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import styles from './Checkout.module.scss'
-import { RequireAuth } from '@/shared/auth/RequireAuth'
 import { useCreateOrder } from '@/features/orders/hooks/useOrders'
 import {
 	PaymentMethod,
@@ -15,10 +13,11 @@ import { useCart } from '@/features/cart/context/CartContext'
 import { formatCurrency } from '@/shared/utils/format'
 import { Button } from '@/components/Button/Button'
 
+type DeliveryType = 'shipping' | 'pickup'
+
 type ShippingOption = {
 	id: 'express' | 'standard'
 	label: string
-	description: string
 	cost: number
 }
 
@@ -26,21 +25,44 @@ const SHIPPING_OPTIONS: ShippingOption[] = [
 	{
 		id: 'express',
 		label: '1 a 3 días hábiles',
-		description: 'Envío prioritario a toda la república mexicana',
 		cost: 1200,
 	},
 	{
 		id: 'standard',
 		label: '4 a 10 días hábiles',
-		description: 'Cobertura nacional con seguimiento en línea',
 		cost: 900,
 	},
 ]
 
-function CheckoutForm() {
+const PICKUP_LOCATIONS = [
+	{
+		id: 'mxli',
+		name: 'Almacén Mexicali',
+		address: 'Av. Lázaro Cárdenas #1234',
+		delivery: 'ENTREGA INMEDIATA',
+	},
+	{
+		id: 'qro',
+		name: 'Almacén Querétaro',
+		address: 'Av. Lázaro Cárdenas #1234',
+		delivery: 'ENTREGA EN 1 DÍA HÁBIL',
+	},
+	{
+		id: 'puebla',
+		name: 'Almacén Puebla',
+		address: 'Av. Lázaro Cárdenas #1234',
+		delivery: 'ENTREGA EN 2 DÍAS HÁBILES',
+	},
+]
+
+export default function CheckoutForm() {
 	const router = useRouter()
 	const { items, total } = useCart()
-	const { isSubmitting, error, createOrder } = useCreateOrder()
+	const { createOrder, isSubmitting } = useCreateOrder()
+
+	const [deliveryType, setDeliveryType] = useState<DeliveryType>('shipping')
+
+	const [pickupLocation, setPickupLocation] = useState<string>('mxli')
 
 	const [fullName, setFullName] = useState('')
 	const [phone, setPhone] = useState('')
@@ -49,165 +71,161 @@ function CheckoutForm() {
 	const [city, setCity] = useState('')
 	const [state, setState] = useState('')
 	const [postalCode, setPostalCode] = useState('')
-	const [country, setCountry] = useState('MX')
+
 	const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CARD')
+
 	const [notes, setNotes] = useState('')
+
 	const [shipping, setShipping] = useState<ShippingOption>(SHIPPING_OPTIONS[0])
 
-	const isCartEmpty = items.length === 0
 	const grandTotal = useMemo(
-		() => total + (shipping?.cost ?? 0),
-		[shipping, total],
+		() => total + (deliveryType === 'shipping' ? shipping.cost : 0),
+		[total, shipping, deliveryType],
 	)
 
 	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
-		if (isCartEmpty) return
 
 		const shippingAddress: ShippingAddress = {
 			full_name: fullName,
 			phone,
 			line1,
-			line2: line2 || undefined,
+			line2,
 			city,
 			state,
 			postal_code: postalCode,
-			country: country || undefined,
+			country: 'MX',
 		}
 
 		const order = await createOrder({
 			payment_method: paymentMethod,
-			notes: notes || undefined,
-			shipping_address: shippingAddress,
+			notes,
+			shipping_address:
+				deliveryType === 'shipping' ? shippingAddress : undefined,
 		})
 
-		if (order) {
-			router.push(`/orders/${order._id}`)
-		}
-	}
-
-	if (isCartEmpty) {
-		return (
-			<div className={styles.emptyState}>
-				<h2>Tu carrito está vacío</h2>
-				<p>Agrega productos para poder completar tu checkout.</p>
-				<Link href="/productos" className={styles.payButton}>
-					Ver productos
-				</Link>
-			</div>
-		)
+		if (order) router.push(`/orders/${order._id}`)
 	}
 
 	return (
 		<div className={styles.checkoutWrapper}>
-			<div className={styles.checkoutGrid}>
+			<form onSubmit={handleSubmit} className={styles.checkoutGrid}>
 				<section className={styles.formColumn}>
-					<article className={styles.sectionCard}>
-						<header className={styles.sectionHeader}>
-							<div>
-								<p className={styles.sectionSubtitle}>Entrega</p>
-							</div>
-						</header>
+					<div className={styles.form}>
+						{/* ENTREGA */}
+						<div className={styles.section}>
+							<div className={styles.sectionHeader}>
+								<h2>Entrega</h2>
 
-						<form onSubmit={handleSubmit} className={styles.form}>
-							<div className={styles.fieldGrid}>
-								<div className={styles.field}>
-									<label className={styles.label}>Nombre completo *</label>
-									<input
-										className={styles.input}
-										value={fullName}
-										onChange={(e) => setFullName(e.target.value)}
-										required
-										disabled={isSubmitting}
-									/>
+								<div className={styles.deliveryToggle}>
+									<button
+										type="button"
+										className={deliveryType === 'shipping' ? styles.active : ''}
+										onClick={() => setDeliveryType('shipping')}
+									>
+										Envío por flete
+									</button>
+
+									<button
+										type="button"
+										className={deliveryType === 'pickup' ? styles.active : ''}
+										onClick={() => setDeliveryType('pickup')}
+									>
+										Recoger en almacén
+									</button>
 								</div>
-								<div className={styles.field}>
-									<label className={styles.label}>Teléfono *</label>
+							</div>
+
+							{/* DIRECCIÓN */}
+							{deliveryType === 'shipping' && (
+								<div className={styles.fieldGrid}>
 									<input
 										className={styles.input}
-										value={phone}
-										onChange={(e) => setPhone(e.target.value)}
-										required
-										disabled={isSubmitting}
-									/>
-								</div>
-								<div className={styles.field}>
-									<label className={styles.label}>Código Postal *</label>
-									<input
-										className={styles.input}
+										placeholder="Código Postal"
 										value={postalCode}
 										onChange={(e) => setPostalCode(e.target.value)}
-										required
-										disabled={isSubmitting}
 									/>
-								</div>
-								<div className={styles.field}>
-									<label className={styles.label}>Estado *</label>
+
 									<input
 										className={styles.input}
-										value={state}
-										onChange={(e) => setState(e.target.value)}
-										required
-										disabled={isSubmitting}
-									/>
-								</div>
-								<div className={styles.field}>
-									<label className={styles.label}>Ciudad *</label>
-									<input
-										className={styles.input}
-										value={city}
-										onChange={(e) => setCity(e.target.value)}
-										required
-										disabled={isSubmitting}
-									/>
-								</div>
-								<div className={styles.field}>
-									<label className={styles.label}>Colonia</label>
-									<input
-										className={styles.input}
-										value={line2}
-										onChange={(e) => setLine2(e.target.value)}
-										disabled={isSubmitting}
-									/>
-								</div>
-								<div className={styles.field}>
-									<label className={styles.label}>Calle *</label>
-									<input
-										className={styles.input}
+										placeholder="Calle"
 										value={line1}
 										onChange={(e) => setLine1(e.target.value)}
-										required
-										disabled={isSubmitting}
 									/>
-								</div>
-								<div className={styles.field}>
-									<label className={styles.label}>Número exterior</label>
-									<input className={styles.input} disabled={isSubmitting} />
-								</div>
-								<div className={styles.field}>
-									<label className={styles.label}>País</label>
+
 									<input
 										className={styles.input}
-										value={country}
-										onChange={(e) => setCountry(e.target.value)}
-										disabled={isSubmitting}
+										placeholder="Número exterior"
+									/>
+
+									<input
+										className={styles.input}
+										placeholder="Colonia"
+										value={line2}
+										onChange={(e) => setLine2(e.target.value)}
+									/>
+
+									<input
+										className={styles.input}
+										placeholder="Ciudad"
+										value={city}
+										onChange={(e) => setCity(e.target.value)}
+									/>
+
+									<input
+										className={styles.input}
+										placeholder="Estado"
+										value={state}
+										onChange={(e) => setState(e.target.value)}
 									/>
 								</div>
-							</div>
+							)}
 
-							<div className={styles.delivery}>
+							{/* PICKUP */}
+
+							{deliveryType === 'pickup' && (
+								<div className={styles.pickupList}>
+									{PICKUP_LOCATIONS.map((loc) => (
+										<button
+											key={loc.id}
+											type="button"
+											className={`${styles.pickupOption} ${
+												pickupLocation === loc.id ? styles.active : ''
+											}`}
+											onClick={() => setPickupLocation(loc.id)}
+										>
+											<div className={styles.left}>
+												<div className={styles.radioBtn}>
+													<div className={styles.radioBtn__inner}></div>
+												</div>
+												<div className={styles.labels}>
+													<strong>{loc.name}</strong>
+													<p>{loc.address}</p>
+												</div>
+											</div>
+
+											<span>{loc.delivery}</span>
+										</button>
+									))}
+								</div>
+							)}
+						</div>
+
+						{/* MÉTODO ENVÍO */}
+						{deliveryType === 'shipping' && (
+							<div className={styles.section}>
 								<div className={styles.sectionHeader}>
-									<div className={styles.top}>
-										<p className={styles.sectionSubtitle}>Método de envío</p>
-										<span className={styles.sectionTitle}>
-											<Image
-												src={'/icons/delivery.svg'}
-												alt={'delivery'}
-												width={24}
-												height={24}
-											/>
-											Envíos a toda la república Mexicana
-										</span>
+									<p className={styles.sectionSubtitle}>Método de envío</p>
+
+									<div className={styles.sectionTitle}>
+										<Image
+											src={'/icons/delivery.svg'}
+											alt={'delivery'}
+											width={24}
+											height={24}
+											className={styles.card_icon}
+										/>
+										<span>Envíos a toda la república Mexicana</span>
 									</div>
 								</div>
 
@@ -221,33 +239,39 @@ function CheckoutForm() {
 											}`}
 											onClick={() => setShipping(option)}
 										>
-											<div className={styles.radioMain}>
+											<div className={styles.left}>
 												<div className={styles.radioBtn}>
 													<div className={styles.radioBtn__inner}></div>
 												</div>
-												<span>{option.label}</span>
+												{option.label}
 											</div>
+
 											<strong>{formatCurrency(option.cost)}</strong>
 										</button>
 									))}
 								</div>
 							</div>
+						)}
 
+						{/* PAGO */}
+						<div className={styles.section}>
 							<div className={styles.sectionHeader}>
-								<div className={styles.top}>
-									<p className={styles.sectionSubtitle}>Pago</p>
-									<span className={styles.sectionTitle}>
-										<Image
-											src={'/icons/credit-card.svg'}
-											alt={'credit-card'}
-											width={24}
-											height={24}
-											className={styles.card_icon}
-										/>
+								<p className={styles.sectionSubtitle}>Pago</p>
+
+								<div className={styles.sectionTitle}>
+									<Image
+										src={'/icons/credit-card.svg'}
+										alt={'credit-card'}
+										width={24}
+										height={24}
+										className={styles.card_icon}
+									/>
+									<span>
 										Aceptamos tarjetas de crédito y transferencias electrónicas
 									</span>
 								</div>
 							</div>
+
 							<div className={styles.radioGroup}>
 								<button
 									type="button"
@@ -256,13 +280,44 @@ function CheckoutForm() {
 									}`}
 									onClick={() => setPaymentMethod('CARD')}
 								>
-									<div className={styles.radioMain}>
+									<div className={styles.left}>
 										<div className={styles.radioBtn}>
 											<div className={styles.radioBtn__inner}></div>
 										</div>
-										<span>Tarjeta de crédito</span>
+										Tarjeta de Crédito
 									</div>
 								</button>
+
+								{paymentMethod === 'CARD' && (
+									<div className={styles.cardForm}>
+										<div className={styles.fieldGrid__input}>
+											<span>Número de la tarjeta</span>
+											<input
+												className={styles.input}
+												placeholder="Nombre del titular"
+											/>
+										</div>
+
+										<div className={styles.fieldGrid__input}>
+											<span>Nombre del titular</span>
+											<input
+												className={styles.input}
+												placeholder="Número de tarjeta"
+											/>
+										</div>
+
+										<div className={styles.fieldGrid}>
+											<div className={styles.fieldGrid__input}>
+												<span>Vigencia</span>
+												<input className={styles.input} placeholder="MM/AA" />
+											</div>
+											<div className={styles.fieldGrid__input}>
+												<span>Código de Seguridad</span>
+												<input className={styles.input} placeholder="CVV" />
+											</div>
+										</div>
+									</div>
+								)}
 
 								<button
 									type="button"
@@ -271,71 +326,76 @@ function CheckoutForm() {
 									}`}
 									onClick={() => setPaymentMethod('TRANSFER')}
 								>
-									<div className={styles.radioMain}>
+									<div className={styles.left}>
 										<div className={styles.radioBtn}>
 											<div className={styles.radioBtn__inner}></div>
 										</div>
-										<span>Transferencia Bancaria</span>
+										Transferencia Bancaria
 									</div>
 								</button>
 							</div>
 
-							<div className={styles.field}>
-								<label className={styles.label}>Notas (opcional)</label>
-								<textarea
-									className={styles.input}
-									style={{ minHeight: '120px', resize: 'vertical' }}
-									value={notes}
-									onChange={(e) => setNotes(e.target.value)}
-									disabled={isSubmitting}
-								/>
-							</div>
-
-							{error && (
-								<p style={{ color: '#b91c1c', marginTop: '0.5rem' }}>{error}</p>
-							)}
-
-							<button
-								type="submit"
-								className={styles.payButton}
-								disabled={isSubmitting}
-							>
-								{isSubmitting ? 'Generando orden…' : 'Realizar pago'}
-							</button>
-						</form>
-					</article>
-				</section>
-
-				<aside className={styles.summaryColumn}>
-					<section className={styles.summaryCard}>
-						<div className={styles.summaryItems}>
-							{items.map((item, index) => (
-								<div key={`${item.id}_${index}`} className={styles.summaryItem}>
-									<div className={styles.itemThumb}>
-										<Image
-											src={item.image || '/images/placeholder-product.png'}
-											alt={item.name}
-											width={133}
-											height={133}
-											className={styles.img}
-										/>
-										<div className={styles.itemBadge}>{item.quantity}</div>
-									</div>
-									<div className={styles.itemInfo}>
-										<p className={styles.itemName} title={item.name}>
-											{item.name}
-										</p>
-										<span className={styles.itemBrand}>{item.brand}</span>
-									</div>
-									<span className={styles.itemPrice}>
-										{formatCurrency(item.unitPrice)}
-										<span>MXN</span>
+							{paymentMethod === 'TRANSFER' && (
+								<div className={styles.transferInfo}>
+									Al seleccionar transferencia bancaria, el pedido será generado
+									y enviado a nuestro equipo para confirmar datos bancarios.
+									<span>
+										Posteriormente en breve nos pondremos en contacto contigo
+										para proporcionarte los datos bancarios y dar seguimiento al
+										pago al correo que designaste de <b>contacto</b>.
 									</span>
 								</div>
-							))}
+							)}
 						</div>
 
-						{/*Summary*/}
+						{/* NOTAS */}
+
+						<div className={styles.section}>
+							<h2>Instrucciones especiales</h2>
+
+							<textarea
+								className={styles.input}
+								rows={5}
+								value={notes}
+								onChange={(e) => setNotes(e.target.value)}
+							/>
+						</div>
+					</div>
+				</section>
+
+				{/* RESUMEN */}
+				<aside className={styles.summaryColumn}>
+					<div className={styles.summaryCard}>
+						{items.map((item, index) => (
+							<div className={styles.summaryItem} key={item.id + index}>
+								<div className={styles.itemThumb}>
+									<Image
+										src={item.image || '/images/placeholder-product.png'}
+										alt={item.name}
+										width={133}
+										height={133}
+										className={styles.img}
+									/>
+
+									<div className={styles.itemBadge}>{item.quantity}</div>
+								</div>
+
+								<div className={styles.itemInfo}>
+									<p className={styles.itemName} title={item.name}>
+										{item.name}
+									</p>
+
+									<span className={styles.itemBrand}>{item.brand}</span>
+								</div>
+
+								<span className={styles.itemPrice}>
+									{formatCurrency(item.unitPrice)}
+									<span>MXN</span>
+								</span>
+							</div>
+						))}
+
+						{/*Summary Totals*/}
 						<div className={styles.summaryTotals}>
 							<div className={styles.top_price}>
 								<div className={styles.totalRow}>
@@ -345,11 +405,12 @@ function CheckoutForm() {
 										<span className={styles.label}>MXN</span>
 									</span>
 								</div>
+
 								<div className={styles.totalRow}>
 									<span className={styles.label}>Envío</span>
 									<span className={styles.price}>
 										<span className={styles.label}>{shipping.label}</span>{' '}
-										{formatCurrency(shipping.cost)}
+										{formatCurrency(shipping.cost)}{' '}
 										<span className={styles.label}>MXN</span>
 									</span>
 								</div>
@@ -375,21 +436,12 @@ function CheckoutForm() {
 								}
 								filled={false}
 								text={'Realizar Pago'}
+								type={'submit'}
 							/>
 						</div>
-					</section>
+					</div>
 				</aside>
-			</div>
+			</form>
 		</div>
-	)
-}
-
-export default function CheckoutPage() {
-	return (
-		<RequireAuth>
-			<div className={styles.checkoutPage}>
-				<CheckoutForm />
-			</div>
-		</RequireAuth>
 	)
 }

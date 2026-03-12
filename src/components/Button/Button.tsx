@@ -8,6 +8,7 @@ interface ButtonProps {
 	filled?: boolean
 	disabled?: boolean
 	onClick?: MouseEventHandler<HTMLButtonElement>
+	type?: 'button' | 'submit' | 'reset'
 }
 
 export const Button = ({
@@ -17,13 +18,19 @@ export const Button = ({
 	filled = true,
 	disabled = false,
 	onClick,
+	type = 'button',
 }: ButtonProps) => {
 	const classes = [styles.btn, styles[variant], !filled ? styles.outlined : '']
 		.filter(Boolean)
 		.join(' ')
 
 	return (
-		<button className={classes} onClick={onClick} disabled={disabled}>
+		<button
+			className={classes}
+			onClick={onClick}
+			disabled={disabled}
+			type={type}
+		>
 			{leftIcon && leftIcon}
 			{text && text}
 		</button>
