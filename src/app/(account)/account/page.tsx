@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/shared/auth/AuthProvider'
 import styles from './account.module.scss'
 import { FiscalProfileForm } from './_components/FiscalProfileForm/FiscalProfileForm'
@@ -15,9 +15,11 @@ import { OrdersPanel } from './_components/OrdersPanel/OrdersPanel'
 
 export default function AccountPage() {
 	const { accessToken, user, isBootstrapping, fetchMe } = useAuth()
+	const searchParams = useSearchParams()
+	const initialTab = searchParams.get('tab') as 'profile' | 'address' | 'payments' | 'orders' | null
 	const [activeTab, setActiveTab] = useState<
 		'profile' | 'address' | 'payments' | 'orders'
-	>('profile')
+	>(initialTab && ['profile', 'address', 'payments', 'orders'].includes(initialTab) ? initialTab : 'profile')
 	const router = useRouter()
 	const [isRefreshing, setIsRefreshing] = useState(false)
 	const ordersState = useOrdersList()
@@ -27,7 +29,7 @@ export default function AccountPage() {
 
 	useEffect(() => {
 		if (!isBootstrapping && !accessToken) {
-			router.push('/login')
+			router.push('/')
 		}
 	}, [accessToken, isBootstrapping, router])
 

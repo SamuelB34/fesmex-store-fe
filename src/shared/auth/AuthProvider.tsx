@@ -130,18 +130,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			}
 
 			const res = await authApi.register(normalizedPayload)
-			if (res.ok && res.data?.accessToken) {
-				setAccessToken(res.data.accessToken)
-				await fetchMe()
+			if (res.ok) {
 				sileo.success({
-					title: 'Revisa tu correo',
-					description: 'Se envió un correo a tu correo registrado.',
+					title: 'Registro exitoso',
+					description: 'Revisa tu correo para verificar tu cuenta.',
 				})
+				router.push('/')
 			} else {
 				throw new Error(res.error?.message || 'Registration failed')
 			}
 		},
-		[fetchMe],
+		[router],
 	)
 
 	const login = useCallback(

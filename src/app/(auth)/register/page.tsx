@@ -154,7 +154,7 @@ export default function RegisterPage() {
 
 				<p className={styles.linkText}>
 					Already have an account?{' '}
-					<Link href="/login" className={styles.link}>
+					<Link href="/" className={styles.link}>
 						Login
 					</Link>
 				</p>

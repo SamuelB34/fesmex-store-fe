@@ -22,26 +22,32 @@ export const Cart = () => {
 				/>
 			))}
 
-			<div className={styles.cart__btn}>
-				<Button
-					filled={true}
-					text={'CHECKOUT'}
-					variant={'accent'}
-					disabled={!hasItems}
-					onClick={() => {
-						if (!hasItems) return
-						router.push('/checkout')
-					}}
-					leftIcon={
-						<Image
-							src={'/icons/credit-card.svg'}
-							alt={'credit-card'}
-							width={24}
-							height={24}
-						/>
-					}
-				/>
-			</div>
+			{items.length > 0 ? (
+				<div className={styles.cart__btn}>
+					<Button
+						filled={true}
+						text={'CHECKOUT'}
+						variant={'accent'}
+						disabled={!hasItems}
+						onClick={() => {
+							if (!hasItems) return
+							router.push('/checkout')
+						}}
+						leftIcon={
+							<Image
+								src={'/icons/credit-card.svg'}
+								alt={'credit-card'}
+								width={24}
+								height={24}
+							/>
+						}
+					/>
+				</div>
+			) : (
+				<div className={styles.cart__empty}>
+					<span>El carrito esta vacío</span>
+				</div>
+			)}
 		</div>
 	)
 }

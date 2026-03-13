@@ -1,17 +1,24 @@
 'use client'
 
-import { useMemo, useState, FormEvent } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { sileo } from 'sileo'
 import styles from './Checkout.module.scss'
-import { useCreateOrder } from '@/features/orders/hooks/useOrders'
 import {
-	PaymentMethod,
-	ShippingAddress,
-} from '@/features/orders/services/orders.api'
+	useCreateOrder,
+	useShippingAddresses,
+} from '@/features/orders/hooks/useOrders'
+import { PaymentMethod } from '@/features/orders/services/orders.api'
 import { useCart } from '@/features/cart/context/CartContext'
 import { formatCurrency } from '@/shared/utils/format'
-import { Button } from '@/components/Button/Button'
+import { useForm } from 'react-hook-form'
+import { ShippingAddressSelector } from './_components/ShippingAddressSelector/ShippingAddressSelector'
+import { NewAddressForm } from './_components/NewAddressForm/NewAddressForm'
+import { PaymentMethodControls } from './_components/PaymentMethodControls/PaymentMethodControls'
+import { SummaryActions } from './_components/SummaryActions/SummaryActions'
+import { ConfirmModal } from '@/components/ConfirmModal/ConfirmModal'
+import { useAuth } from '@/shared/auth/AuthProvider'
 
 type DeliveryType = 'shipping' | 'pickup'
 
@@ -38,78 +45,188 @@ const PICKUP_LOCATIONS = [
 	{
 		id: 'mxli',
 		name: 'Almacén Mexicali',
-		address: 'Av. Lázaro Cárdenas #1234',
+		address:
+			'Blvd. Adolfo López Mateos 2292-4, Zona Industrial, 21389 Mexicali, B.C.',
 		delivery: 'ENTREGA INMEDIATA',
-	},
-	{
-		id: 'qro',
-		name: 'Almacén Querétaro',
-		address: 'Av. Lázaro Cárdenas #1234',
-		delivery: 'ENTREGA EN 1 DÍA HÁBIL',
-	},
-	{
-		id: 'puebla',
-		name: 'Almacén Puebla',
-		address: 'Av. Lázaro Cárdenas #1234',
-		delivery: 'ENTREGA EN 2 DÍAS HÁBILES',
 	},
 ]
 
+type CheckoutFormValues = {
+	fullName: string
+	phone: string
+	line1: string
+	line2: string
+	city: string
+	state: string
+	postalCode: string
+	notes: string
+}
+
 export default function CheckoutForm() {
 	const router = useRouter()
-	const { items, total } = useCart()
+	const { user, accessToken, isBootstrapping } = useAuth()
+	const { items, total, clearCart } = useCart()
 	const { createOrder, isSubmitting } = useCreateOrder()
+	const {
+		addresses,
+		isLoading: isLoadingAddresses,
+		fetchAddresses,
+	} = useShippingAddresses()
 
 	const [deliveryType, setDeliveryType] = useState<DeliveryType>('shipping')
+	const [selectedAddressIndex, setSelectedAddressIndex] = useState<
+		number | 'new'
+	>('new')
 
 	const [pickupLocation, setPickupLocation] = useState<string>('mxli')
-
-	const [fullName, setFullName] = useState('')
-	const [phone, setPhone] = useState('')
-	const [line1, setLine1] = useState('')
-	const [line2, setLine2] = useState('')
-	const [city, setCity] = useState('')
-	const [state, setState] = useState('')
-	const [postalCode, setPostalCode] = useState('')
-
 	const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CARD')
-
-	const [notes, setNotes] = useState('')
+	const [cardForm, setCardForm] = useState({
+		number: '',
+		holder: '',
+		expiry: '',
+		cvv: '',
+	})
 
 	const [shipping, setShipping] = useState<ShippingOption>(SHIPPING_OPTIONS[0])
+	const [showConfirmModal, setShowConfirmModal] = useState(false)
+
+	const handleCardFormChange = (
+		field: keyof typeof cardForm,
+		value: string,
+	) => {
+		setCardForm((prev) => ({ ...prev, [field]: value }))
+	}
+
+	// Redirect if not logged in or account not verified
+	useEffect(() => {
+		if (isBootstrapping) return
+		
+		if (!accessToken) {
+			sileo.error({
+				title: 'Inicia sesión',
+				description: 'Debes iniciar sesión para continuar con tu compra.',
+			})
+			router.push('/')
+			return
+		}
+		
+		if (user?.status !== 'active') {
+			sileo.error({
+				title: 'Cuenta no verificada',
+				description: 'Debes verificar tu correo electrónico para poder realizar compras.',
+			})
+			router.push('/account')
+			return
+		}
+	}, [accessToken, user, isBootstrapping, router])
+
+	useEffect(() => {
+		fetchAddresses()
+	}, [fetchAddresses])
+
+	const {
+		register,
+		handleSubmit,
+		formState: { errors, isValid },
+	} = useForm<CheckoutFormValues>({
+		mode: 'onChange',
+		defaultValues: {
+			fullName: '',
+			phone: '',
+			line1: '',
+			line2: '',
+			city: '',
+			state: '',
+			postalCode: '',
+			notes: '',
+		},
+	})
 
 	const grandTotal = useMemo(
 		() => total + (deliveryType === 'shipping' ? shipping.cost : 0),
 		[total, shipping, deliveryType],
 	)
 
-	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-		e.preventDefault()
-
-		const shippingAddress: ShippingAddress = {
-			full_name: fullName,
-			phone,
-			line1,
-			line2,
-			city,
-			state,
-			postal_code: postalCode,
-			country: 'MX',
+	const isFormReady = useMemo(() => {
+		const { number, holder, expiry, cvv } = cardForm
+		const isCardValid =
+			paymentMethod !== 'CARD' || Boolean(number && holder && expiry && cvv)
+		let isAddressValid = false
+		if (deliveryType === 'pickup') {
+			isAddressValid = true
+		} else if (selectedAddressIndex !== 'new') {
+			isAddressValid = true
+		} else {
+			isAddressValid = isValid
 		}
+		return isCardValid && isAddressValid
+	}, [deliveryType, selectedAddressIndex, isValid, paymentMethod, cardForm])
 
-		const order = await createOrder({
-			payment_method: paymentMethod,
-			notes,
-			shipping_address:
-				deliveryType === 'shipping' ? shippingAddress : undefined,
-		})
+	const [pendingFormValues, setPendingFormValues] = useState<CheckoutFormValues | null>(null)
 
-		if (order) router.push(`/orders/${order._id}`)
+	const onSubmit = handleSubmit(async (values) => {
+		setPendingFormValues(values)
+		setShowConfirmModal(true)
+	})
+
+	const handleConfirmOrder = async () => {
+		if (!pendingFormValues) return
+		const values = pendingFormValues
+
+		try {
+			const payload: Parameters<typeof createOrder>[0] = {
+				payment_method: paymentMethod,
+				notes: values.notes,
+				delivery_type: deliveryType,
+			}
+
+			if (deliveryType === 'shipping') {
+				if (selectedAddressIndex !== 'new' && addresses[selectedAddressIndex]) {
+					payload.shipping_address = addresses[selectedAddressIndex]
+				} else {
+					payload.shipping_address = {
+						full_name: values.fullName,
+						phone: values.phone,
+						line1: values.line1,
+						line2: values.line2,
+						city: values.city,
+						state: values.state,
+						postal_code: values.postalCode,
+						country: 'MX',
+					}
+				}
+			}
+
+			const order = await createOrder(payload)
+			if (order) {
+				clearCart()
+				sileo.success({
+					title: '¡Pedido creado exitosamente!',
+					description: 'Se te enviará un correo de confirmación',
+				})
+				setShowConfirmModal(false)
+				setPendingFormValues(null)
+				setTimeout(() => {
+					router.push('/account?tab=orders')
+				}, 500)
+			} else {
+				sileo.error({
+					title: 'Error al crear el pedido',
+					description: 'No se pudo crear el pedido. Intenta nuevamente.',
+				})
+			}
+		} catch (error) {
+			console.error('Error creating order:', error)
+			sileo.error({
+				title: 'Error al procesar tu pedido',
+				description: 'Ocurrió un error inesperado. Intenta nuevamente.',
+			})
+		}
 	}
 
 	return (
 		<div className={styles.checkoutWrapper}>
-			<form onSubmit={handleSubmit} className={styles.checkoutGrid}>
+			<form onSubmit={onSubmit} className={styles.checkoutGrid}>
 				<section className={styles.formColumn}>
 					<div className={styles.form}>
 						{/* ENTREGA */}
@@ -138,46 +255,21 @@ export default function CheckoutForm() {
 
 							{/* DIRECCIÓN */}
 							{deliveryType === 'shipping' && (
-								<div className={styles.fieldGrid}>
-									<input
-										className={styles.input}
-										placeholder="Código Postal"
-										value={postalCode}
-										onChange={(e) => setPostalCode(e.target.value)}
+								<div className={styles.radioGroup}>
+									<ShippingAddressSelector
+										addresses={addresses}
+										isLoading={isLoadingAddresses}
+										selectedIndex={selectedAddressIndex}
+										onSelectAddress={setSelectedAddressIndex}
 									/>
 
-									<input
-										className={styles.input}
-										placeholder="Calle"
-										value={line1}
-										onChange={(e) => setLine1(e.target.value)}
-									/>
-
-									<input
-										className={styles.input}
-										placeholder="Número exterior"
-									/>
-
-									<input
-										className={styles.input}
-										placeholder="Colonia"
-										value={line2}
-										onChange={(e) => setLine2(e.target.value)}
-									/>
-
-									<input
-										className={styles.input}
-										placeholder="Ciudad"
-										value={city}
-										onChange={(e) => setCity(e.target.value)}
-									/>
-
-									<input
-										className={styles.input}
-										placeholder="Estado"
-										value={state}
-										onChange={(e) => setState(e.target.value)}
-									/>
+									{selectedAddressIndex === 'new' && (
+										<NewAddressForm
+											register={register}
+											errors={errors}
+											isRequired={selectedAddressIndex === 'new'}
+										/>
+									)}
 								</div>
 							)}
 
@@ -254,110 +346,22 @@ export default function CheckoutForm() {
 						)}
 
 						{/* PAGO */}
-						<div className={styles.section}>
-							<div className={styles.sectionHeader}>
-								<p className={styles.sectionSubtitle}>Pago</p>
-
-								<div className={styles.sectionTitle}>
-									<Image
-										src={'/icons/credit-card.svg'}
-										alt={'credit-card'}
-										width={24}
-										height={24}
-										className={styles.card_icon}
-									/>
-									<span>
-										Aceptamos tarjetas de crédito y transferencias electrónicas
-									</span>
-								</div>
-							</div>
-
-							<div className={styles.radioGroup}>
-								<button
-									type="button"
-									className={`${styles.radioOption} ${
-										paymentMethod === 'CARD' ? styles.active : ''
-									}`}
-									onClick={() => setPaymentMethod('CARD')}
-								>
-									<div className={styles.left}>
-										<div className={styles.radioBtn}>
-											<div className={styles.radioBtn__inner}></div>
-										</div>
-										Tarjeta de Crédito
-									</div>
-								</button>
-
-								{paymentMethod === 'CARD' && (
-									<div className={styles.cardForm}>
-										<div className={styles.fieldGrid__input}>
-											<span>Número de la tarjeta</span>
-											<input
-												className={styles.input}
-												placeholder="Nombre del titular"
-											/>
-										</div>
-
-										<div className={styles.fieldGrid__input}>
-											<span>Nombre del titular</span>
-											<input
-												className={styles.input}
-												placeholder="Número de tarjeta"
-											/>
-										</div>
-
-										<div className={styles.fieldGrid}>
-											<div className={styles.fieldGrid__input}>
-												<span>Vigencia</span>
-												<input className={styles.input} placeholder="MM/AA" />
-											</div>
-											<div className={styles.fieldGrid__input}>
-												<span>Código de Seguridad</span>
-												<input className={styles.input} placeholder="CVV" />
-											</div>
-										</div>
-									</div>
-								)}
-
-								<button
-									type="button"
-									className={`${styles.radioOption} ${
-										paymentMethod === 'TRANSFER' ? styles.active : ''
-									}`}
-									onClick={() => setPaymentMethod('TRANSFER')}
-								>
-									<div className={styles.left}>
-										<div className={styles.radioBtn}>
-											<div className={styles.radioBtn__inner}></div>
-										</div>
-										Transferencia Bancaria
-									</div>
-								</button>
-							</div>
-
-							{paymentMethod === 'TRANSFER' && (
-								<div className={styles.transferInfo}>
-									Al seleccionar transferencia bancaria, el pedido será generado
-									y enviado a nuestro equipo para confirmar datos bancarios.
-									<span>
-										Posteriormente en breve nos pondremos en contacto contigo
-										para proporcionarte los datos bancarios y dar seguimiento al
-										pago al correo que designaste de <b>contacto</b>.
-									</span>
-								</div>
-							)}
-						</div>
+						<PaymentMethodControls
+							paymentMethod={paymentMethod}
+							onPaymentMethodChange={setPaymentMethod}
+							cardForm={cardForm}
+							onCardFormChange={handleCardFormChange}
+						/>
 
 						{/* NOTAS */}
-
-						<div className={styles.section}>
-							<h2>Instrucciones especiales</h2>
-
+						<div className={styles.field}>
+							<label className={styles.label}>Notas (opcional)</label>
 							<textarea
 								className={styles.input}
-								rows={5}
-								value={notes}
-								onChange={(e) => setNotes(e.target.value)}
+								style={{ minHeight: '120px', resize: 'none' }}
+								{...register('notes')}
+								disabled={isSubmitting}
+								placeholder="Entregar en recepción"
 							/>
 						</div>
 					</div>
@@ -396,52 +400,30 @@ export default function CheckoutForm() {
 						))}
 
 						{/*Summary Totals*/}
-						<div className={styles.summaryTotals}>
-							<div className={styles.top_price}>
-								<div className={styles.totalRow}>
-									<span className={styles.label}>Subtotal</span>
-									<span className={styles.price}>
-										{formatCurrency(total)}{' '}
-										<span className={styles.label}>MXN</span>
-									</span>
-								</div>
-
-								<div className={styles.totalRow}>
-									<span className={styles.label}>Envío</span>
-									<span className={styles.price}>
-										<span className={styles.label}>{shipping.label}</span>{' '}
-										{formatCurrency(shipping.cost)}{' '}
-										<span className={styles.label}>MXN</span>
-									</span>
-								</div>
-							</div>
-
-							<div className={styles.totalRow}>
-								<strong>Total</strong>
-								<strong>
-									{formatCurrency(grandTotal)}{' '}
-									<span className={styles.label}>MXN</span>
-								</strong>
-							</div>
-
-							<Button
-								leftIcon={
-									<Image
-										src={'/icons/credit-card.svg'}
-										alt={'credit-card'}
-										width={24}
-										height={24}
-										className={styles.icon}
-									/>
-								}
-								filled={false}
-								text={'Realizar Pago'}
-								type={'submit'}
-							/>
-						</div>
+						<SummaryActions
+							subtotal={total}
+							shippingCost={shipping.cost}
+							shippingLabel={shipping.label}
+							grandTotal={grandTotal}
+							showShipping={deliveryType === 'shipping'}
+							paymentMethod={paymentMethod}
+							isFormReady={isFormReady}
+							isSubmitting={isSubmitting}
+						/>
 					</div>
 				</aside>
 			</form>
+
+			<ConfirmModal
+				isOpen={showConfirmModal}
+				onClose={() => setShowConfirmModal(false)}
+				onConfirm={handleConfirmOrder}
+				title="Confirmar pedido"
+				message="¿Estás seguro de que deseas enviar este pedido? Se te enviará un correo de confirmación."
+				confirmText="Enviar pedido"
+				cancelText="Cancelar"
+				isLoading={isSubmitting}
+			/>
 		</div>
 	)
 }

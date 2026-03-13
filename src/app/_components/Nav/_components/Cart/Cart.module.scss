@@ -24,6 +24,19 @@
 		gap: 8px;
 		align-self: stretch;
 	}
+
+	&__empty {
+		display: flex;
+		padding: var(--Spacing-big, 24px);
+		justify-content: center;
+		align-items: center;
+		text-align: center;
+		width: 100%;
+
+		span {
+			color: #6b7280;
+		}
+	}
 }
 
 .cartItem {

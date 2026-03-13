@@ -101,6 +101,7 @@ export const Login = () => {
 							text={isSubmitting ? 'Iniciando…' : 'Iniciar sesión'}
 							variant={'accent'}
 							disabled={isSubmitting}
+							type="submit"
 						/>
 					</form>
 				</div>
