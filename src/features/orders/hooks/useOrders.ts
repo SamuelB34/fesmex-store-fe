@@ -5,6 +5,7 @@ import {
 	ordersApi,
 	Order,
 	CreateOrderPayload,
+	CreateOrderResponse,
 	ListOrdersQuery,
 	ShippingFeePayload,
 	ApiRequestError,
@@ -142,12 +143,12 @@ export function useCreateOrder() {
 	})
 
 	const createOrder = useCallback(
-		async (payload: CreateOrderPayload): Promise<Order | null> => {
+		async (payload: CreateOrderPayload): Promise<CreateOrderResponse | null> => {
 			setState({ isSubmitting: true, error: null })
 			try {
 				const data = await ordersApi.createOrder(payload)
 				setState({ isSubmitting: false, error: null })
-				return data.order
+				return data
 			} catch (err) {
 				const message =
 					err instanceof ApiRequestError

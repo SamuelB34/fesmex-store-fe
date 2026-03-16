@@ -237,11 +237,21 @@ export type ShippingFeePayload = {
 	shipping_fee: number
 }
 
-const createOrder = async (payload: CreateOrderPayload) => {
-	const data = await unwrapOrThrow<{ order: RawOrder }>(
-		api.post('/orders', payload),
-	)
-	return { order: normalizeOrder(data.order) }
+export type CreateOrderResponse = {
+	order: Order
+	paymentIntent?: { client_secret: string }
+}
+
+const createOrder = async (payload: CreateOrderPayload): Promise<CreateOrderResponse> => {
+	const data = await unwrapOrThrow<{
+		order: RawOrder
+		paymentIntent?: { client_secret: string }
+	}>(api.post('/orders', payload))
+
+	return {
+		order: normalizeOrder(data.order),
+		paymentIntent: data.paymentIntent,
+	}
 }
 
 const listOrders = async (query?: ListOrdersQuery) => {

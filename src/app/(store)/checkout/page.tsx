@@ -1,15 +1,16 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { sileo } from 'sileo'
+import { Elements } from '@stripe/react-stripe-js'
 import styles from './Checkout.module.scss'
 import {
 	useCreateOrder,
 	useShippingAddresses,
 } from '@/features/orders/hooks/useOrders'
-import { PaymentMethod } from '@/features/orders/services/orders.api'
+import { PaymentMethod, ordersApi } from '@/features/orders/services/orders.api'
 import { useCart } from '@/features/cart/context/CartContext'
 import { formatCurrency } from '@/shared/utils/format'
 import { useForm } from 'react-hook-form'
@@ -19,6 +20,13 @@ import { PaymentMethodControls } from './_components/PaymentMethodControls/Payme
 import { SummaryActions } from './_components/SummaryActions/SummaryActions'
 import { ConfirmModal } from '@/components/ConfirmModal/ConfirmModal'
 import { useAuth } from '@/shared/auth/AuthProvider'
+import { stripePromise } from '@/lib/stripe'
+import {
+	StripePaymentSection,
+	type StripePaymentSectionRef,
+	type PaymentErrorType,
+} from './_components/StripePaymentSection/StripePaymentSection'
+import { PaymentLoader } from '@/components/PaymentLoader/PaymentLoader'
 
 type DeliveryType = 'shipping' | 'pickup'
 
@@ -80,22 +88,15 @@ export default function CheckoutForm() {
 
 	const [pickupLocation, setPickupLocation] = useState<string>('mxli')
 	const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CARD')
-	const [cardForm, setCardForm] = useState({
-		number: '',
-		holder: '',
-		expiry: '',
-		cvv: '',
-	})
-
 	const [shipping, setShipping] = useState<ShippingOption>(SHIPPING_OPTIONS[0])
 	const [showConfirmModal, setShowConfirmModal] = useState(false)
+	const [isProcessingPayment, setIsProcessingPayment] = useState(false)
+	const [paymentLoaderMessage, setPaymentLoaderMessage] = useState('')
+	const [clientSecret, setClientSecret] = useState<string | null>(null)
+	const [pendingOrderId, setPendingOrderId] = useState<string | null>(null)
 
-	const handleCardFormChange = (
-		field: keyof typeof cardForm,
-		value: string,
-	) => {
-		setCardForm((prev) => ({ ...prev, [field]: value }))
-	}
+	// Stripe Elements ref
+	const stripePaymentRef = useRef<StripePaymentSectionRef>(null)
 
 	// Redirect if not logged in or account not verified
 	useEffect(() => {
@@ -148,9 +149,7 @@ export default function CheckoutForm() {
 	)
 
 	const isFormReady = useMemo(() => {
-		const { number, holder, expiry, cvv } = cardForm
-		const isCardValid =
-			paymentMethod !== 'CARD' || Boolean(number && holder && expiry && cvv)
+		// Card validation happens in modal, so form is ready based on address only
 		let isAddressValid = false
 		if (deliveryType === 'pickup') {
 			isAddressValid = true
@@ -159,67 +158,203 @@ export default function CheckoutForm() {
 		} else {
 			isAddressValid = isValid
 		}
-		return isCardValid && isAddressValid
-	}, [deliveryType, selectedAddressIndex, isValid, paymentMethod, cardForm])
+		return isAddressValid
+	}, [deliveryType, selectedAddressIndex, isValid])
 
 	const [pendingFormValues, setPendingFormValues] = useState<CheckoutFormValues | null>(null)
 
+	// Step 1: User submits form -> create order to get clientSecret
 	const onSubmit = handleSubmit(async (values) => {
-		setPendingFormValues(values)
-		setShowConfirmModal(true)
+		if (paymentMethod === 'CARD') {
+			// For card payments, create order first to get clientSecret
+			try {
+				setIsProcessingPayment(true)
+				setPaymentLoaderMessage('Preparando pago...')
+
+				const payload = buildOrderPayload(values)
+				const result = await createOrder(payload)
+
+				if (!result) {
+					sileo.error({
+						title: 'Error al crear el pedido',
+						description: 'No se pudo crear el pedido. Intenta nuevamente.',
+					})
+					return
+				}
+
+				const { order, paymentIntent } = result
+
+				if (!paymentIntent?.client_secret) {
+					sileo.error({
+						title: 'Error de pago',
+						description: 'No se pudo inicializar el pago.',
+					})
+					return
+				}
+
+				// Store order ID and clientSecret, then show payment form
+				setPendingOrderId(order._id)
+				setClientSecret(paymentIntent.client_secret)
+				setPendingFormValues(values)
+				setShowConfirmModal(true)
+			} catch (error) {
+				console.error('Error creating order:', error)
+				sileo.error({
+					title: 'Error al procesar tu pedido',
+					description: 'Ocurrió un error inesperado. Intenta nuevamente.',
+				})
+			} finally {
+				setIsProcessingPayment(false)
+				setPaymentLoaderMessage('')
+			}
+		} else {
+			// For TRANSFER, show confirm modal directly
+			setPendingFormValues(values)
+			setShowConfirmModal(true)
+		}
 	})
 
+	// Build order payload from form values
+	const buildOrderPayload = (values: CheckoutFormValues) => {
+		const payload: Parameters<typeof createOrder>[0] = {
+			payment_method: paymentMethod,
+			notes: values.notes,
+			delivery_type: deliveryType,
+		}
+
+		if (deliveryType === 'shipping') {
+			if (selectedAddressIndex !== 'new' && addresses[selectedAddressIndex]) {
+				payload.shipping_address = addresses[selectedAddressIndex]
+			} else {
+				payload.shipping_address = {
+					full_name: values.fullName,
+					phone: values.phone,
+					line1: values.line1,
+					line2: values.line2,
+					city: values.city,
+					state: values.state,
+					postal_code: values.postalCode,
+					country: 'MX',
+				}
+			}
+		}
+
+		return payload
+	}
+
+	// Step 2: User confirms -> for CARD, confirm payment; for TRANSFER, create order
 	const handleConfirmOrder = async () => {
 		if (!pendingFormValues) return
 		const values = pendingFormValues
 
 		try {
-			const payload: Parameters<typeof createOrder>[0] = {
-				payment_method: paymentMethod,
-				notes: values.notes,
-				delivery_type: deliveryType,
-			}
+			setIsProcessingPayment(true)
 
-			if (deliveryType === 'shipping') {
-				if (selectedAddressIndex !== 'new' && addresses[selectedAddressIndex]) {
-					payload.shipping_address = addresses[selectedAddressIndex]
-				} else {
-					payload.shipping_address = {
-						full_name: values.fullName,
-						phone: values.phone,
-						line1: values.line1,
-						line2: values.line2,
-						city: values.city,
-						state: values.state,
-						postal_code: values.postalCode,
-						country: 'MX',
+			if (paymentMethod === 'CARD') {
+				// Order already created, now confirm payment with Stripe
+				if (!stripePaymentRef.current || !pendingOrderId) {
+					sileo.error({
+						title: 'Error de pago',
+						description: 'Stripe no está disponible. Recarga la página.',
+					})
+					return
+				}
+
+				setPaymentLoaderMessage('Procesando pago...')
+
+				// confirmPayment handles cards, Apple Pay, Google Pay automatically
+				const { success, errorType, error, intentStatus } = await stripePaymentRef.current.confirmPayment()
+
+				if (!success) {
+					handlePaymentError(errorType, error)
+					return
+				}
+
+				// success === true means Stripe accepted the payment
+				// intentStatus may be: 'succeeded', 'processing', or undefined (rare edge case)
+				// All cases should proceed to polling - backend is source of truth
+				if (intentStatus) {
+					console.log(`Payment intent status: ${intentStatus}`)
+				}
+
+				// Poll backend until payment_status = PAID (webhook processed)
+				setPaymentLoaderMessage('Verificando pago...')
+				const maxAttempts = 10
+				let attempts = 0
+				let isPaid = false
+
+				while (attempts < maxAttempts && !isPaid) {
+					await new Promise((resolve) => setTimeout(resolve, 1000))
+					try {
+						const { order: updatedOrder } = await ordersApi.getOrderById(pendingOrderId)
+						if (updatedOrder.payment_status === 'PAID') {
+							isPaid = true
+						}
+					} catch {
+						// Continue polling
 					}
+					attempts++
+				}
+
+				if (!isPaid) {
+					console.warn('Payment confirmed but webhook not yet processed')
+				}
+			} else {
+				// TRANSFER: create order now
+				const payload = buildOrderPayload(values)
+				const result = await createOrder(payload)
+
+				if (!result) {
+					sileo.error({
+						title: 'Error al crear el pedido',
+						description: 'No se pudo crear el pedido. Intenta nuevamente.',
+					})
+					return
 				}
 			}
 
-			const order = await createOrder(payload)
-			if (order) {
-				clearCart()
-				sileo.success({
-					title: '¡Pedido creado exitosamente!',
-					description: 'Se te enviará un correo de confirmación',
-				})
-				setShowConfirmModal(false)
-				setPendingFormValues(null)
-				setTimeout(() => {
-					router.push('/account?tab=orders')
-				}, 500)
-			} else {
-				sileo.error({
-					title: 'Error al crear el pedido',
-					description: 'No se pudo crear el pedido. Intenta nuevamente.',
-				})
-			}
+			// Clear cart only after payment confirmed
+			clearCart()
+
+			sileo.success({
+				title: '¡Pedido creado exitosamente!',
+				description: 'Se te enviará un correo de confirmación',
+			})
+			setShowConfirmModal(false)
+			setPendingFormValues(null)
+			setClientSecret(null)
+			setPendingOrderId(null)
+			setTimeout(() => {
+				router.push('/account?tab=orders')
+			}, 500)
 		} catch (error) {
 			console.error('Error creating order:', error)
 			sileo.error({
 				title: 'Error al procesar tu pedido',
 				description: 'Ocurrió un error inesperado. Intenta nuevamente.',
+			})
+		} finally {
+			setIsProcessingPayment(false)
+			setPaymentLoaderMessage('')
+		}
+	}
+
+	// Handle payment errors with appropriate sileo notifications
+	const handlePaymentError = (errorType?: PaymentErrorType, errorMessage?: string) => {
+		if (errorType === 'declined') {
+			sileo.error({
+				title: 'Pago rechazado',
+				description: 'Tu banco rechazó la operación. Intenta nuevamente.',
+			})
+		} else if (errorType === 'canceled') {
+			sileo.warning({
+				title: 'Autenticación cancelada',
+				description: 'No se completó la verificación bancaria.',
+			})
+		} else {
+			sileo.error({
+				title: 'Error en el pago',
+				description: errorMessage || 'No se pudo procesar el pago.',
 			})
 		}
 	}
@@ -345,14 +480,13 @@ export default function CheckoutForm() {
 							</div>
 						)}
 
-						{/* PAGO */}
+							{/* PAGO */}
 						<PaymentMethodControls
 							paymentMethod={paymentMethod}
 							onPaymentMethodChange={setPaymentMethod}
-							cardForm={cardForm}
-							onCardFormChange={handleCardFormChange}
 						/>
 
+						
 						{/* NOTAS */}
 						<div className={styles.field}>
 							<label className={styles.label}>Notas (opcional)</label>
@@ -416,14 +550,48 @@ export default function CheckoutForm() {
 
 			<ConfirmModal
 				isOpen={showConfirmModal}
-				onClose={() => setShowConfirmModal(false)}
+				onClose={() => {
+					setShowConfirmModal(false)
+					setClientSecret(null)
+					setPendingOrderId(null)
+				}}
 				onConfirm={handleConfirmOrder}
-				title="Confirmar pedido"
-				message="¿Estás seguro de que deseas enviar este pedido? Se te enviará un correo de confirmación."
-				confirmText="Enviar pedido"
+				title={paymentMethod === 'CARD' ? 'Completar pago' : 'Confirmar pedido'}
+				message={
+					paymentMethod === 'CARD' && clientSecret ? (
+						<div>
+							<p style={{ marginBottom: '16px' }}>
+								Ingresa los datos de tu tarjeta para completar el pago.
+							</p>
+							{/* PaymentElement renders inside modal with clientSecret */}
+							<Elements
+								stripe={stripePromise}
+								options={{
+									clientSecret,
+									appearance: {
+										theme: 'stripe',
+										variables: {
+											colorPrimary: '#0066cc',
+										},
+									},
+								}}
+							>
+								<StripePaymentSection ref={stripePaymentRef} />
+							</Elements>
+						</div>
+					) : (
+						'¿Estás seguro de que deseas enviar este pedido? Se te enviará un correo de confirmación.'
+					)
+				}
+				confirmText={paymentMethod === 'CARD' ? 'Pagar ahora' : 'Enviar pedido'}
 				cancelText="Cancelar"
-				isLoading={isSubmitting}
+				isLoading={isSubmitting || isProcessingPayment}
 			/>
+
+			{/* Payment processing overlay */}
+			{isProcessingPayment && paymentLoaderMessage && (
+				<PaymentLoader message={paymentLoaderMessage} />
+			)}
 		</div>
 	)
 }

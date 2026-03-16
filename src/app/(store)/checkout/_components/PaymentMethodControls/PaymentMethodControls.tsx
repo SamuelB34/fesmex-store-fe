@@ -2,28 +2,16 @@
 
 import Image from 'next/image'
 import { PaymentMethod } from '@/features/orders/services/orders.api'
-import { CardDetailsForm } from '../CardDetailsForm/CardDetailsForm'
 import styles from './PaymentMethodControls.module.scss'
-
-interface CardForm {
-	number: string
-	holder: string
-	expiry: string
-	cvv: string
-}
 
 interface PaymentMethodControlsProps {
 	paymentMethod: PaymentMethod
 	onPaymentMethodChange: (method: PaymentMethod) => void
-	cardForm: CardForm
-	onCardFormChange: (field: keyof CardForm, value: string) => void
 }
 
 export const PaymentMethodControls = ({
 	paymentMethod,
 	onPaymentMethodChange,
-	cardForm,
-	onCardFormChange,
 }: PaymentMethodControlsProps) => {
 	return (
 		<div className={styles.section}>
@@ -59,13 +47,6 @@ export const PaymentMethodControls = ({
 						Tarjeta de Crédito
 					</div>
 				</button>
-
-				{paymentMethod === 'CARD' && (
-					<CardDetailsForm
-						cardForm={cardForm}
-						onCardFormChange={onCardFormChange}
-					/>
-				)}
 
 				<button
 					type="button"
