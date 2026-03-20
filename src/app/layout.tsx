@@ -43,7 +43,7 @@ export default function RootLayout({
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} ${IBMPlexSans.variable}`}
 			>
-				<Toaster position="top-right" theme="light" />
+				<Toaster position="top-center" theme="light" />
 				<Providers>
 					<SectionsProvider>
 						<BrandsProvider>

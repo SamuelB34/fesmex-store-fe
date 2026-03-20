@@ -91,6 +91,9 @@ const getById = (id: string) =>
 		api.get(`/articles/${id}`),
 	)
 
+const recordView = (id: string) =>
+	unwrap<{ ok: boolean }>(api.post(`/articles/${id}/view`))
+
 export const getArticleImageUrl = (article?: Article | null) => {
 	if (!article) return ''
 	const presigned = article.files?.images?.[0]?.url
@@ -101,4 +104,5 @@ export const articlesApi = {
 	list,
 	listFeatured,
 	getById,
+	recordView,
 }

@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import styles from './ProductDetail.module.scss'
 import { ProductDetailClient } from './ProductDetailClient'
+import { ViewTracker } from './ViewTracker'
 import { ProductFeatured } from '@/app/_components/ProductsFeatured/ProductFeatured'
 import {
 	articlesApi,
@@ -52,6 +53,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
 	return (
 		<div className={styles.detail}>
+			<ViewTracker articleId={product.id} />
 			<ProductDetailClient product={product} />
 			<div className={styles.product_featured}>
 				<ProductFeatured />
