@@ -510,3 +510,38 @@
 		transform: translate(-50%, -50%) scale(1);
 	}
 }
+
+/* ============================= */
+/* SHIPPING ESTIMATE */
+/* ============================= */
+
+.shippingEstimate {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 16px;
+	border-radius: 8px;
+	background: #f9fafb;
+	border: 1px solid #e5e7eb;
+}
+
+.shippingCost {
+	color: #201e1c;
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: 18px;
+	font-weight: 500;
+	line-height: 24px;
+
+	strong {
+		color: #364b60;
+		font-weight: 700;
+	}
+}
+
+.shippingNote {
+	color: #6b7280;
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: 13px;
+	font-style: italic;
+	line-height: 18px;
+}

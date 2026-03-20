@@ -27,27 +27,9 @@ import {
 	type PaymentErrorType,
 } from './_components/StripePaymentSection/StripePaymentSection'
 import { PaymentLoader } from '@/components/PaymentLoader/PaymentLoader'
+import { useShippingStates } from '@/features/shipping'
 
 type DeliveryType = 'shipping' | 'pickup'
-
-type ShippingOption = {
-	id: 'express' | 'standard'
-	label: string
-	cost: number
-}
-
-const SHIPPING_OPTIONS: ShippingOption[] = [
-	{
-		id: 'express',
-		label: '1 a 3 días hábiles',
-		cost: 1200,
-	},
-	{
-		id: 'standard',
-		label: '4 a 10 días hábiles',
-		cost: 900,
-	},
-]
 
 const PICKUP_LOCATIONS = [
 	{
@@ -80,6 +62,12 @@ export default function CheckoutForm() {
 		isLoading: isLoadingAddresses,
 		fetchAddresses,
 	} = useShippingAddresses()
+	const {
+		stateOptions,
+		isLoading: isLoadingStates,
+		getStateByName,
+		calculateShipping,
+	} = useShippingStates()
 
 	const [deliveryType, setDeliveryType] = useState<DeliveryType>('shipping')
 	const [selectedAddressIndex, setSelectedAddressIndex] = useState<
@@ -88,7 +76,8 @@ export default function CheckoutForm() {
 
 	const [pickupLocation, setPickupLocation] = useState<string>('mxli')
 	const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CARD')
-	const [shipping, setShipping] = useState<ShippingOption>(SHIPPING_OPTIONS[0])
+	const [estimatedShipping, setEstimatedShipping] = useState<number>(0)
+	const [selectedStateId, setSelectedStateId] = useState<string>('')
 	const [showConfirmModal, setShowConfirmModal] = useState(false)
 	const [isProcessingPayment, setIsProcessingPayment] = useState(false)
 	const [paymentLoaderMessage, setPaymentLoaderMessage] = useState('')
@@ -144,8 +133,8 @@ export default function CheckoutForm() {
 	})
 
 	const grandTotal = useMemo(
-		() => total + (deliveryType === 'shipping' ? shipping.cost : 0),
-		[total, shipping, deliveryType],
+		() => total + (deliveryType === 'shipping' ? estimatedShipping : 0),
+		[total, estimatedShipping, deliveryType],
 	)
 
 	const isFormReady = useMemo(() => {
@@ -154,12 +143,43 @@ export default function CheckoutForm() {
 		if (deliveryType === 'pickup') {
 			isAddressValid = true
 		} else if (selectedAddressIndex !== 'new') {
-			isAddressValid = true
+			// For existing address, check if we have a valid state
+			const addr = addresses[selectedAddressIndex]
+			isAddressValid = Boolean(addr)
 		} else {
-			isAddressValid = isValid
+			// For new address, form must be valid AND state must be selected
+			isAddressValid = isValid && Boolean(selectedStateId)
 		}
 		return isAddressValid
-	}, [deliveryType, selectedAddressIndex, isValid])
+	}, [deliveryType, selectedAddressIndex, isValid, selectedStateId, addresses])
+
+	// Handle state change from NewAddressForm
+	const handleNewAddressStateChange = (stateId: string) => {
+		setSelectedStateId(stateId)
+		const newShipping = calculateShipping(stateId, total)
+		setEstimatedShipping(newShipping)
+	}
+
+	// Handle existing address selection - recalculate shipping based on address state
+	useEffect(() => {
+		if (selectedAddressIndex !== 'new' && addresses[selectedAddressIndex]) {
+			const addr = addresses[selectedAddressIndex]
+			const state = getStateByName(addr.state)
+			if (state) {
+				setSelectedStateId(state._id)
+				const newShipping = calculateShipping(state._id, total)
+				setEstimatedShipping(newShipping)
+			} else {
+				console.warn(`State not found for address: ${addr.state}`)
+				setSelectedStateId('')
+				setEstimatedShipping(0)
+			}
+		} else if (selectedAddressIndex === 'new') {
+			// Reset when switching to new address
+			setSelectedStateId('')
+			setEstimatedShipping(0)
+		}
+	}, [selectedAddressIndex, addresses, getStateByName, calculateShipping, total])
 
 	const [pendingFormValues, setPendingFormValues] = useState<CheckoutFormValues | null>(null)
 
@@ -403,6 +423,9 @@ export default function CheckoutForm() {
 											register={register}
 											errors={errors}
 											isRequired={selectedAddressIndex === 'new'}
+											stateOptions={stateOptions}
+											isLoadingStates={isLoadingStates}
+											onStateChange={handleNewAddressStateChange}
 										/>
 									)}
 								</div>
@@ -438,11 +461,11 @@ export default function CheckoutForm() {
 							)}
 						</div>
 
-						{/* MÉTODO ENVÍO */}
+						{/* COSTO DE ENVÍO ESTIMADO */}
 						{deliveryType === 'shipping' && (
 							<div className={styles.section}>
 								<div className={styles.sectionHeader}>
-									<p className={styles.sectionSubtitle}>Método de envío</p>
+									<p className={styles.sectionSubtitle}>Costo de envío</p>
 
 									<div className={styles.sectionTitle}>
 										<Image
@@ -456,26 +479,21 @@ export default function CheckoutForm() {
 									</div>
 								</div>
 
-								<div className={styles.radioGroup}>
-									{SHIPPING_OPTIONS.map((option) => (
-										<button
-											type="button"
-											key={option.id}
-											className={`${styles.radioOption} ${
-												option.id === shipping.id ? styles.active : ''
-											}`}
-											onClick={() => setShipping(option)}
-										>
-											<div className={styles.left}>
-												<div className={styles.radioBtn}>
-													<div className={styles.radioBtn__inner}></div>
-												</div>
-												{option.label}
-											</div>
-
-											<strong>{formatCurrency(option.cost)}</strong>
-										</button>
-									))}
+								<div className={styles.shippingEstimate}>
+									{estimatedShipping > 0 ? (
+										<>
+											<p className={styles.shippingCost}>
+												Envío estimado: <strong>{formatCurrency(estimatedShipping)}</strong>
+											</p>
+											<p className={styles.shippingNote}>
+												*El costo final se calculará al confirmar la compra
+											</p>
+										</>
+									) : (
+										<p className={styles.shippingNote}>
+											Selecciona un estado para calcular el envío
+										</p>
+									)}
 								</div>
 							</div>
 						)}
@@ -536,8 +554,8 @@ export default function CheckoutForm() {
 						{/*Summary Totals*/}
 						<SummaryActions
 							subtotal={total}
-							shippingCost={shipping.cost}
-							shippingLabel={shipping.label}
+							shippingCost={estimatedShipping}
+							shippingLabel={estimatedShipping > 0 ? 'Envío estimado' : 'Selecciona estado'}
 							grandTotal={grandTotal}
 							showShipping={deliveryType === 'shipping'}
 							paymentMethod={paymentMethod}

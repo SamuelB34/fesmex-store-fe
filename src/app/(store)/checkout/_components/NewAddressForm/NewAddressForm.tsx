@@ -3,7 +3,7 @@
 import { UseFormRegister, FieldErrors } from 'react-hook-form'
 import styles from './NewAddressForm.module.scss'
 
-interface CheckoutFormValues {
+export interface CheckoutFormValues {
 	fullName: string
 	phone: string
 	line1: string
@@ -14,16 +14,28 @@ interface CheckoutFormValues {
 	notes: string
 }
 
+export type StateOption = {
+	value: string
+	label: string
+	percentage: number
+}
+
 interface NewAddressFormProps {
 	register: UseFormRegister<CheckoutFormValues>
 	errors: FieldErrors<CheckoutFormValues>
 	isRequired: boolean
+	stateOptions: StateOption[]
+	isLoadingStates: boolean
+	onStateChange?: (stateId: string) => void
 }
 
 export const NewAddressForm = ({
 	register,
 	errors,
 	isRequired,
+	stateOptions,
+	isLoadingStates,
+	onStateChange,
 }: NewAddressFormProps) => {
 	return (
 		<div className={styles.cardForm}>
@@ -114,13 +126,27 @@ export const NewAddressForm = ({
 				</div>
 				<div className={styles.fieldGrid__input}>
 					<span>Estado</span>
-					<input
+					<select
 						className={styles.input}
-						placeholder="Baja California"
+						disabled={isLoadingStates}
 						{...register('state', {
 							required: isRequired ? 'Estado requerido' : false,
+							onChange: (e) => {
+								if (onStateChange) {
+									onStateChange(e.target.value)
+								}
+							},
 						})}
-					/>
+					>
+						<option value="">
+							{isLoadingStates ? 'Cargando...' : 'Selecciona un estado'}
+						</option>
+						{stateOptions.map((opt) => (
+							<option key={opt.value} value={opt.value}>
+								{opt.label}
+							</option>
+						))}
+					</select>
 					{errors.state && (
 						<p className={styles.errorMsg}>{errors.state.message}</p>
 					)}
