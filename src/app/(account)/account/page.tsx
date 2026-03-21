@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/shared/auth/AuthProvider'
 import styles from './account.module.scss'
@@ -13,7 +13,7 @@ import {
 } from '@/features/orders/hooks/useOrders'
 import { OrdersPanel } from './_components/OrdersPanel/OrdersPanel'
 
-export default function AccountPage() {
+function AccountPageContent() {
 	const { accessToken, user, isBootstrapping, fetchMe } = useAuth()
 	const searchParams = useSearchParams()
 	const initialTab = searchParams.get('tab') as 'profile' | 'address' | 'payments' | 'orders' | null
@@ -174,5 +174,13 @@ export default function AccountPage() {
 				</div>
 			)}
 		</div>
+	)
+}
+
+export default function AccountPage() {
+	return (
+		<Suspense fallback={<div className={styles.container}><div className={styles.loading}>Loading...</div></div>}>
+			<AccountPageContent />
+		</Suspense>
 	)
 }

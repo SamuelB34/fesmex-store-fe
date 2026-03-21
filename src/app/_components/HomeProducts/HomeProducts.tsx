@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useArticles } from '@/features/articles/hooks/useArticles'
 import { Products } from '@/app/_components/Products/Products'
@@ -25,7 +25,7 @@ interface HomeProductsProps {
 	initialProducts?: ProductView[]
 }
 
-export const HomeProducts = ({
+const HomeProductsContent = ({
 	brands,
 	types,
 	initialProducts = [],
@@ -126,5 +126,13 @@ export const HomeProducts = ({
 			onBrandSelect={setUserSelectedBrand}
 			onSelectProduct={handleSelectProduct}
 		/>
+	)
+}
+
+export const HomeProducts = (props: HomeProductsProps) => {
+	return (
+		<Suspense fallback={<div>Loading products...</div>}>
+			<HomeProductsContent {...props} />
+		</Suspense>
 	)
 }

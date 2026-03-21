@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import { Search } from '@/app/productos/_components/search/Search'
 import { HomeProducts } from '@/app/_components/HomeProducts/HomeProducts'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -12,7 +13,7 @@ interface ProductosClientProps {
 	initialSearch?: string
 }
 
-export function ProductosClient({
+function ProductosClientContent({
 	brands,
 	initialProducts,
 	initialSearch = '',
@@ -37,5 +38,13 @@ export function ProductosClient({
 			<Search key={urlQuery} onSearch={handleSearch} initialValue={urlQuery} />
 			<HomeProducts brands={brands} initialProducts={initialProducts} />
 		</>
+	)
+}
+
+export function ProductosClient(props: ProductosClientProps) {
+	return (
+		<Suspense fallback={<div>Loading...</div>}>
+			<ProductosClientContent {...props} />
+		</Suspense>
 	)
 }
