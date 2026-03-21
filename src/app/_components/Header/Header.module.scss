@@ -23,9 +23,34 @@
 		align-items: center;
 		gap: 16px;
 
+		.values {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+
+			.separator {
+				border-right: 1px solid #fff;
+				height: 24px;
+			}
+
+			.row {
+				display: flex;
+				padding: var(--Spacing-small, 8px) var(--Spacing-regular, 16px);
+				justify-content: center;
+				align-items: center;
+				gap: 8px;
+				color: #fff;
+				cursor: pointer;
+			}
+		}
+
 		.text {
 			color: #fff;
 			cursor: pointer;
+			background: none;
+			border: none;
+			font: inherit;
+			padding: 0;
 		}
 	}
 }

@@ -13,6 +13,22 @@ export type ArticleStock = {
 	max_stock?: number
 }
 
+export type ArticleStockWeb = ArticleStock & { warehouse_id: string }
+
+export type ArticleFile = {
+	key: string
+	filename: string
+	mime_type: string
+	size: number
+	uploaded_at: string
+	url: string
+}
+
+export type ArticleFiles = {
+	images?: ArticleFile[]
+	datasheets?: ArticleFile[]
+}
+
 export type Article = {
 	_id: string
 	name: string
@@ -24,8 +40,12 @@ export type Article = {
 	sku?: string
 	barcode?: string
 	image_url?: string
+	files?: ArticleFiles
+	stock_web?: ArticleStockWeb | null
 	created_at?: string
 	updated_at?: string
+	is_featured?: boolean
+	featured_order?: number
 }
 
 export type ArticleListItem = Article & { stock?: ArticleStock | null }
@@ -37,6 +57,8 @@ export type ListArticlesQuery = {
 	brand?: string
 	unit?: string
 	group_id?: string
+	category_id?: string
+	is_featured?: boolean
 	sort?: string
 }
 
@@ -57,13 +79,30 @@ const unwrap = async <T>(
 
 const list = (query?: ListArticlesQuery) =>
 	unwrap<ArticlesListResponse>(api.get('/articles', { params: query }))
-
+const listFeatured = (limit = 8) =>
+	list({ is_featured: true, limit, sort: 'featured_order' })
 const getById = (id: string) =>
-	unwrap<{ article: Article | null; stock?: ArticleStock | null }>(
+	unwrap<{
+		article: Article | null
+		stock?: ArticleStock | null
+		stock_web?: ArticleStockWeb | null
+		price?: number | null
+	}>(
 		api.get(`/articles/${id}`),
 	)
 
+const recordView = (id: string) =>
+	unwrap<{ ok: boolean }>(api.post(`/articles/${id}/view`))
+
+export const getArticleImageUrl = (article?: Article | null) => {
+	if (!article) return ''
+	const presigned = article.files?.images?.[0]?.url
+	return presigned ?? article.image_url ?? ''
+}
+
 export const articlesApi = {
 	list,
+	listFeatured,
 	getById,
+	recordView,
 }

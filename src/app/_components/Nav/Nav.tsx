@@ -1,19 +1,61 @@
 'use client'
 import styles from './Nav.module.scss'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MenuItem } from '@/components/MenuItem/MenuItem'
 import { CartButton } from '@/app/_components/CartButton/CartButton'
 import { Cart } from '@/app/_components/Nav/_components/Cart/Cart'
 import { MenuContainer } from '@/app/_components/Nav/_components/MenuContainer/MenuContainer'
-import { BrandsList, ProductsList } from '@/app/_components/Nav/variables'
 import Link from 'next/link'
 import { useCart } from '@/features/cart/context/CartContext'
+import { useBrands } from '@/features/brands/context/BrandsContext'
+import { brandsApi } from '@/features/services/brands.api'
 
 export const Nav = () => {
 	const [isCartOpen, setIsCartOpen] = useState(false)
 	const [openMenu, setOpenMenu] = useState<'products' | 'brands' | null>(null)
 	const { cartCount } = useCart()
+	const { brands, setBrands, setIsLoading } = useBrands()
+
+	useEffect(() => {
+		let isMounted = true
+		if (brands.length === 0) {
+			setIsLoading(true)
+			void brandsApi
+				.list()
+				.then((response) => {
+					if (!isMounted || !response.ok || !response.data) return
+					const nextBrands = response.data.items.map((item) => ({
+						id: item.brand,
+						text: item.brand,
+						number: item.article_count,
+						type: 'brand' as const,
+					}))
+					const totalBrandsCount = nextBrands.reduce(
+						(sum, brand) => sum + (brand.number ?? 0),
+						0,
+					)
+					const allBrandsEntry = {
+						id: 'all-brands',
+						text: 'Todas las marcas',
+						number: totalBrandsCount,
+						type: 'brand' as const,
+					}
+					setBrands([allBrandsEntry, ...nextBrands])
+				})
+				.catch((error) => {
+					console.error('Failed to fetch brands:', error)
+				})
+				.finally(() => {
+					if (isMounted) {
+						setIsLoading(false)
+					}
+				})
+		}
+		return () => {
+			isMounted = false
+		}
+	}, [brands.length, setBrands, setIsLoading])
 
 	const toggleCart = () => {
 		setIsCartOpen((prev) => !prev)
@@ -62,7 +104,7 @@ export const Nav = () => {
 							onClick={() => toggleMenu('products')}
 							isActive={openMenu === 'products'}
 						/>
-						{openMenu === 'products' && <MenuContainer items={ProductsList} />}
+						{openMenu === 'products' && <MenuContainer type="products" />}
 					</div>
 
 					<div className={styles.brands}>
@@ -79,7 +121,7 @@ export const Nav = () => {
 							onClick={() => toggleMenu('brands')}
 							isActive={openMenu === 'brands'}
 						/>
-						{openMenu === 'brands' && <MenuContainer items={BrandsList} />}
+						{openMenu === 'brands' && <MenuContainer type="brands" />}
 					</div>
 
 					<div className={styles.cart}>

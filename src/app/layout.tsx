@@ -6,8 +6,12 @@ import { Header } from '@/app/_components/Header/Header'
 import { Nav } from '@/app/_components/Nav/Nav'
 import { ReactNode } from 'react'
 import { Footer } from '@/app/_components/Footer/Footer'
-import { IndustrialHero } from '@/app/_components/IndustrialHero/IndustrialHero'
 import { CartProvider } from '@/features/cart/context/CartContext'
+import { SectionsProvider } from '@/features/categories/context/SectionsContext'
+import { BrandsProvider } from '@/features/brands/context/BrandsContext'
+import { Toaster } from 'sileo'
+import { LoginModalProvider } from '@/shared/login-modal/LoginModalProvider'
+import { LoginModalRenderer } from '@/shared/login-modal/LoginModalRenderer'
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -39,14 +43,24 @@ export default function RootLayout({
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} ${IBMPlexSans.variable}`}
 			>
-				<CartProvider>
-					<Header />
-					<div className={'content'}>
-						<Nav />
-					</div>
-					<Providers>{children}</Providers>
-					<Footer />
-				</CartProvider>
+				<Toaster position="top-center" theme="light" />
+				<Providers>
+					<SectionsProvider>
+						<BrandsProvider>
+							<CartProvider>
+								<LoginModalProvider>
+									<Header />
+									<div className={'content'}>
+										<Nav />
+									</div>
+									{children}
+									<Footer />
+									<LoginModalRenderer />
+								</LoginModalProvider>
+							</CartProvider>
+						</BrandsProvider>
+					</SectionsProvider>
+				</Providers>
 			</body>
 		</html>
 	)

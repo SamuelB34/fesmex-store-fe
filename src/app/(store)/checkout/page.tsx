@@ -1,305 +1,615 @@
 'use client'
 
-import { useState, FormEvent } from 'react'
-import Link from 'next/link'
+import { useEffect, useMemo, useState, useRef } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { RequireAuth } from '@/shared/auth/RequireAuth'
-import { useCreateOrder } from '@/features/orders/hooks/useOrders'
+import { sileo } from 'sileo'
+import { Elements } from '@stripe/react-stripe-js'
+import styles from './Checkout.module.scss'
 import {
-	PaymentMethod,
-	ShippingAddress,
-} from '@/features/orders/services/orders.api'
+	useCreateOrder,
+	useShippingAddresses,
+} from '@/features/orders/hooks/useOrders'
+import { PaymentMethod, ordersApi } from '@/features/orders/services/orders.api'
+import { useCart } from '@/features/cart/context/CartContext'
+import { formatCurrency } from '@/shared/utils/format'
+import { useForm } from 'react-hook-form'
+import { ShippingAddressSelector } from './_components/ShippingAddressSelector/ShippingAddressSelector'
+import { NewAddressForm } from './_components/NewAddressForm/NewAddressForm'
+import { PaymentMethodControls } from './_components/PaymentMethodControls/PaymentMethodControls'
+import { SummaryActions } from './_components/SummaryActions/SummaryActions'
+import { ConfirmModal } from '@/components/ConfirmModal/ConfirmModal'
+import { useAuth } from '@/shared/auth/AuthProvider'
+import { stripePromise } from '@/lib/stripe'
+import {
+	StripePaymentSection,
+	type StripePaymentSectionRef,
+	type PaymentErrorType,
+} from './_components/StripePaymentSection/StripePaymentSection'
+import { PaymentLoader } from '@/components/PaymentLoader/PaymentLoader'
+import { useShippingStates } from '@/features/shipping'
 
-const inputStyle: React.CSSProperties = {
-	padding: '0.625rem 0.75rem',
-	border: '1px solid #ddd',
-	borderRadius: '4px',
-	fontSize: '0.9375rem',
-	width: '100%',
+type DeliveryType = 'shipping' | 'pickup'
+
+const PICKUP_LOCATIONS = [
+	{
+		id: 'mxli',
+		name: 'Almacén Mexicali',
+		address:
+			'Blvd. Adolfo López Mateos 2292-4, Zona Industrial, 21389 Mexicali, B.C.',
+		delivery: 'ENTREGA INMEDIATA',
+	},
+]
+
+type CheckoutFormValues = {
+	fullName: string
+	phone: string
+	line1: string
+	line2: string
+	city: string
+	state: string
+	postalCode: string
+	notes: string
 }
 
-const labelStyle: React.CSSProperties = {
-	fontSize: '0.875rem',
-	fontWeight: 500,
-	color: '#555',
-	marginBottom: '0.25rem',
-	display: 'block',
-}
-
-const fieldStyle: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'column',
-	gap: '0.25rem',
-}
-
-function CheckoutForm() {
+export default function CheckoutForm() {
 	const router = useRouter()
-	const { isSubmitting, error, createOrder } = useCreateOrder()
+	const { user, accessToken, isBootstrapping } = useAuth()
+	const { items, total, clearCart } = useCart()
+	const { createOrder, isSubmitting } = useCreateOrder()
+	const {
+		addresses,
+		isLoading: isLoadingAddresses,
+		fetchAddresses,
+	} = useShippingAddresses()
+	const {
+		stateOptions,
+		isLoading: isLoadingStates,
+		getStateByName,
+		calculateShipping,
+	} = useShippingStates()
 
-	const [fullName, setFullName] = useState('')
-	const [phone, setPhone] = useState('')
-	const [line1, setLine1] = useState('')
-	const [line2, setLine2] = useState('')
-	const [city, setCity] = useState('')
-	const [state, setState] = useState('')
-	const [postalCode, setPostalCode] = useState('')
-	const [country, setCountry] = useState('MX')
+	const [deliveryType, setDeliveryType] = useState<DeliveryType>('shipping')
+	const [selectedAddressIndex, setSelectedAddressIndex] = useState<
+		number | 'new'
+	>('new')
+
+	const [pickupLocation, setPickupLocation] = useState<string>('mxli')
 	const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CARD')
-	const [notes, setNotes] = useState('')
+	const [estimatedShipping, setEstimatedShipping] = useState<number>(0)
+	const [selectedStateId, setSelectedStateId] = useState<string>('')
+	const [showConfirmModal, setShowConfirmModal] = useState(false)
+	const [isProcessingPayment, setIsProcessingPayment] = useState(false)
+	const [paymentLoaderMessage, setPaymentLoaderMessage] = useState('')
+	const [clientSecret, setClientSecret] = useState<string | null>(null)
+	const [pendingOrderId, setPendingOrderId] = useState<string | null>(null)
 
-	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-		e.preventDefault()
+	// Stripe Elements ref
+	const stripePaymentRef = useRef<StripePaymentSectionRef>(null)
 
-		const shippingAddress: ShippingAddress = {
-			full_name: fullName,
-			phone,
-			line1,
-			line2: line2 || undefined,
-			city,
-			state,
-			postal_code: postalCode,
-			country: country || undefined,
+	// Redirect if not logged in or account not verified
+	useEffect(() => {
+		if (isBootstrapping) return
+		
+		if (!accessToken) {
+			sileo.error({
+				title: 'Inicia sesión',
+				description: 'Debes iniciar sesión para continuar con tu compra.',
+			})
+			router.push('/')
+			return
+		}
+		
+		if (user?.status !== 'active') {
+			sileo.error({
+				title: 'Cuenta no verificada',
+				description: 'Debes verificar tu correo electrónico para poder realizar compras.',
+			})
+			router.push('/account')
+			return
+		}
+	}, [accessToken, user, isBootstrapping, router])
+
+	useEffect(() => {
+		fetchAddresses()
+	}, [fetchAddresses])
+
+	const {
+		register,
+		handleSubmit,
+		formState: { errors, isValid },
+	} = useForm<CheckoutFormValues>({
+		mode: 'onChange',
+		defaultValues: {
+			fullName: '',
+			phone: '',
+			line1: '',
+			line2: '',
+			city: '',
+			state: '',
+			postalCode: '',
+			notes: '',
+		},
+	})
+
+	const grandTotal = useMemo(
+		() => total + (deliveryType === 'shipping' ? estimatedShipping : 0),
+		[total, estimatedShipping, deliveryType],
+	)
+
+	const isFormReady = useMemo(() => {
+		// Card validation happens in modal, so form is ready based on address only
+		let isAddressValid = false
+		if (deliveryType === 'pickup') {
+			isAddressValid = true
+		} else if (selectedAddressIndex !== 'new') {
+			// For existing address, check if we have a valid state
+			const addr = addresses[selectedAddressIndex]
+			isAddressValid = Boolean(addr)
+		} else {
+			// For new address, form must be valid AND state must be selected
+			isAddressValid = isValid && Boolean(selectedStateId)
+		}
+		return isAddressValid
+	}, [deliveryType, selectedAddressIndex, isValid, selectedStateId, addresses])
+
+	// Handle state change from NewAddressForm
+	const handleNewAddressStateChange = (stateId: string) => {
+		setSelectedStateId(stateId)
+		const newShipping = calculateShipping(stateId, total)
+		setEstimatedShipping(newShipping)
+	}
+
+	// Handle existing address selection - recalculate shipping based on address state
+	useEffect(() => {
+		if (selectedAddressIndex !== 'new' && addresses[selectedAddressIndex]) {
+			const addr = addresses[selectedAddressIndex]
+			const state = getStateByName(addr.state)
+			if (state) {
+				setSelectedStateId(state._id)
+				const newShipping = calculateShipping(state._id, total)
+				setEstimatedShipping(newShipping)
+			} else {
+				console.warn(`State not found for address: ${addr.state}`)
+				setSelectedStateId('')
+				setEstimatedShipping(0)
+			}
+		} else if (selectedAddressIndex === 'new') {
+			// Reset when switching to new address
+			setSelectedStateId('')
+			setEstimatedShipping(0)
+		}
+	}, [selectedAddressIndex, addresses, getStateByName, calculateShipping, total])
+
+	const [pendingFormValues, setPendingFormValues] = useState<CheckoutFormValues | null>(null)
+
+	// Step 1: User submits form -> create order to get clientSecret
+	const onSubmit = handleSubmit(async (values) => {
+		if (paymentMethod === 'CARD') {
+			// For card payments, create order first to get clientSecret
+			try {
+				setIsProcessingPayment(true)
+				setPaymentLoaderMessage('Preparando pago...')
+
+				const payload = buildOrderPayload(values)
+				const result = await createOrder(payload)
+
+				if (!result) {
+					sileo.error({
+						title: 'Error al crear el pedido',
+						description: 'No se pudo crear el pedido. Intenta nuevamente.',
+					})
+					return
+				}
+
+				const { order, paymentIntent } = result
+
+				if (!paymentIntent?.client_secret) {
+					sileo.error({
+						title: 'Error de pago',
+						description: 'No se pudo inicializar el pago.',
+					})
+					return
+				}
+
+				// Store order ID and clientSecret, then show payment form
+				setPendingOrderId(order._id)
+				setClientSecret(paymentIntent.client_secret)
+				setPendingFormValues(values)
+				setShowConfirmModal(true)
+			} catch (error) {
+				console.error('Error creating order:', error)
+				sileo.error({
+					title: 'Error al procesar tu pedido',
+					description: 'Ocurrió un error inesperado. Intenta nuevamente.',
+				})
+			} finally {
+				setIsProcessingPayment(false)
+				setPaymentLoaderMessage('')
+			}
+		} else {
+			// For TRANSFER, show confirm modal directly
+			setPendingFormValues(values)
+			setShowConfirmModal(true)
+		}
+	})
+
+	// Build order payload from form values
+	const buildOrderPayload = (values: CheckoutFormValues) => {
+		const payload: Parameters<typeof createOrder>[0] = {
+			payment_method: paymentMethod,
+			notes: values.notes,
+			delivery_type: deliveryType,
 		}
 
-		const order = await createOrder({
-			payment_method: paymentMethod,
-			notes: notes || undefined,
-			shipping_address: shippingAddress,
-		})
+		if (deliveryType === 'shipping') {
+			if (selectedAddressIndex !== 'new' && addresses[selectedAddressIndex]) {
+				payload.shipping_address = addresses[selectedAddressIndex]
+			} else {
+				payload.shipping_address = {
+					full_name: values.fullName,
+					phone: values.phone,
+					line1: values.line1,
+					line2: values.line2,
+					city: values.city,
+					state: values.state,
+					postal_code: values.postalCode,
+					country: 'MX',
+				}
+			}
+		}
 
-		if (order) {
-			router.push(`/orders/${order._id}`)
+		return payload
+	}
+
+	// Step 2: User confirms -> for CARD, confirm payment; for TRANSFER, create order
+	const handleConfirmOrder = async () => {
+		if (!pendingFormValues) return
+		const values = pendingFormValues
+
+		try {
+			setIsProcessingPayment(true)
+
+			if (paymentMethod === 'CARD') {
+				// Order already created, now confirm payment with Stripe
+				if (!stripePaymentRef.current || !pendingOrderId) {
+					sileo.error({
+						title: 'Error de pago',
+						description: 'Stripe no está disponible. Recarga la página.',
+					})
+					return
+				}
+
+				setPaymentLoaderMessage('Procesando pago...')
+
+				// confirmPayment handles cards, Apple Pay, Google Pay automatically
+				const { success, errorType, error, intentStatus } = await stripePaymentRef.current.confirmPayment()
+
+				if (!success) {
+					handlePaymentError(errorType, error)
+					return
+				}
+
+				// success === true means Stripe accepted the payment
+				// intentStatus may be: 'succeeded', 'processing', or undefined (rare edge case)
+				// All cases should proceed to polling - backend is source of truth
+				if (intentStatus) {
+					console.log(`Payment intent status: ${intentStatus}`)
+				}
+
+				// Poll backend until payment_status = PAID (webhook processed)
+				setPaymentLoaderMessage('Verificando pago...')
+				const maxAttempts = 10
+				let attempts = 0
+				let isPaid = false
+
+				while (attempts < maxAttempts && !isPaid) {
+					await new Promise((resolve) => setTimeout(resolve, 1000))
+					try {
+						const { order: updatedOrder } = await ordersApi.getOrderById(pendingOrderId)
+						if (updatedOrder.payment_status === 'PAID') {
+							isPaid = true
+						}
+					} catch {
+						// Continue polling
+					}
+					attempts++
+				}
+
+				if (!isPaid) {
+					console.warn('Payment confirmed but webhook not yet processed')
+				}
+			} else {
+				// TRANSFER: create order now
+				const payload = buildOrderPayload(values)
+				const result = await createOrder(payload)
+
+				if (!result) {
+					sileo.error({
+						title: 'Error al crear el pedido',
+						description: 'No se pudo crear el pedido. Intenta nuevamente.',
+					})
+					return
+				}
+			}
+
+			// Clear cart only after payment confirmed
+			clearCart()
+
+			sileo.success({
+				title: '¡Pedido creado exitosamente!',
+				description: 'Se te enviará un correo de confirmación',
+			})
+			setShowConfirmModal(false)
+			setPendingFormValues(null)
+			setClientSecret(null)
+			setPendingOrderId(null)
+			setTimeout(() => {
+				router.push('/account?tab=orders')
+			}, 500)
+		} catch (error) {
+			console.error('Error creating order:', error)
+			sileo.error({
+				title: 'Error al procesar tu pedido',
+				description: 'Ocurrió un error inesperado. Intenta nuevamente.',
+			})
+		} finally {
+			setIsProcessingPayment(false)
+			setPaymentLoaderMessage('')
+		}
+	}
+
+	// Handle payment errors with appropriate sileo notifications
+	const handlePaymentError = (errorType?: PaymentErrorType, errorMessage?: string) => {
+		if (errorType === 'declined') {
+			sileo.error({
+				title: 'Pago rechazado',
+				description: 'Tu banco rechazó la operación. Intenta nuevamente.',
+			})
+		} else if (errorType === 'canceled') {
+			sileo.warning({
+				title: 'Autenticación cancelada',
+				description: 'No se completó la verificación bancaria.',
+			})
+		} else {
+			sileo.error({
+				title: 'Error en el pago',
+				description: errorMessage || 'No se pudo procesar el pago.',
+			})
 		}
 	}
 
 	return (
-		<div>
-			<nav
-				style={{
-					display: 'flex',
-					justifyContent: 'space-between',
-					alignItems: 'center',
-					padding: '1rem 0',
-					borderBottom: '1px solid #ddd',
-					marginBottom: '1.5rem',
-				}}
-			>
-				<Link
-					href="/"
-					style={{ fontSize: '1.25rem', fontWeight: 700, color: '#007bff' }}
-				>
-					FESMEX Store
-				</Link>
-				<div style={{ display: 'flex', gap: '1.5rem' }}>
-					<Link href="/">Articles</Link>
-					<Link href="/cart">Cart</Link>
-					<Link href="/orders">Orders</Link>
-				</div>
-			</nav>
+		<div className={styles.checkoutWrapper}>
+			<form onSubmit={onSubmit} className={styles.checkoutGrid}>
+				<section className={styles.formColumn}>
+					<div className={styles.form}>
+						{/* ENTREGA */}
+						<div className={styles.section}>
+							<div className={styles.sectionHeader}>
+								<h2>Entrega</h2>
 
-			<h1
-				style={{
-					fontSize: '1.75rem',
-					fontWeight: 600,
-					marginBottom: '1.5rem',
-					color: '#333',
-				}}
-			>
-				Checkout
-			</h1>
+								<div className={styles.deliveryToggle}>
+									<button
+										type="button"
+										className={deliveryType === 'shipping' ? styles.active : ''}
+										onClick={() => setDeliveryType('shipping')}
+									>
+										Envío por flete
+									</button>
 
-			{error && (
-				<div
-					style={{
-						padding: '0.75rem',
-						marginBottom: '1rem',
-						backgroundColor: '#fee',
-						color: '#c33',
-						borderRadius: '4px',
-						fontSize: '0.875rem',
-					}}
-				>
-					{error}
-				</div>
-			)}
+									<button
+										type="button"
+										className={deliveryType === 'pickup' ? styles.active : ''}
+										onClick={() => setDeliveryType('pickup')}
+									>
+										Recoger en almacén
+									</button>
+								</div>
+							</div>
 
-			<form onSubmit={handleSubmit}>
-				<div
-					style={{
-						display: 'grid',
-						gridTemplateColumns: '1fr 1fr',
-						gap: '1rem',
-						marginBottom: '1.5rem',
-					}}
-				>
-					<h2
-						style={{
-							gridColumn: '1 / -1',
-							fontSize: '1.25rem',
-							fontWeight: 600,
-							color: '#333',
-						}}
-					>
-						Shipping Address
-					</h2>
+							{/* DIRECCIÓN */}
+							{deliveryType === 'shipping' && (
+								<div className={styles.radioGroup}>
+									<ShippingAddressSelector
+										addresses={addresses}
+										isLoading={isLoadingAddresses}
+										selectedIndex={selectedAddressIndex}
+										onSelectAddress={setSelectedAddressIndex}
+									/>
 
-					<div style={fieldStyle}>
-						<label style={labelStyle}>Full Name *</label>
-						<input
-							style={inputStyle}
-							value={fullName}
-							onChange={(e) => setFullName(e.target.value)}
-							required
-							disabled={isSubmitting}
+									{selectedAddressIndex === 'new' && (
+										<NewAddressForm
+											register={register}
+											errors={errors}
+											isRequired={selectedAddressIndex === 'new'}
+											stateOptions={stateOptions}
+											isLoadingStates={isLoadingStates}
+											onStateChange={handleNewAddressStateChange}
+										/>
+									)}
+								</div>
+							)}
+
+							{/* PICKUP */}
+
+							{deliveryType === 'pickup' && (
+								<div className={styles.pickupList}>
+									{PICKUP_LOCATIONS.map((loc) => (
+										<button
+											key={loc.id}
+											type="button"
+											className={`${styles.pickupOption} ${
+												pickupLocation === loc.id ? styles.active : ''
+											}`}
+											onClick={() => setPickupLocation(loc.id)}
+										>
+											<div className={styles.left}>
+												<div className={styles.radioBtn}>
+													<div className={styles.radioBtn__inner}></div>
+												</div>
+												<div className={styles.labels}>
+													<strong>{loc.name}</strong>
+													<p>{loc.address}</p>
+												</div>
+											</div>
+
+											<span>{loc.delivery}</span>
+										</button>
+									))}
+								</div>
+							)}
+						</div>
+
+						{/* COSTO DE ENVÍO ESTIMADO */}
+						{deliveryType === 'shipping' && (
+							<div className={styles.section}>
+								<div className={styles.sectionHeader}>
+									<p className={styles.sectionSubtitle}>Costo de envío</p>
+
+									<div className={styles.sectionTitle}>
+										<Image
+											src={'/icons/delivery.svg'}
+											alt={'delivery'}
+											width={24}
+											height={24}
+											className={styles.card_icon}
+										/>
+										<span>Envíos a toda la república Mexicana</span>
+									</div>
+								</div>
+
+								<div className={styles.shippingEstimate}>
+									{estimatedShipping > 0 ? (
+										<>
+											<p className={styles.shippingCost}>
+												Envío estimado: <strong>{formatCurrency(estimatedShipping)}</strong>
+											</p>
+											<p className={styles.shippingNote}>
+												*El costo final se calculará al confirmar la compra
+											</p>
+										</>
+									) : (
+										<p className={styles.shippingNote}>
+											Selecciona un estado para calcular el envío
+										</p>
+									)}
+								</div>
+							</div>
+						)}
+
+							{/* PAGO */}
+						<PaymentMethodControls
+							paymentMethod={paymentMethod}
+							onPaymentMethodChange={setPaymentMethod}
+						/>
+
+						
+						{/* NOTAS */}
+						<div className={styles.field}>
+							<label className={styles.label}>Notas (opcional)</label>
+							<textarea
+								className={styles.input}
+								style={{ minHeight: '120px', resize: 'none' }}
+								{...register('notes')}
+								disabled={isSubmitting}
+								placeholder="Entregar en recepción"
+							/>
+						</div>
+					</div>
+				</section>
+
+				{/* RESUMEN */}
+				<aside className={styles.summaryColumn}>
+					<div className={styles.summaryCard}>
+						{items.map((item, index) => (
+							<div className={styles.summaryItem} key={item.id + index}>
+								<div className={styles.itemThumb}>
+									<Image
+										src={item.image || '/images/placeholder-product.png'}
+										alt={item.name}
+										width={133}
+										height={133}
+										className={styles.img}
+									/>
+
+									<div className={styles.itemBadge}>{item.quantity}</div>
+								</div>
+
+								<div className={styles.itemInfo}>
+									<p className={styles.itemName} title={item.name}>
+										{item.name}
+									</p>
+
+									<span className={styles.itemBrand}>{item.brand}</span>
+								</div>
+
+								<span className={styles.itemPrice}>
+									{formatCurrency(item.unitPrice)}
+									<span>MXN</span>
+								</span>
+							</div>
+						))}
+
+						{/*Summary Totals*/}
+						<SummaryActions
+							subtotal={total}
+							shippingCost={estimatedShipping}
+							shippingLabel={estimatedShipping > 0 ? 'Envío estimado' : 'Selecciona estado'}
+							grandTotal={grandTotal}
+							showShipping={deliveryType === 'shipping'}
+							paymentMethod={paymentMethod}
+							isFormReady={isFormReady}
+							isSubmitting={isSubmitting}
 						/>
 					</div>
-
-					<div style={fieldStyle}>
-						<label style={labelStyle}>Phone *</label>
-						<input
-							style={inputStyle}
-							value={phone}
-							onChange={(e) => setPhone(e.target.value)}
-							required
-							disabled={isSubmitting}
-						/>
-					</div>
-
-					<div style={{ ...fieldStyle, gridColumn: '1 / -1' }}>
-						<label style={labelStyle}>Address Line 1 *</label>
-						<input
-							style={inputStyle}
-							value={line1}
-							onChange={(e) => setLine1(e.target.value)}
-							required
-							disabled={isSubmitting}
-						/>
-					</div>
-
-					<div style={{ ...fieldStyle, gridColumn: '1 / -1' }}>
-						<label style={labelStyle}>Address Line 2</label>
-						<input
-							style={inputStyle}
-							value={line2}
-							onChange={(e) => setLine2(e.target.value)}
-							disabled={isSubmitting}
-						/>
-					</div>
-
-					<div style={fieldStyle}>
-						<label style={labelStyle}>City *</label>
-						<input
-							style={inputStyle}
-							value={city}
-							onChange={(e) => setCity(e.target.value)}
-							required
-							disabled={isSubmitting}
-						/>
-					</div>
-
-					<div style={fieldStyle}>
-						<label style={labelStyle}>State *</label>
-						<input
-							style={inputStyle}
-							value={state}
-							onChange={(e) => setState(e.target.value)}
-							required
-							disabled={isSubmitting}
-						/>
-					</div>
-
-					<div style={fieldStyle}>
-						<label style={labelStyle}>Postal Code *</label>
-						<input
-							style={inputStyle}
-							value={postalCode}
-							onChange={(e) => setPostalCode(e.target.value)}
-							required
-							disabled={isSubmitting}
-						/>
-					</div>
-
-					<div style={fieldStyle}>
-						<label style={labelStyle}>Country</label>
-						<input
-							style={inputStyle}
-							value={country}
-							onChange={(e) => setCountry(e.target.value)}
-							disabled={isSubmitting}
-						/>
-					</div>
-				</div>
-
-				<div style={{ marginBottom: '1.5rem' }}>
-					<h2
-						style={{
-							fontSize: '1.25rem',
-							fontWeight: 600,
-							color: '#333',
-							marginBottom: '0.75rem',
-						}}
-					>
-						Payment
-					</h2>
-
-					<div style={fieldStyle}>
-						<label style={labelStyle}>Payment Method *</label>
-						<select
-							style={inputStyle}
-							value={paymentMethod}
-							onChange={(e) =>
-								setPaymentMethod(e.target.value as PaymentMethod)
-							}
-							disabled={isSubmitting}
-						>
-							<option value="CARD">Card</option>
-							<option value="TRANSFER">Transfer</option>
-						</select>
-					</div>
-				</div>
-
-				<div style={{ marginBottom: '1.5rem' }}>
-					<div style={fieldStyle}>
-						<label style={labelStyle}>Notes (optional)</label>
-						<textarea
-							style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
-							value={notes}
-							onChange={(e) => setNotes(e.target.value)}
-							disabled={isSubmitting}
-						/>
-					</div>
-				</div>
-
-				<button
-					type="submit"
-					disabled={isSubmitting}
-					style={{
-						padding: '0.75rem 2rem',
-						backgroundColor: isSubmitting ? '#6c757d' : '#28a745',
-						color: 'white',
-						border: 'none',
-						borderRadius: '4px',
-						fontSize: '1rem',
-						fontWeight: 500,
-						cursor: isSubmitting ? 'not-allowed' : 'pointer',
-						width: '100%',
-					}}
-				>
-					{isSubmitting ? 'Placing Order...' : 'Place Order'}
-				</button>
+				</aside>
 			</form>
-		</div>
-	)
-}
 
-export default function CheckoutPage() {
-	return (
-		<RequireAuth>
-			<div
-				style={{ padding: '1rem 2rem', maxWidth: '800px', margin: '0 auto' }}
-			>
-				<CheckoutForm />
-			</div>
-		</RequireAuth>
+			<ConfirmModal
+				isOpen={showConfirmModal}
+				onClose={() => {
+					setShowConfirmModal(false)
+					setClientSecret(null)
+					setPendingOrderId(null)
+				}}
+				onConfirm={handleConfirmOrder}
+				title={paymentMethod === 'CARD' ? 'Completar pago' : 'Confirmar pedido'}
+				message={
+					paymentMethod === 'CARD' && clientSecret ? (
+						<div>
+							<p style={{ marginBottom: '16px' }}>
+								Ingresa los datos de tu tarjeta para completar el pago.
+							</p>
+							{/* PaymentElement renders inside modal with clientSecret */}
+							<Elements
+								stripe={stripePromise}
+								options={{
+									clientSecret,
+									appearance: {
+										theme: 'stripe',
+										variables: {
+											colorPrimary: '#0066cc',
+										},
+									},
+								}}
+							>
+								<StripePaymentSection ref={stripePaymentRef} />
+							</Elements>
+						</div>
+					) : (
+						'¿Estás seguro de que deseas enviar este pedido? Se te enviará un correo de confirmación.'
+					)
+				}
+				confirmText={paymentMethod === 'CARD' ? 'Pagar ahora' : 'Enviar pedido'}
+				cancelText="Cancelar"
+				isLoading={isSubmitting || isProcessingPayment}
+			/>
+
+			{/* Payment processing overlay */}
+			{isProcessingPayment && paymentLoaderMessage && (
+				<PaymentLoader message={paymentLoaderMessage} />
+			)}
+		</div>
 	)
 }

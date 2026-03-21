@@ -5,9 +5,11 @@ import {
 	ordersApi,
 	Order,
 	CreateOrderPayload,
+	CreateOrderResponse,
 	ListOrdersQuery,
 	ShippingFeePayload,
 	ApiRequestError,
+	ShippingAddress,
 } from '@/features/orders/services/orders.api'
 
 type UseOrdersListState = {
@@ -52,6 +54,36 @@ export function useOrdersList() {
 	}, [])
 
 	return { ...state, fetchOrders }
+}
+
+type UseShippingAddressesState = {
+	addresses: ShippingAddress[]
+	isLoading: boolean
+	error: string | null
+}
+
+export function useShippingAddresses() {
+	const [state, setState] = useState<UseShippingAddressesState>({
+		addresses: [],
+		isLoading: false,
+		error: null,
+	})
+
+	const fetchAddresses = useCallback(async () => {
+		setState((prev) => ({ ...prev, isLoading: true, error: null }))
+		try {
+			const data = await ordersApi.listShippingAddresses()
+			setState({ addresses: data, isLoading: false, error: null })
+		} catch (err) {
+			const message =
+				err instanceof ApiRequestError
+					? err.message
+					: 'Failed to load shipping addresses'
+			setState((prev) => ({ ...prev, isLoading: false, error: message }))
+		}
+	}, [])
+
+	return { ...state, fetchAddresses }
 }
 
 type UseOrderDetailState = {
@@ -111,12 +143,12 @@ export function useCreateOrder() {
 	})
 
 	const createOrder = useCallback(
-		async (payload: CreateOrderPayload): Promise<Order | null> => {
+		async (payload: CreateOrderPayload): Promise<CreateOrderResponse | null> => {
 			setState({ isSubmitting: true, error: null })
 			try {
 				const data = await ordersApi.createOrder(payload)
 				setState({ isSubmitting: false, error: null })
-				return data.order
+				return data
 			} catch (err) {
 				const message =
 					err instanceof ApiRequestError

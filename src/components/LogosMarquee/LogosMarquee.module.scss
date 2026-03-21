@@ -25,6 +25,7 @@
 	display: flex;
 	gap: 24px;
 	animation: scroll 120s linear infinite;
+	padding: 4px 0;
 }
 
 @keyframes scroll {
@@ -54,6 +55,8 @@
 		filter: grayscale(100%);
 		transition: all 0.3s ease;
 		opacity: 0.8;
+		width: 100%;
+		height: auto;
 	}
 
 	&:hover img {

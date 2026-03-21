@@ -21,12 +21,23 @@ export type ShippingAddress = {
 	country?: string
 }
 
+export type ShippingAddressesResponse = {
+	addresses: ShippingAddress[]
+}
+
 export type OrderItem = {
 	article_id: string
 	quantity: number
 	unit_price: number
 	total: number
+	article?: {
+		description: string
+		brand?: string
+		image?: string
+	}
 }
+
+export type DeliveryType = 'shipping' | 'pickup'
 
 export type Order = {
 	_id: string
@@ -36,7 +47,8 @@ export type Order = {
 	payment_method: PaymentMethod
 	payment_status: PaymentStatus
 	expires_at?: string | null
-	shipping_address: ShippingAddress
+	shipping_address?: ShippingAddress
+	delivery_type: DeliveryType
 	subtotal: number
 	shipping_fee: number
 	total: number
@@ -51,6 +63,11 @@ type RawOrderItem = {
 	quantity?: number | string
 	unit_price?: number | string
 	total?: number | string
+	article?: {
+		description?: string
+		brand?: string
+		image?: string
+	}
 }
 
 type RawShippingAddress = {
@@ -73,6 +90,7 @@ type RawOrder = {
 	payment_status?: PaymentStatus
 	expires_at?: string | null
 	shipping_address?: RawShippingAddress | null
+	delivery_type?: DeliveryType
 	subtotal?: number | string
 	shipping_fee?: number | string | null
 	total?: number | string
@@ -117,12 +135,22 @@ const toStringOrNull = (
 }
 
 const normalizeOrderItem = (item: RawOrderItem): OrderItem => {
-	return {
+	const normalized: OrderItem = {
 		article_id: String(item.article_id ?? ''),
 		quantity: toNumber(item.quantity),
 		unit_price: toNumber(item.unit_price),
 		total: toNumber(item.total),
 	}
+
+	if (item.article) {
+		normalized.article = {
+			description: String(item.article.description ?? ''),
+			brand: item.article.brand,
+			image: item.article.image,
+		}
+	}
+
+	return normalized
 }
 
 const normalizeShippingAddress = (
@@ -161,7 +189,8 @@ const normalizeOrder = (input: RawOrder): Order => {
 		payment_method: input.payment_method ?? 'CARD',
 		payment_status: input.payment_status ?? 'UNPAID',
 		expires_at: input.expires_at ?? null,
-		shipping_address: normalizeShippingAddress(input.shipping_address),
+		shipping_address: input.shipping_address ? normalizeShippingAddress(input.shipping_address) : undefined,
+		delivery_type: input.delivery_type ?? 'shipping',
 		subtotal: toNumber(input.subtotal),
 		shipping_fee: toNumber(input.shipping_fee),
 		total,
@@ -195,7 +224,8 @@ const unwrapOrThrow = async <T>(
 export type CreateOrderPayload = {
 	payment_method: PaymentMethod
 	notes?: string
-	shipping_address: ShippingAddress
+	shipping_address?: ShippingAddress
+	delivery_type: DeliveryType
 }
 
 export type ListOrdersQuery = {
@@ -207,11 +237,21 @@ export type ShippingFeePayload = {
 	shipping_fee: number
 }
 
-const createOrder = async (payload: CreateOrderPayload) => {
-	const data = await unwrapOrThrow<{ order: RawOrder }>(
-		api.post('/orders', payload),
-	)
-	return { order: normalizeOrder(data.order) }
+export type CreateOrderResponse = {
+	order: Order
+	paymentIntent?: { client_secret: string }
+}
+
+const createOrder = async (payload: CreateOrderPayload): Promise<CreateOrderResponse> => {
+	const data = await unwrapOrThrow<{
+		order: RawOrder
+		paymentIntent?: { client_secret: string }
+	}>(api.post('/orders', payload))
+
+	return {
+		order: normalizeOrder(data.order),
+		paymentIntent: data.paymentIntent,
+	}
 }
 
 const listOrders = async (query?: ListOrdersQuery) => {
@@ -246,11 +286,19 @@ const updateShipping = async (id: string, payload: ShippingFeePayload) => {
 	return { order: normalizeOrder(data.order) }
 }
 
+const listShippingAddresses = async () => {
+	const data = await unwrapOrThrow<ShippingAddressesResponse>(
+		api.get('/orders/shipping-addresses'),
+	)
+	return data.addresses
+}
+
 export const ordersApi = {
 	createOrder,
 	listOrders,
 	getOrderById,
 	updateShipping,
+	listShippingAddresses,
 }
 
 // Example usage:

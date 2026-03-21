@@ -8,6 +8,7 @@ import type { Product } from '@/app/mock'
 import { Button } from '@/components/Button/Button'
 import { Chip } from '@/components/Chip/Chip'
 import { useCart } from '@/features/cart/context/CartContext'
+import { formatCurrency } from '@/shared/utils/format'
 
 interface ProductDetailClientProps {
 	product: Product
@@ -43,12 +44,17 @@ export const ProductDetailClient = ({ product }: ProductDetailClientProps) => {
 	return (
 		<div className={styles.product_details}>
 			<div className={styles.detail__content}>
-				<Image
-					src={product.image}
-					alt={product.name}
-					width={600}
-					height={600}
-				/>
+				{product.image ? (
+					<Image
+						src={product.image}
+						alt={product.name}
+						width={600}
+						height={600}
+						className={styles.detail__image}
+					/>
+				) : (
+					<div className={styles.image_placeholder}>No hay imagen</div>
+				)}
 
 				<div className={styles.detail__info}>
 					<div className={styles.name_brand}>
@@ -58,12 +64,12 @@ export const ProductDetailClient = ({ product }: ProductDetailClientProps) => {
 
 					<div className={styles.prices}>
 						<p className={styles.price}>
-							$ {product.price.toFixed(2)}
+							{formatCurrency(product.price)}
 							<span className={styles.price__currency}>{product.currency}</span>
 						</p>
 						{product.oldPrice && (
 							<p className={styles.old_price}>
-								$ {product.oldPrice.toFixed(2)}
+								{formatCurrency(product.oldPrice)}
 							</p>
 						)}
 					</div>

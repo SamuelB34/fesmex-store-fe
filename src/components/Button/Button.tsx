@@ -6,7 +6,9 @@ interface ButtonProps {
 	text?: string
 	variant?: 'primary' | 'secondary' | 'accent'
 	filled?: boolean
+	disabled?: boolean
 	onClick?: MouseEventHandler<HTMLButtonElement>
+	type?: 'button' | 'submit' | 'reset'
 }
 
 export const Button = ({
@@ -14,14 +16,21 @@ export const Button = ({
 	leftIcon,
 	variant = 'primary',
 	filled = true,
+	disabled = false,
 	onClick,
+	type = 'button',
 }: ButtonProps) => {
 	const classes = [styles.btn, styles[variant], !filled ? styles.outlined : '']
 		.filter(Boolean)
 		.join(' ')
 
 	return (
-		<button className={classes} onClick={onClick}>
+		<button
+			className={classes}
+			onClick={onClick}
+			disabled={disabled}
+			type={type}
+		>
 			{leftIcon && leftIcon}
 			{text && text}
 		</button>

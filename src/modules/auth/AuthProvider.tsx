@@ -95,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 		setUser(null)
 
 		if (typeof window !== 'undefined') {
-			window.location.href = '/login'
+			window.location.href = '/'
 		}
 	}, [])
 

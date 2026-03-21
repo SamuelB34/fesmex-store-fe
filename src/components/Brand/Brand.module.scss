@@ -58,7 +58,9 @@
 
 .subCategory {
 	&__active {
-		background: var(--primary, #0b4c8c);
+		border: 1px solid var(--primary, #0b4c8c);
+		margin-left: 32px;
+		width: calc(100% - 32px);
 
 		&__text {
 			color: var(--text, #201e1c);
@@ -83,6 +85,8 @@
 	&__inactive {
 		border: var(--Stroke-regular, 1.5px) solid var(--secondary, #e6f0fa);
 		background: var(--background, #fff);
+		margin-left: 32px;
+		width: calc(100% - 32px);
 
 		&__text {
 			color: var(--text, #201e1c);

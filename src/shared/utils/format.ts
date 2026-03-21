@@ -1,3 +1,5 @@
+import { DateTime } from 'luxon'
+
 export type CurrencyFormatOptions = {
 	locale?: string
 	currency?: string
@@ -28,14 +30,14 @@ export type NumberFormatOptions = {
 	maximumFractionDigits?: number
 }
 
-export function formatNumber(
+export const formatNumber = (
 	value: number,
 	{
 		locale = 'es-MX',
 		minimumFractionDigits,
 		maximumFractionDigits,
 	}: NumberFormatOptions = {},
-): string {
+): string => {
 	return new Intl.NumberFormat(locale, {
 		minimumFractionDigits,
 		maximumFractionDigits,
@@ -63,4 +65,17 @@ export function formatDate(
 	}
 
 	return new Intl.DateTimeFormat(locale, resolvedOptions).format(date)
+}
+
+export function formatDatePT(date: string | Date): string {
+	const formatted = DateTime.fromISO(
+		typeof date === 'string' ? date : date.toISOString(),
+		{ zone: 'utc' },
+	)
+		.setZone('America/Los_Angeles')
+		.setLocale('es')
+		.toFormat('cccc d LLLL, HH:mm')
+
+	// Capitalizar primer letra
+	return formatted.charAt(0).toUpperCase() + formatted.slice(1) + ' PT'
 }

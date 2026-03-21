@@ -5,16 +5,30 @@ interface BrandProps {
 	number: number
 	type: 'category' | 'subcategory' | 'disabled'
 	active?: boolean
+	onSelect?: () => void
 }
 
-export const Brand = ({ text, number, type, active }: BrandProps) => {
+export const Brand = ({ text, number, type, active, onSelect }: BrandProps) => {
+	const normalizedType = type === 'subcategory' ? 'subCategory' : type
 	const state =
-		type === 'disabled'
+		normalizedType === 'disabled'
 			? 'disabled'
-			: `${type}__${active ? 'active' : 'inactive'}`
+			: `${normalizedType}__${active ? 'active' : 'inactive'}`
 
 	return (
-		<div className={`${styles.brand} ${styles[state]}`}>
+		<div
+			className={`${styles.brand} ${styles[state]}`}
+			role={onSelect ? 'button' : 'presentation'}
+			aria-pressed={active ?? false}
+			tabIndex={onSelect ? 0 : -1}
+			onClick={onSelect}
+			onKeyDown={(event) => {
+				if (event.key === 'Enter' || event.key === ' ') {
+					event.preventDefault()
+					onSelect?.()
+				}
+			}}
+		>
 			<span className={styles[`${state}__text`]}>{text}</span>
 
 			<span className={styles[`${state}__number`]}>({number})</span>

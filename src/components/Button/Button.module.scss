@@ -8,6 +8,7 @@
 	padding: 16px;
 	border-radius: 16px;
 	font-weight: 600;
+	font-size: var(--Font-Size-medium, 16px);
 	cursor: pointer;
 	transition: all 0.2s ease;
 
@@ -37,8 +38,8 @@
 }
 
 .outlined.primary {
-	border-color: #0b4c8c;
-	color: #0b4c8c;
+	border-color: #58544f;
+	color: #58544f;
 }
 
 .outlined.secondary {
