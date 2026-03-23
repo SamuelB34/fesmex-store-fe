@@ -1,3 +1,5 @@
+@use '@/styles/responsive' as responsive;
+
 .hero {
 	position: relative;
 	padding: 48px 24px;
@@ -34,6 +36,10 @@
 	.btn {
 		width: 320px;
 		padding-top: 24px;
+
+		@include responsive.respond-down('mobile') {
+			width: 100%;
+		}
 	}
 }
 
@@ -65,6 +71,16 @@
 	font-weight: 700;
 	line-height: var(--Line-Height-spacious, 80px); /* 106.667% */
 	letter-spacing: 1.5px;
+
+	@include responsive.respond-down('mobile') {
+		color: var(--high-contrast-a, #fff);
+		font-family: 'IBM Plex Sans', sans-serif;
+		font-size: var(--Font-Size-giant, 40px);
+		font-style: normal;
+		font-weight: 600;
+		line-height: var(--Line-Height-wide, 40px); /* 100% */
+		letter-spacing: 0.8px;
+	}
 }
 
 .hero__cta {
@@ -100,6 +116,10 @@
 	align-items: center;
 	gap: 8px;
 	z-index: 1;
+
+	@include responsive.respond-down('mobile') {
+		display: none;
+	}
 }
 
 .engine {
@@ -144,6 +164,10 @@
 	border-radius: 626px;
 	border: 8px solid var(--shade-blue, #f2f9ff);
 	opacity: 0.2;
+
+	@include responsive.respond-down('mobile') {
+		display: none;
+	}
 }
 
 .hero__card::after {
@@ -156,6 +180,10 @@
 	border-radius: 626px;
 	border: 8px solid var(--shade-blue, #f2f9ff);
 	opacity: 0.2;
+
+	@include responsive.respond-down('mobile') {
+		display: none;
+	}
 }
 
 @media (max-width: 1024px) {
@@ -195,16 +223,6 @@
 		min-height: 360px;
 	}
 
-	.hero__title {
-		font-size: 22px;
-		line-height: 28px;
-	}
-
-	.hero__headline {
-		font-size: 32px;
-		line-height: 36px;
-	}
-
 	.hero__cta {
 		width: fit-content;
 	}
@@ -229,11 +247,10 @@
 @media (max-width: 540px) {
 	.hero__card {
 		padding: 24px 18px 210px;
-	}
 
-	.hero__headline {
-		font-size: 26px;
-		line-height: 30px;
+		@include responsive.respond-down('mobile') {
+			padding: var(--Spacing-larger, 48px) var(--Spacing-big, 24px);
+		}
 	}
 
 	.hero__engines {

@@ -1,3 +1,5 @@
+@use '@/styles/responsive' as responsive;
+
 .best_brands {
 	padding: var(--Spacing-gigantous, 96px) var(--Spacing-huge, 64px);
 	width: 100%;
@@ -15,6 +17,10 @@
 		flex-direction: column;
 		gap: 16px;
 		align-items: center;
+
+		@include responsive.respond-down('mobile') {
+			align-items: flex-start;
+		}
 	}
 
 	&__h1 {
@@ -59,4 +65,10 @@
 	right: 214.5px;
 	bottom: -12px;
 	z-index: 0;
+
+	@include responsive.respond-down('mobile') {
+		width: 198.5px;
+		right: auto;
+		left: 90px;
+	}
 }

@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { LogosMarquee } from '@/components/LogosMarquee/LogosMarquee'
 import { logos } from '@/app/_components/BestBrands/logos'
 import { Button } from '@/components/Button/Button'
+import Link from 'next/link'
 
 export const BestBrands = () => {
 	const firstGroupLogos = logos.slice(0, 6)
@@ -29,13 +30,13 @@ export const BestBrands = () => {
 				<LogosMarquee logos={secondGroupLogos} direction={'left'} />
 			</div>
 
-			<div>
+			<Link href={'/productos'}>
 				<Button
 					text={'Ver nuestro productos'}
 					variant={'accent'}
 					filled={false}
 				/>
-			</div>
+			</Link>
 		</div>
 	)
 }

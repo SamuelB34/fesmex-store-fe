@@ -1,3 +1,5 @@
+@use '@/styles/responsive' as responsive;
+
 .menu_item {
 	display: flex;
 	padding: var(--Spacing-regular, 16px) var(--Spacing-big, 24px);
@@ -38,5 +40,17 @@
 		font-weight: 700;
 		line-height: var(--Line-Height-regular, 24px); /* 150% */
 		letter-spacing: 0.32px;
+
+		@include responsive.respond-down('mobile') {
+			color: var(--text, #201e1c);
+
+			/* Headers/H4 */
+			font-family: 'IBM Plex Sans', sans-serif;
+			font-size: var(--Font-Size-large, 24px);
+			font-style: normal;
+			font-weight: 600;
+			line-height: var(--Line-Height-regular, 24px); /* 100% */
+			letter-spacing: 0.48px;
+		}
 	}
 }

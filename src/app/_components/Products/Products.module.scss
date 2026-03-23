@@ -1,3 +1,5 @@
+@use '@/styles/responsive' as responsive;
+
 .products {
 	display: flex;
 	flex-direction: column;
@@ -5,6 +7,11 @@
 	gap: 32px;
 	width: 100%;
 	max-width: calc(1280px + 128px);
+
+	@include responsive.respond-down('mobile') {
+		padding: var(--Spacing-huge, 64px) var(--Spacing-big, 24px)
+			var(--Spacing-gigantous, 96px) var(--Spacing-big, 24px);
+	}
 
 	&__title {
 		color: var(--high-contrast-b, #201e1c);
@@ -19,6 +26,10 @@
 	&__catalog {
 		display: flex;
 		gap: var(--Spacing-large, 32px);
+
+		@include responsive.respond-down('mobile') {
+			flex-direction: column;
+		}
 
 		.left {
 			display: flex;

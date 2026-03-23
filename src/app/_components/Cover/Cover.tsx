@@ -17,30 +17,42 @@ export const Cover = () => {
 					</span>
 				</div>
 
-				<div className={styles.search}>
-					<Input
-						placeholder={'¿Que buscas? Accesorios de bombeo, motores....'}
+				<div className={styles.mobile_img}>
+					<Image
+						src={'/illustrations/motor.svg'}
+						className={styles.engine}
+						alt={'engine'}
+						width={342}
+						height={342}
 					/>
-					<div className={styles.search__search}>
-						<Image
-							src={'/icons/search.svg'}
-							alt={'search'}
-							width={24}
-							height={24}
-						/>
-					</div>
 				</div>
 
-				<div className={styles.products}>
-					<span className={styles.products__txt}>PRODUCTOS MÁS BUSCADOS</span>
+				<div className={styles.search_container}>
+					<div className={styles.search}>
+						<Input
+							placeholder={'¿Que buscas? Accesorios de bombeo, motores....'}
+						/>
+						<div className={styles.search__search}>
+							<Image
+								src={'/icons/search.svg'}
+								alt={'search'}
+								width={24}
+								height={24}
+							/>
+						</div>
+					</div>
 
-					<div className={styles.products__chips}>
-						<Chip type={'primary'} active text={'HVAC'} />
-						<Chip type={'primary'} active text={'Actuadores'} />
-						<Chip type={'primary'} active text={'Bombas'} />
-						<Chip type={'primary'} active text={'Motores'} />
-						<Chip type={'primary'} active text={'Valvulas'} />
-						<Chip type={'primary'} active text={'Ventiladores'} />
+					<div className={styles.products}>
+						<span className={styles.products__txt}>PRODUCTOS MÁS BUSCADOS</span>
+
+						<div className={styles.products__chips}>
+							<Chip type={'primary'} text={'HVAC'} />
+							<Chip type={'primary'} text={'Actuadores'} />
+							<Chip type={'primary'} text={'Bombas'} />
+							<Chip type={'primary'} text={'Motores'} />
+							<Chip type={'primary'} text={'Valvulas'} />
+							<Chip type={'primary'} text={'Ventiladores'} />
+						</div>
 					</div>
 				</div>
 			</div>

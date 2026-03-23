@@ -1,3 +1,5 @@
+@use '@/styles/responsive' as responsive;
+
 .products_featured {
 	display: flex;
 	padding: var(--Spacing-huge, 64px);
@@ -8,6 +10,14 @@
 	background: var(--secondary, #e6f0fa);
 	overflow-x: scroll;
 	width: 100%;
+
+	@include responsive.respond-down('mobile') {
+		padding: var(--Spacing-large, 32px) var(--Spacing-big, 24px)
+			var(--Spacing-huge, 64px) var(--Spacing-big, 24px);
+		border-radius: 0 0 36px 36px;
+		flex-direction: column;
+		overflow-x: hidden;
+	}
 
 	&__discount {
 		display: flex;
@@ -23,6 +33,10 @@
 		background: var(--primary, #0b4c8c);
 		position: relative;
 		overflow: hidden;
+
+		@include responsive.respond-down('mobile') {
+			height: 469px;
+		}
 
 		.discounts {
 			display: flex;
@@ -95,5 +109,12 @@
 				letter-spacing: 0.8px;
 			}
 		}
+	}
+
+	.products_list {
+		display: flex;
+		gap: 24px;
+		overflow-x: scroll;
+		width: 100%;
 	}
 }

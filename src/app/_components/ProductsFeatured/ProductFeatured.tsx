@@ -62,13 +62,15 @@ export const ProductFeatured = () => {
 				<div className={styles.last__circle}></div>
 			</div>
 
-			{Array.isArray(content)
-				? content.map((product) => (
-						<div key={product.id}>
-							<Product product={product} onSelect={handleSelect} short />
-						</div>
-					))
-				: content}
+			<div className={styles.products_list}>
+				{Array.isArray(content)
+					? content.map((product) => (
+							<div key={product.id}>
+								<Product product={product} onSelect={handleSelect} short />
+							</div>
+						))
+					: content}
+			</div>
 		</div>
 	)
 }

@@ -1,9 +1,15 @@
+@use '@/styles/responsive' as responsive;
+
 .header {
 	width: 100%;
 	padding: var(--Spacing-regular, 16px) var(--Spacing-huge, 64px);
 	background: var(--medium-gray, #6b7280);
 	display: flex;
 	justify-content: center;
+
+	@include responsive.respond-down('mobile') {
+		display: none;
+	}
 
 	&__content {
 		display: flex;

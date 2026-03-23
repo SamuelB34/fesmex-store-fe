@@ -1,3 +1,5 @@
+@use '@/styles/responsive' as responsive;
+
 .footer {
 	background: var(--primary, #0b4c8c);
 	color: var(--high-contrast-a, #fff);
@@ -79,6 +81,12 @@
 		gap: 8px 16px;
 		padding: 0;
 		margin: 0;
+
+		@include responsive.respond-down('mobile') {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+		}
 	}
 
 	li {
@@ -119,9 +127,9 @@
 	}
 }
 
-@media (max-width: 768px) {
+@include responsive.respond-down('mobile') {
 	.footer {
-		padding: 40px 24px 28px;
+		padding: var(--Spacing-huge, 64px) var(--Spacing-large, 32px);
 	}
 
 	.footer__top {

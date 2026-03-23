@@ -1,3 +1,5 @@
+@use '@/styles/responsive' as responsive;
+
 .product {
 	background: #fff;
 	padding: 24px;
@@ -11,6 +13,11 @@
 	border-radius: var(--Radius-regular, 8px);
 	background: var(--high-contrast-a, #fff);
 	box-shadow: 0 2px 4px 0 rgba(32, 30, 28, 0.15);
+
+	@include responsive.respond-down('mobile') {
+		width: 327px;
+		max-width: 327px;
+	}
 
 	&__image {
 		border-radius: var(--Radius-regular, 8px);

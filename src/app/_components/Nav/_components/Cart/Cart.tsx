@@ -1,5 +1,6 @@
 import styles from './Cart.module.scss'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Counter } from '@/components/Counter/Counter'
 import { Button } from '@/components/Button/Button'
@@ -7,22 +8,60 @@ import { useCart } from '@/features/cart/context/CartContext'
 import { formatCurrency } from '@/shared/utils/format'
 import { sileo } from 'sileo'
 
-export const Cart = () => {
+interface CartProps {
+	onClose?: () => void
+}
+
+export const Cart = ({ onClose }: CartProps) => {
 	const router = useRouter()
-	const { items, updateQuantity } = useCart()
+	const { items, updateQuantity, removeItem } = useCart()
 	const hasItems = items.length > 0
 
 	return (
 		<div className={styles.cart}>
-			{items.map((item, index) => (
-				<CartItem
-					{...item}
-					key={`${item.id}_${index}`}
-					onQuantityChange={(id, qty) => updateQuantity(id, qty)}
-				/>
-			))}
+			{/* Mobile Header */}
+			<div className={styles.cart__mobileHeader}>
+				<Link href={'/'} onClick={onClose}>
+					<Image
+						src={'/illustrations/lg-logo.svg'}
+						alt={'logo'}
+						width="133"
+						height="34"
+					/>
+				</Link>
+			</div>
 
-			{items.length > 0 ? (
+			{/* Cart Items */}
+			<div className={styles.cart__items}>
+				{items.map((item, index) => (
+					<CartItem
+						{...item}
+						key={`${item.id}_${index}`}
+						onQuantityChange={(id, qty) => updateQuantity(id, qty)}
+						onRemove={(id) => removeItem(id)}
+					/>
+				))}
+
+				{items.length === 0 && (
+					<div className={styles.cart__empty}>
+						<span>El carrito esta vacío</span>
+					</div>
+				)}
+			</div>
+
+			{/* Mobile Footer */}
+			<div className={styles.cart__mobileFooter}>
+				{onClose && (
+					<button className={styles.cart__closeBtn} onClick={onClose}>
+						<Image
+							src={'/icons/close.svg'}
+							alt={'close'}
+							width={24}
+							height={24}
+						/>
+					</button>
+				)}
+
 				<div className={styles.cart__btn}>
 					<Button
 						filled={true}
@@ -31,6 +70,7 @@ export const Cart = () => {
 						disabled={!hasItems}
 						onClick={() => {
 							if (!hasItems) return
+							onClose?.()
 							router.push('/checkout')
 						}}
 						leftIcon={
@@ -43,11 +83,7 @@ export const Cart = () => {
 						}
 					/>
 				</div>
-			) : (
-				<div className={styles.cart__empty}>
-					<span>El carrito esta vacío</span>
-				</div>
-			)}
+			</div>
 		</div>
 	)
 }
@@ -61,6 +97,7 @@ type CartItemProps = {
 	quantity: number
 	stock?: number
 	onQuantityChange?: (id: string, quantity: number) => void
+	onRemove?: (id: string) => void
 }
 
 const CartItem = ({
@@ -72,6 +109,7 @@ const CartItem = ({
 	unitPrice,
 	stock,
 	onQuantityChange,
+	onRemove,
 }: CartItemProps) => {
 	const handleMaxReached = () => {
 		sileo.error({
@@ -109,6 +147,7 @@ const CartItem = ({
 							onQuantityChange?.(id, value)
 						}}
 						onMaxReached={handleMaxReached}
+						onMinReached={() => onRemove?.(id)}
 					/>
 				</div>
 

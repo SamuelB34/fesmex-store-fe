@@ -1,0 +1,39 @@
+// Responsiveness helpers for the FESMEX store
+
+$breakpoints: (
+	mobile: 768px,
+	desktop: 1024px,
+	wide: 1280px,
+);
+
+@function breakpoint($key) {
+	$point: map-get($breakpoints, $key);
+
+	@if $point == null {
+		@error "Unknown breakpoint `#{$key}`."
+	}
+
+	@return $point;
+}
+
+@mixin respond-up($breakpoint) {
+	@media (min-width: #{breakpoint($breakpoint)}) {
+		@content;
+	}
+}
+
+@mixin respond-down($breakpoint) {
+	@media (max-width: #{breakpoint($breakpoint) - 0.02px}) {
+		@content;
+	}
+}
+
+@mixin respond-between($from, $to) {
+	@media (min-width: #{breakpoint($from)}) and (max-width: #{breakpoint($to) - 0.02px}) {
+		@content;
+	}
+}
+
+@function breakpoint-value($key) {
+	@return breakpoint($key);
+}

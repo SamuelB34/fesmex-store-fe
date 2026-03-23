@@ -3,6 +3,7 @@
 @use '../styles/sizes' as *;
 @use '../styles/radius' as *;
 @use '../styles/fonts' as *;
+@use '../styles/responsive' as responsive;
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&display=swap');
 
 :root {
@@ -73,4 +74,5 @@ a {
 	padding-top: 32px;
 	padding-bottom: 8px;
 	overflow: visible;
+	position: relative;
 }

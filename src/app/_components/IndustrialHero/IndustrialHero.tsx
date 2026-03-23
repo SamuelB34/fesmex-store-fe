@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import styles from './IndustrialHero.module.scss'
 import { Button } from '@/components/Button/Button'
+import Link from 'next/link'
 
 export const IndustrialHero = () => {
 	return (
@@ -10,13 +11,13 @@ export const IndustrialHero = () => {
 					<p className={styles.hero__eyebrow}>En FESMEX</p>
 					<p className={styles.hero__title}>encuentras las mejores</p>
 					<p className={styles.hero__headline}>SOLUCIONES INDUSTRIALES</p>
-					<div className={styles.btn}>
+					<Link href={'/productos'} className={styles.btn}>
 						<Button
 							filled
 							variant={'accent'}
-							text={'Cónoce nuestros productos'}
+							text={'Conóce nuestros productos'}
 						/>
-					</div>
+					</Link>
 				</div>
 
 				<div className={styles.hero__engines}>
