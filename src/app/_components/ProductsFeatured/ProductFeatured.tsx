@@ -41,8 +41,21 @@ export const ProductFeatured = () => {
 
 	const content = useMemo(() => {
 		if (loading && featured.length === 0)
-			return <span>Cargando destacados...</span>
-		if (!featured.length) return <span>No hay productos destacados</span>
+			return (
+				<div className={styles.products_list}>
+					{[1, 2, 3].map((skeleton) => (
+						<div key={'skeleton' + skeleton} className={styles.loading}>
+							<div className={styles.loading__skeleton}></div>
+						</div>
+					))}
+				</div>
+			)
+		if (!featured.length)
+			return (
+				<div className={styles.no_products}>
+					<span>No hay productos destacados</span>
+				</div>
+			)
 		return featured
 	}, [featured, loading])
 

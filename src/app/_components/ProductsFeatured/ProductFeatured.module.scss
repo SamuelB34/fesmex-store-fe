@@ -111,10 +111,66 @@
 		}
 	}
 
+	.no_products {
+		width: 100%;
+		justify-content: center;
+		align-items: center;
+		height: 628px;
+
+		span {
+			color: #fff;
+			text-align: center;
+			font-family: 'IBM Plex Sans', sans-serif;
+			font-size: var(--Font-Size-giant, 40px);
+			font-style: normal;
+			font-weight: 800;
+			line-height: var(--Line-Height-wide, 40px); /* 100% */
+			letter-spacing: 0.8px;
+		}
+	}
+
 	.products_list {
 		display: flex;
 		gap: 24px;
 		overflow-x: scroll;
 		width: 100%;
+
+		.loading {
+			background-color: #d7d7ea;
+			width: 327px;
+			max-width: 327px;
+			height: 628px;
+			border-radius: 4px;
+			overflow: hidden;
+
+			&__skeleton {
+				width: 0;
+				height: 100%;
+				box-shadow: 0 0 50px 50px rgba(255, 255, 255, 0.45);
+				animation: skeleton 1.3s linear infinite;
+				opacity: 0;
+			}
+		}
+	}
+}
+
+@keyframes skeleton {
+	0% {
+		transform: translate(-50px);
+		opacity: 0;
+	}
+
+	20% {
+		opacity: 0;
+	}
+
+	50% {
+		transform: translate(0px);
+		opacity: 0.5;
+	}
+
+	100% {
+		transform: translate(600px);
+		opacity: 1;
 	}
 }

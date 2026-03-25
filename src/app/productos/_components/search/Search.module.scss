@@ -1,3 +1,5 @@
+@use '@/styles/responsive' as responsive;
+
 .search {
 	width: 100%;
 	display: flex;
@@ -10,6 +12,11 @@
 	max-width: 1280px;
 	position: relative;
 
+	@include responsive.respond-down('mobile') {
+		align-items: flex-start;
+		padding: var(--Spacing-large, 32px) var(--Spacing-big, 24px);
+	}
+
 	&__title {
 		color: var(--primary, #0b4c8c);
 		text-align: center;
@@ -20,6 +27,17 @@
 		line-height: var(--Line-Height-spacious, 80px);
 		letter-spacing: 1.5px;
 		z-index: 1;
+
+		@include responsive.respond-down('mobile') {
+			color: var(--primary, #364b60);
+			font-family: 'IBM Plex Sans', sans-serif;
+			font-size: var(--Font-Size-giant, 40px);
+			font-style: normal;
+			font-weight: 600;
+			line-height: var(--Line-Height-wide, 40px); /* 100% */
+			letter-spacing: 0.8px;
+			text-align: left;
+		}
 	}
 
 	&__input {
@@ -28,6 +46,10 @@
 		display: flex;
 		gap: 8px;
 		z-index: 1;
+
+		@include responsive.respond-down('mobile') {
+			flex-direction: column;
+		}
 
 		.btn {
 			border-radius: var(--Radius-large, 16px);
@@ -49,5 +71,12 @@
 		border-radius: 1000px 20px 20px 20px;
 		background: var(--shade-blue, #f2f9ff);
 		z-index: 0;
+
+		@include responsive.respond-down('mobile') {
+			left: -55px;
+			top: 25px;
+			width: 162px;
+			height: 147px;
+		}
 	}
 }

@@ -140,6 +140,11 @@ const CartItem = ({
 						<span className={styles.description}>{name}</span>
 						<span className={styles.brand}>{brand}</span>
 					</div>
+
+					<span className={styles.cartItem_mobile}>
+						{formatCurrency(unitPrice)}{' '}
+						<span className={styles.cartItem__coin}>MXN</span>
+					</span>
 					<Counter
 						value={quantity}
 						max={stock}

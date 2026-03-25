@@ -1,3 +1,5 @@
+@use '@/styles/responsive' as responsive;
+
 .product_details {
 	display: flex;
 	flex-direction: column;
@@ -11,6 +13,16 @@
 		&__chips {
 			display: flex;
 			gap: 16px;
+
+			@include responsive.respond-down('mobile') {
+				flex-direction: column;
+				padding: var(--Spacing-large, 32px) var(--Spacing-big, 24px)
+					var(--Spacing-huge, 32px) var(--Spacing-big, 24px);
+			}
+
+			span {
+				width: fit-content;
+			}
 		}
 
 		.specs {
@@ -21,6 +33,11 @@
 			&__row {
 				display: flex;
 				gap: 8px;
+
+				@include responsive.respond-down('mobile') {
+					flex-direction: column;
+					padding: 0 32px;
+				}
 
 				.title {
 					color: var(--text, #201e1c);
@@ -63,11 +80,22 @@
 		padding: 32px 0;
 		gap: 32px;
 
+		@include responsive.respond-down('mobile') {
+			padding: 0;
+			flex-direction: column;
+		}
+
 		.detail__image {
 			object-fit: contain;
 			border-radius: 8px;
 			background: transparent;
 			min-width: 600px;
+
+			@include responsive.respond-down('mobile') {
+				min-width: 327px;
+				width: 327px;
+				height: 327px;
+			}
 		}
 
 		.image_placeholder {
@@ -84,6 +112,11 @@
 			font-weight: 600;
 			text-align: center;
 			min-width: 600px;
+			@include responsive.respond-down('mobile') {
+				width: 327px;
+				height: 327px;
+				min-width: 327px;
+			}
 		}
 
 		.count {
@@ -133,6 +166,7 @@
 	display: flex;
 	flex-direction: column;
 	gap: 32px;
+	padding: 32px;
 
 	.name_brand {
 		display: flex;
@@ -168,12 +202,17 @@
 				.chips {
 					display: flex;
 					gap: 16px;
+
+					@include responsive.respond-down('mobile') {
+						flex-direction: column;
+					}
 				}
 
 				.chip {
 					border-radius: var(--Radius-small, 4px);
 					border: var(--Stroke-regular, 1.5px) solid var(--primary, #0b4c8c);
 					padding: var(--Spacing-small, 8px) var(--Spacing-regular, 16px);
+					width: fit-content;
 
 					&__txt {
 						color: var(--body-text, #2c2c2c);
@@ -197,6 +236,16 @@
 	font-weight: 600;
 	line-height: var(--Line-Height-wide, 40px); /* 100% */
 	letter-spacing: 0.8px;
+
+	@include responsive.respond-down('mobile') {
+		color: var(--high-contrast-b, #201e1c);
+		font-family: 'IBM Plex Sans';
+		font-size: var(--Font-Size-giant, 40px);
+		font-style: normal;
+		font-weight: 600;
+		line-height: var(--Line-Height-wide, 40px); /* 100% */
+		letter-spacing: 0.8px;
+	}
 }
 
 .brand {
