@@ -15,6 +15,15 @@ export const Search = ({ onSearch, initialValue = '' }: SearchProps) => {
 		onSearch(value.trim())
 	}
 
+	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const newValue = event.target.value
+		setValue(newValue)
+		
+		if (newValue === '') {
+			onSearch('')
+		}
+	}
+
 	const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === 'Enter') {
 			event.preventDefault()
@@ -32,7 +41,7 @@ export const Search = ({ onSearch, initialValue = '' }: SearchProps) => {
 				<Input
 					placeholder={'¿Que buscas? Accesorios de bombeo, motores....'}
 					value={value}
-					onChange={(event) => setValue(event.target.value)}
+					onChange={handleChange}
 					onKeyDown={handleKeyDown}
 				/>
 				<div
