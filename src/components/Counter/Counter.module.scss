@@ -15,7 +15,7 @@
 	}
 
 	&__input {
-		width: 50px;
+		width: 55px;
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -30,6 +30,7 @@
 		font-style: normal;
 		font-weight: 400;
 		line-height: var(--Line-Height-regular, 24px); /* 150% */
+		text-align: center;
 		&::-webkit-outer-spin-button,
 		&::-webkit-inner-spin-button {
 			-webkit-appearance: none;

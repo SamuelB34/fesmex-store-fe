@@ -79,6 +79,7 @@ export const ProductDetailClient = ({ product }: ProductDetailClientProps) => {
 							<div className={styles.counter_stock__counter}>
 								<Counter
 									value={quantity}
+									max={product.stock}
 									onChange={(val) => setQuantity(val)}
 								/>
 							</div>
