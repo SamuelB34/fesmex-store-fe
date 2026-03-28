@@ -1,9 +1,12 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
 import styles from './Footer.module.scss'
+import { useRouter } from 'next/navigation'
 
 const brands = [
-	'Amatrol',
+	'Amtrol',
 	'Belimo',
 	'Bell & Gossett',
 	'Big Ass Fans',
@@ -19,6 +22,13 @@ const brands = [
 ]
 
 export const Footer = () => {
+	const router = useRouter()
+
+	const handleBrandClick = (brandName: string) => {
+		const encoded = encodeURIComponent(brandName)
+		router.push(`/productos?brand=${encoded}`)
+	}
+
 	return (
 		<footer className={styles.footer}>
 			<div className={styles.footer__top}>
@@ -60,7 +70,20 @@ export const Footer = () => {
 					<h3>Marcas</h3>
 					<ul>
 						{brands.map((brand) => (
-							<li key={brand}>{brand}</li>
+							<li
+								key={brand}
+								onClick={() => handleBrandClick(brand)}
+								className={styles.brandLink}
+								role="button"
+								tabIndex={0}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										handleBrandClick(brand)
+									}
+								}}
+							>
+								{brand}
+							</li>
 						))}
 					</ul>
 				</div>

@@ -9,14 +9,16 @@ export interface Logo {
 	alt: string
 	width: number
 	height: number
+	name?: string
 }
 
 interface LogosMarqueeProps {
 	logos: Logo[]
 	direction: 'left' | 'right'
+	onBrandClick?: (brandName: string) => void
 }
 
-export const LogosMarquee = ({ logos, direction }: LogosMarqueeProps) => {
+export const LogosMarquee = ({ logos, direction, onBrandClick }: LogosMarqueeProps) => {
 	return (
 		<div className={styles.container}>
 			<div
@@ -29,7 +31,18 @@ export const LogosMarquee = ({ logos, direction }: LogosMarqueeProps) => {
 						aria-hidden={index > 0}
 					>
 						{logos.map((logo) => (
-							<div key={`${logo.id}-${index}`} className={styles.logo}>
+							<div
+								key={`${logo.id}-${index}`}
+								className={`${styles.logo} ${onBrandClick && logo.name ? 'cursor-pointer' : ''}`}
+								onClick={() => onBrandClick && logo.name && onBrandClick(logo.name)}
+								role={onBrandClick && logo.name ? 'button' : undefined}
+								tabIndex={onBrandClick && logo.name ? 0 : undefined}
+								onKeyDown={(e) => {
+									if (onBrandClick && logo.name && (e.key === 'Enter' || e.key === ' ')) {
+										onBrandClick(logo.name)
+									}
+								}}
+							>
 								<Image
 									src={logo.src}
 									alt={logo.alt}

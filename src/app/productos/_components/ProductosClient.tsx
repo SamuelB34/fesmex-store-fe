@@ -11,12 +11,14 @@ interface ProductosClientProps {
 	brands: Section[]
 	initialProducts: ProductView[]
 	initialSearch?: string
+	totalProducts?: number
 }
 
 function ProductosClientContent({
 	brands,
 	initialProducts,
 	initialSearch = '',
+	totalProducts = 0,
 }: ProductosClientProps) {
 	const router = useRouter()
 	const searchParams = useSearchParams()
@@ -36,7 +38,7 @@ function ProductosClientContent({
 	return (
 		<>
 			<Search key={urlQuery} onSearch={handleSearch} initialValue={urlQuery} />
-			<HomeProducts brands={brands} initialProducts={initialProducts} />
+			<HomeProducts brands={brands} initialProducts={initialProducts} totalProducts={totalProducts} />
 		</>
 	)
 }

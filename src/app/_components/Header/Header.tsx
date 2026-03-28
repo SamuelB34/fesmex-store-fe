@@ -15,7 +15,7 @@ export const Header = () => {
 		<div className={styles.header}>
 			<div className={styles.header__content}>
 				<div className={styles.header__left}>
-					<div className={styles.pointer}>
+					<Link className={styles.pointer} href="tel:+526865614616">
 						<Chip
 							type={'secondary'}
 							active={false}
@@ -29,9 +29,9 @@ export const Header = () => {
 							}
 							text={'(686) 561 4616'}
 						/>
-					</div>
+					</Link>
 
-					<div className={styles.pointer}>
+					<Link className={styles.pointer} href="mailto:contact@fesmex.com">
 						<Chip
 							type={'secondary'}
 							active={false}
@@ -45,7 +45,7 @@ export const Header = () => {
 							}
 							text={'contact@fesmex.com'}
 						/>
-					</div>
+					</Link>
 				</div>
 
 				<div className={styles.header__right}>

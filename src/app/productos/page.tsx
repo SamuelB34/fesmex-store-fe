@@ -18,7 +18,7 @@ interface InitialProductsResult {
 }
 
 interface ProductosPageProps {
-	searchParams?: Record<string, string | string[] | undefined>
+	searchParams?: Promise<Record<string, string | string[] | undefined>>
 }
 
 async function fetchInitialProducts({
@@ -71,11 +71,12 @@ async function fetchInitialProducts({
 }
 
 export default async function Productos({
-	searchParams = {},
+	searchParams,
 }: ProductosPageProps) {
-	const categoryParam = searchParams.category
-	const brandParam = searchParams.brand
-	const searchParam = searchParams.q
+	const params = await (searchParams || Promise.resolve({} as Record<string, string | string[] | undefined>))
+	const categoryParam = params.category
+	const brandParam = params.brand
+	const searchParam = params.q
 
 	const categoryId = Array.isArray(categoryParam)
 		? categoryParam[0]
@@ -87,14 +88,19 @@ export default async function Productos({
 		? searchParam[0]
 		: (searchParam ?? '')
 
-	const [sections, brands, initialProducts] = await Promise.all([
+	// Ignore 'all-brands' as it means no brand filter
+	const finalBrandId = brandId === 'all-brands' ? undefined : brandId
+
+	const [sections, brands, initialProducts, unfileredTotal] = await Promise.all([
 		fetchAllCategories(),
 		fetchHomeBrands(),
 		fetchInitialProducts({
 			categoryId,
-			brandId,
+			brandId: finalBrandId,
 			searchQuery: searchQuery || undefined,
 		}),
+		// Always fetch total without any filters for accurate "Todos los productos" count
+		fetchInitialProducts({}).then((result) => result.total),
 	])
 
 	return (
@@ -105,6 +111,7 @@ export default async function Productos({
 				brands={brands}
 				initialProducts={initialProducts.products}
 				initialSearch={searchQuery}
+				totalProducts={unfileredTotal}
 			/>
 			<div className={'content'}>
 				<IndustrialHero />

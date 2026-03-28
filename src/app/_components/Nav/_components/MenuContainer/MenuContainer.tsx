@@ -13,11 +13,13 @@ type MenuItemProps = {
 interface MenuContainerProps {
 	items?: MenuItemProps[]
 	type?: 'products' | 'brands'
+	onClose?: () => void
 }
 
 export const MenuContainer = ({
 	items = [],
 	type = 'products',
+	onClose,
 }: MenuContainerProps) => {
 	const { sections } = useSections()
 	const { brands } = useBrands()
@@ -37,10 +39,13 @@ export const MenuContainer = ({
 				title: 'Todas las marcas',
 				url: '/productos',
 			}
-			const brandItems = brands.map((brand) => ({
-				title: brand.text,
-				url: `/productos?brand=${encodeURIComponent(brand.id)}`,
-			}))
+			// Filter out 'all-brands' from brands array to avoid duplication
+			const brandItems = brands
+				.filter((brand) => brand.id !== 'all-brands')
+				.map((brand) => ({
+					title: brand.text,
+					url: `/productos?brand=${encodeURIComponent(brand.id)}`,
+				}))
 			return [allBrandsItem, ...brandItems]
 		}
 		return items
@@ -52,7 +57,7 @@ export const MenuContainer = ({
 	return (
 		<div className={styles.menu_container}>
 			{computedItems.map((item, index) => (
-				<Link href={item.url} key={`${item.title}_${index}`}>
+				<Link href={item.url} key={`${item.title}_${index}`} onClick={onClose}>
 					<MenuItem text={item.title} />
 				</Link>
 			))}

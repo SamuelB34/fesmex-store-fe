@@ -23,12 +23,14 @@ interface HomeProductsProps {
 	brands?: Section[]
 	types?: Section[]
 	initialProducts?: ProductView[]
+	totalProducts?: number
 }
 
 const HomeProductsContent = ({
 	brands,
 	types,
 	initialProducts = [],
+	totalProducts = 0,
 }: HomeProductsProps) => {
 	const router = useRouter()
 	const searchParams = useSearchParams()
@@ -80,12 +82,12 @@ const HomeProductsContent = ({
 			activeSections.map((section) => ({
 				...section,
 				number:
-					section.id === 'all' && products.length > 0
-						? products.length
+					section.id === 'all' && totalProducts > 0
+						? totalProducts
 						: section.number,
 				active: section.id === activeSectionId,
 			})),
-		[activeSections, activeSectionId, products.length],
+		[activeSections, activeSectionId, totalProducts],
 	)
 
 	const activeSection = computedSections.find((section) => section.active)

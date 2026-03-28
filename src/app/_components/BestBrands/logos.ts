@@ -7,6 +7,7 @@ export const logos: Logo[] = [
 		alt: 'metraflex',
 		width: 160,
 		height: 51,
+		name: 'METRAFLEX',
 	},
 	{
 		id: 'marathon',
@@ -14,6 +15,7 @@ export const logos: Logo[] = [
 		alt: 'marathon',
 		width: 160,
 		height: 80,
+		name: 'MARATHON',
 	},
 	{
 		id: 'superior_tank',
@@ -21,6 +23,7 @@ export const logos: Logo[] = [
 		alt: 'superior_tank',
 		width: 160,
 		height: 80,
+		name: 'SUPERIOR TANK',
 	},
 	{
 		id: 'amtrol',
@@ -28,6 +31,7 @@ export const logos: Logo[] = [
 		alt: 'amtrol',
 		width: 160,
 		height: 80,
+		name: 'AMTROL',
 	},
 	{
 		id: 'bell_gosset',
@@ -35,6 +39,7 @@ export const logos: Logo[] = [
 		alt: 'bell_gosset',
 		width: 160,
 		height: 34,
+		name: 'BELL & GOSSETT',
 	},
 	{
 		id: 'goulds',
@@ -42,6 +47,7 @@ export const logos: Logo[] = [
 		alt: 'goulds',
 		width: 160,
 		height: 45,
+		name: 'GOULDS',
 	},
 	{
 		id: 'titus',
@@ -49,6 +55,7 @@ export const logos: Logo[] = [
 		alt: 'titus',
 		width: 160,
 		height: 58,
+		name: 'TITUS',
 	},
 	{
 		id: 'big_ass_fans',
@@ -56,6 +63,7 @@ export const logos: Logo[] = [
 		alt: 'big_ass_fans',
 		width: 160,
 		height: 53,
+		name: 'BIG ASS FANS COMPANY',
 	},
 	{
 		id: 'flygt',
@@ -63,6 +71,7 @@ export const logos: Logo[] = [
 		alt: 'flygt',
 		width: 160,
 		height: 53,
+		name: 'FLYGT',
 	},
 	{
 		id: 'ruskin',
@@ -70,6 +79,7 @@ export const logos: Logo[] = [
 		alt: 'ruskin',
 		width: 160,
 		height: 39,
+		name: 'RUSKIN',
 	},
 	{
 		id: 'belimo',
@@ -77,6 +87,7 @@ export const logos: Logo[] = [
 		alt: 'belimo',
 		width: 160,
 		height: 62,
+		name: 'BELIMO',
 	},
 	{
 		id: 'watts',
@@ -84,6 +95,7 @@ export const logos: Logo[] = [
 		alt: 'watts',
 		width: 160,
 		height: 40,
+		name: 'WATTS',
 	},
 	{
 		id: 'sje',
@@ -91,5 +103,6 @@ export const logos: Logo[] = [
 		alt: 'sje',
 		width: 160,
 		height: 71,
+		name: 'SJE',
 	},
 ]

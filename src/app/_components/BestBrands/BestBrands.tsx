@@ -1,13 +1,22 @@
+'use client'
+
 import styles from './BestBrands.module.scss'
 import Image from 'next/image'
 import { LogosMarquee } from '@/components/LogosMarquee/LogosMarquee'
 import { logos } from '@/app/_components/BestBrands/logos'
 import { Button } from '@/components/Button/Button'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 export const BestBrands = () => {
+	const router = useRouter()
 	const firstGroupLogos = logos.slice(0, 6)
 	const secondGroupLogos = logos.slice(6)
+
+	const handleBrandClick = (brandName: string) => {
+		const encoded = encodeURIComponent(brandName)
+		router.push(`/productos?brand=${encoded}`)
+	}
 
 	return (
 		<div className={styles.best_brands}>
@@ -26,8 +35,8 @@ export const BestBrands = () => {
 			</div>
 
 			<div className={styles.best_brands__brands}>
-				<LogosMarquee logos={firstGroupLogos} direction={'right'} />
-				<LogosMarquee logos={secondGroupLogos} direction={'left'} />
+				<LogosMarquee logos={firstGroupLogos} direction={'right'} onBrandClick={handleBrandClick} />
+				<LogosMarquee logos={secondGroupLogos} direction={'left'} onBrandClick={handleBrandClick} />
 			</div>
 
 			<Link href={'/productos'}>

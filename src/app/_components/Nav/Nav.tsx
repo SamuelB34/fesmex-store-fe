@@ -328,7 +328,7 @@ export const Nav = () => {
 							onClick={() => toggleMenu('products')}
 							isActive={openMenu === 'products'}
 						/>
-						{openMenu === 'products' && <MenuContainer type="products" />}
+						{openMenu === 'products' && <MenuContainer type="products" onClose={closeAll} />}
 					</div>
 
 					<div className={styles.brands}>
@@ -345,7 +345,7 @@ export const Nav = () => {
 							onClick={() => toggleMenu('brands')}
 							isActive={openMenu === 'brands'}
 						/>
-						{openMenu === 'brands' && <MenuContainer type="brands" />}
+						{openMenu === 'brands' && <MenuContainer type="brands" onClose={closeAll} />}
 					</div>
 
 					<div className={styles.cart}>

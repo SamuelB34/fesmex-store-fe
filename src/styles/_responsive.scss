@@ -1,4 +1,5 @@
 // Responsiveness helpers for the FESMEX store
+@use "sass:map";
 
 $breakpoints: (
 	mobile: 768px,
@@ -7,7 +8,7 @@ $breakpoints: (
 );
 
 @function breakpoint($key) {
-	$point: map-get($breakpoints, $key);
+	$point: map.get($breakpoints, $key);
 
 	@if $point == null {
 		@error "Unknown breakpoint `#{$key}`."
