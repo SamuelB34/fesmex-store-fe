@@ -785,7 +785,184 @@ Antes de dar por terminada cualquier tarea, verificar:
 
 ---
 
-## Skill 18: Debugging Común
+## Skill 19: Implementar Búsqueda de Productos con AsyncSelect
+
+**Cuándo:** Necesitas agregar un campo de búsqueda de productos con autocompletar.
+
+**Ubicación:** Típicamente en `Cover.tsx` o componentes de búsqueda.
+
+**Pasos:**
+
+1. Instalar `react-select`: `pnpm add react-select`
+
+2. Crear función `loadOptions`:
+```tsx
+const loadOptions = async (inputValue: string) => {
+  if (!inputValue || inputValue.trim().length < 2) return []
+  const response = await articlesApi.list({ 
+    q: inputValue, 
+    limit: 8, 
+    page: 1 
+  })
+  if (!response.ok || !response.data) return []
+  return response.data.items.map(article => ({
+    value: article._id,
+    label: article.description || article.name,
+    image: getArticleImageUrl(article),
+    description: article.brand || '',
+  }))
+}
+```
+
+3. Crear `formatOptionLabel` para mostrar imágenes:
+```tsx
+const formatOptionLabel = (option: ProductOption) => (
+  <div className={styles.selectOption}>
+    {option.image && (
+      <div
+        className={styles.selectOption__image}
+        style={{ backgroundImage: `url(${option.image})` }}
+      />
+    )}
+    <div className={styles.selectOption__content}>
+      <div className={styles.selectOption__label}>{option.label}</div>
+      {option.description && (
+        <div className={styles.selectOption__description}>
+          {option.description}
+        </div>
+      )}
+    </div>
+  </div>
+)
+```
+
+4. Usar AsyncSelect con `instanceId` para evitar hydration mismatch:
+```tsx
+<AsyncSelect
+  instanceId="product-search"
+  cacheOptions
+  loadOptions={loadOptions}
+  onChange={handleSelectProduct}
+  formatOptionLabel={formatOptionLabel}
+  noOptionsMessage={() => 'Sin resultados'}
+  loadingMessage={() => 'Buscando...'}
+/>
+```
+
+5. Estilos en SCSS Module:
+```scss
+.selectWrapper {
+  flex: 1;
+  width: 100%;
+  
+  :global(.product-select__control) {
+    width: 100% !important;
+    border-radius: var(--Radius-large, 16px) !important;
+    border: var(--Stroke-regular, 1.5px) solid var(--light-gray, #EBEBEB) !important;
+  }
+}
+
+.selectOption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  &__image {
+    width: 40px;
+    height: 40px;
+    background-size: cover;
+    border-radius: 4px;
+  }
+  
+  &__label {
+    font-weight: 500;
+    font-size: 14px;
+  }
+}
+```
+
+---
+
+## Skill 20: Implementar Navegación de Marcas
+
+**Cuándo:** Necesitas hacer clickeable una lista de marcas para filtrar productos.
+
+**Pasos:**
+
+1. Agregar `'use client'` al componente
+2. Importar `useRouter` de `next/navigation`
+3. Crear `handleBrandClick`:
+```tsx
+const router = useRouter()
+
+const handleBrandClick = (brandName: string) => {
+  const encoded = encodeURIComponent(brandName)
+  router.push(`/productos?brand=${encoded}`)
+}
+```
+
+4. En el elemento clickeable:
+```tsx
+<li
+  onClick={() => handleBrandClick(brand)}
+  className={styles.brandLink}
+  role="button"
+  tabIndex={0}
+  onKeyDown={(e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      handleBrandClick(brand)
+    }
+  }}
+>
+  {brand}
+</li>
+```
+
+5. Estilos:
+```scss
+.brandLink {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    color: rgba(255, 255, 255, 1);
+    text-decoration: underline;
+  }
+  
+  &:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 2px;
+  }
+}
+```
+
+---
+
+## Skill 21: Manejar searchParams como Promise (Next.js 15+)
+
+**Cuándo:** Trabajas con query params en Server Components.
+
+**Patrón correcto:**
+```tsx
+interface PageProps {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
+}
+
+export default async function Page({ searchParams }: PageProps) {
+  const params = await (searchParams || Promise.resolve({}))
+  const category = params.category
+  const brand = params.brand
+  
+  // Ignorar valores especiales como 'all-brands'
+  const finalBrandId = brand === 'all-brands' ? undefined : brand
+}
+```
+
+**Regla:** Siempre usar `await` para desempacar `searchParams`.
+
+---
+
+## Skill 22: Debugging Común
 
 ### "Cannot find module" o "Module not found"
 - Verificar que el alias `@/` apunta correctamente
@@ -795,6 +972,7 @@ Antes de dar por terminada cualquier tarea, verificar:
 ### "Hydration mismatch"
 - El componente usa `'use client'` pero accede a `window`/`localStorage` sin guard
 - Solución: `if (typeof window === 'undefined') return`
+- Para AsyncSelect: usar `instanceId` prop para IDs consistentes
 
 ### "useContext must be used within Provider"
 - El componente está fuera del árbol de providers
@@ -809,3 +987,9 @@ Antes de dar por terminada cualquier tarea, verificar:
 - Verificar import correcto: `import styles from './X.module.scss'`
 - Verificar que el className usa `styles.nombreClase`
 - Si usa variables CSS: verificar que están en `globals.scss`
+- Para react-select: usar `:global()` para clases generadas
+
+### Contadores incorrectos en filtros
+- Asegurar que el servidor obtiene el total SIN filtros
+- Pasar `totalProducts` (sin filtros) al cliente
+- Usar ese valor para "Todos los productos", no `products.length`

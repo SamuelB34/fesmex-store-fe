@@ -465,6 +465,7 @@ export function useXxx() {
 | `Input` | Extiende `InputHTMLAttributes` | Active/inactive states |
 | `Product` | `product`, `short`, `onSelect` | Card de producto con cart toggle |
 | `ConfirmModal` | `isOpen`, `onClose`, `onConfirm`, `title`, `message` | Modal genérico |
+| `LogosMarquee` | `logos`, `direction`, `onBrandClick?` | Marquee de logos con navegación opcional |
 
 ---
 
@@ -505,7 +506,81 @@ El árbol de providers en `layout.tsx` es:
 
 ---
 
-## 12. Convenciones de Código
+## 12. Patrón: Búsqueda de Productos con AsyncSelect
+
+**Ubicación:** `src/app/_components/Cover/Cover.tsx`
+
+**Librería:** `react-select/async`
+
+**Características:**
+- Búsqueda en tiempo real mientras escribes
+- Caching de opciones (`cacheOptions`)
+- Imágenes de productos en opciones
+- Navegación automática al seleccionar
+- Responsive: 556px en desktop, 100% en mobile
+
+**Implementación:**
+```tsx
+import AsyncSelect from 'react-select/async'
+import { articlesApi, getArticleImageUrl } from '@/features/services/articles.api'
+
+const loadOptions = async (inputValue: string) => {
+  if (!inputValue || inputValue.trim().length < 2) return []
+  const response = await articlesApi.list({ q: inputValue, limit: 8, page: 1 })
+  if (!response.ok || !response.data) return []
+  return response.data.items.map(article => ({
+    value: article._id,
+    label: article.description || article.name,
+    image: getArticleImageUrl(article),
+    description: article.brand || '',
+  }))
+}
+
+const handleSelectProduct = (option: ProductOption) => {
+  router.push(`/productos/${option.value}`)
+}
+
+<AsyncSelect
+  instanceId="product-search"
+  cacheOptions
+  loadOptions={loadOptions}
+  onChange={handleSelectProduct}
+  formatOptionLabel={formatOptionLabel}
+  noOptionsMessage={() => 'Sin resultados'}
+  loadingMessage={() => 'Buscando...'}
+/>
+```
+
+---
+
+## 13. Patrón: Navegación de Marcas
+
+**Ubicación:** `BestBrands.tsx`, `Footer.tsx`, `MenuContainer.tsx`
+
+**Flujo:**
+1. Usuario hace click en marca
+2. `handleBrandClick(brandName)` → `encodeURIComponent(brandName)`
+3. Navega a `/productos?brand=ENCODED_NAME`
+4. Backend filtra productos por marca
+5. Contadores se actualizan correctamente
+
+**Regla importante:** El parámetro `brand=all-brands` se ignora en el servidor para obtener el total sin filtros.
+
+---
+
+## 14. Contadores de Productos
+
+**Problema resuelto:** "Todos los productos" mostraba el total filtrado en lugar del total real.
+
+**Solución:**
+- Servidor hace dos llamadas: una con filtros (para productos), otra sin filtros (para total)
+- `totalProducts` siempre es el total sin filtros
+- `HomeProducts` usa `totalProducts` para el contador "Todos los productos"
+- Contadores de categorías/marcas se actualizan dinámicamente
+
+---
+
+## 15. Convenciones de Código
 
 | Área | Convención |
 |---|---|
@@ -516,3 +591,5 @@ El árbol de providers en `layout.tsx` es:
 | **Idioma UI** | Español mexicano (textos en español, código en inglés) |
 | **Tabs sin rutas** | Tabs en account usan `activeTab` state, no sub-rutas |
 | **Formularios** | `react-hook-form` con `useForm<FormType>()` |
+| **URL encoding** | Usar `encodeURIComponent()` para parámetros de marca/búsqueda |
+| **searchParams** | Es una Promise en Next.js 15+, debe ser awaited |
