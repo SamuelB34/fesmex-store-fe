@@ -15,6 +15,7 @@ export type CartItem = {
 	quantity: number
 	unit_price: number
 	line_subtotal?: number
+	stock?: number
 }
 
 export type Cart = {

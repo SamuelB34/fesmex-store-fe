@@ -1,3 +1,4 @@
+@use '@/styles/responsive' as responsive;
 .card {
 	border-radius: var(--Radius-regular, 8px);
 	background: var(--high-contrast-a, #fff);
@@ -10,10 +11,22 @@
 	gap: var(--Spacing-big, 24px);
 	align-self: stretch;
 
+	@include responsive.respond-down('mobile') {
+		padding: var(--Spacing-regular, 16px);
+		gap: var(--Spacing-regular, 16px);
+	}
+
 	&__header {
 		display: flex;
 		justify-content: space-between;
 		width: 100%;
+		align-items: center;
+		gap: var(--Spacing-small, 12px);
+
+		@include responsive.respond-down('mobile') {
+			flex-direction: column;
+			align-items: flex-start;
+		}
 
 		.title {
 			color: var(--text, #201e1c);
@@ -23,6 +36,11 @@
 			font-weight: 600;
 			line-height: var(--Line-Height-wide, 40px); /* 100% */
 			letter-spacing: 0.8px;
+
+			@include responsive.respond-down('mobile') {
+				font-size: var(--Font-Size-large, 20px);
+				line-height: var(--Line-Height-regular, 24px);
+			}
 		}
 	}
 
@@ -32,11 +50,22 @@
 		gap: var(--Spacing-regular, 16px);
 		align-self: stretch;
 
+		@include responsive.respond-down('mobile') {
+			flex-direction: column;
+			gap: var(--Spacing-small, 12px);
+		}
+
 		.column {
 			width: 100%;
 			display: flex;
 			flex-direction: column;
 			gap: var(--Spacing-tiny, 4px);
+
+			@include responsive.respond-down('mobile') {
+				flex-direction: row;
+				justify-content: space-between;
+				align-items: center;
+			}
 
 			.title {
 				color: var(--text, #201e1c);
@@ -46,6 +75,10 @@
 				font-weight: 700;
 				line-height: var(--Line-Height-regular, 24px); /* 150% */
 				letter-spacing: 0.32px;
+
+				@include responsive.respond-down('mobile') {
+					font-size: var(--Font-Size-small, 14px);
+				}
 			}
 
 			.value {
@@ -55,6 +88,10 @@
 				font-style: normal;
 				font-weight: 400;
 				line-height: var(--Line-Height-regular, 24px); /* 150% */
+
+				@include responsive.respond-down('mobile') {
+					font-size: var(--Font-Size-small, 14px);
+				}
 			}
 		}
 	}
@@ -84,6 +121,14 @@
 			grid-template-columns: 1fr 1fr 1fr;
 			gap: var(--Spacing-small, 12px);
 
+			@include responsive.respond-down('desktop') {
+				grid-template-columns: 1fr 1fr;
+			}
+
+			@include responsive.respond-down('mobile') {
+				grid-template-columns: 1fr;
+			}
+
 			.item {
 				display: flex;
 				padding: var(--Spacing-big, 24px);
@@ -91,6 +136,11 @@
 				gap: var(--Spacing-large, 32px);
 				border-radius: var(--Radius-regular, 8px);
 				border: 1px solid var(--light-gray, #ebebeb);
+
+				@include responsive.respond-down('mobile') {
+					padding: var(--Spacing-regular, 16px);
+					gap: var(--Spacing-regular, 16px);
+				}
 
 				.itemImageWrapper {
 					width: 72px;
@@ -103,6 +153,11 @@
 					border: 1px solid rgba(32, 30, 28, 0.08);
 					flex-shrink: 0;
 					position: relative;
+
+					@include responsive.respond-down('mobile') {
+						width: 60px;
+						height: 60px;
+					}
 				}
 
 				.itemImage {
@@ -122,12 +177,21 @@
 					display: flex;
 					flex-direction: column;
 					gap: var(--Spacing-small, 12px);
+
+					@include responsive.respond-down('mobile') {
+						gap: var(--Spacing-tiny, 4px);
+					}
 				}
 
 				.itemHeader {
 					display: flex;
 					align-items: flex-start;
 					gap: var(--Spacing-small, 12px);
+
+					@include responsive.respond-down('mobile') {
+						flex-direction: column;
+						gap: var(--Spacing-tiny, 4px);
+					}
 				}
 
 				.quantityBadge {
@@ -142,8 +206,6 @@
 					font-size: 9.744px;
 					font-style: normal;
 					font-weight: 700;
-					line-height: 12.992px; /* 133.333% */
-					letter-spacing: 0.195px;
 				}
 
 				.itemTexts {
@@ -164,6 +226,11 @@
 					-webkit-line-clamp: 2;
 					-webkit-box-orient: vertical;
 					overflow: hidden;
+
+					@include responsive.respond-down('mobile') {
+						font-size: var(--Font-Size-small, 14px);
+						-webkit-line-clamp: 1;
+					}
 				}
 
 				.itemBrand {
@@ -173,12 +240,20 @@
 					font-style: normal;
 					font-weight: 500;
 					line-height: var(--Line-Height-compact, 20px);
+
+					@include responsive.respond-down('mobile') {
+						font-size: 12px;
+					}
 				}
 
 				.itemPriceGroup {
 					display: flex;
 					align-items: baseline;
 					gap: var(--Spacing-tiny, 4px);
+
+					@include responsive.respond-down('mobile') {
+						margin-top: var(--Spacing-tiny, 4px);
+					}
 				}
 
 				.itemPrice {
@@ -188,6 +263,10 @@
 					font-style: normal;
 					font-weight: 700;
 					line-height: var(--Line-Height-regular, 24px);
+
+					@include responsive.respond-down('mobile') {
+						font-size: var(--Font-Size-medium, 16px);
+					}
 				}
 
 				.itemCurrency {
@@ -198,6 +277,10 @@
 					font-weight: 600;
 					line-height: var(--Line-Height-compact, 20px);
 					text-transform: uppercase;
+
+					@include responsive.respond-down('mobile') {
+						font-size: 12px;
+					}
 				}
 			}
 		}

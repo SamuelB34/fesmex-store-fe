@@ -6,6 +6,7 @@ import { useAuth } from '@/shared/auth/AuthProvider'
 import styles from './account.module.scss'
 import { FiscalProfileForm } from './_components/FiscalProfileForm/FiscalProfileForm'
 import { ProfileForm } from './_components/ProfileForm/ProfileForm'
+import { PaymentMethodsPanel } from './_components/PaymentMethodsPanel/PaymentMethodsPanel'
 import { Chip } from '@/components/Chip/Chip'
 import {
 	useOrdersList,
@@ -173,6 +174,8 @@ function AccountPageContent() {
 					)}
 				</div>
 			)}
+
+			{activeTab === 'payments' && <PaymentMethodsPanel />}
 		</div>
 	)
 }

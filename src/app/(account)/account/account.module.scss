@@ -247,6 +247,10 @@
 	flex-direction: column;
 	gap: 16px;
 
+	@include responsive.respond-down('mobile') {
+		gap: 12px;
+	}
+
 	li {
 		display: flex;
 		gap: 16px;
@@ -254,17 +258,34 @@
 		border: 1px solid #f0f0f0;
 		border-radius: 10px;
 		background: #fafafa;
+
+		@include responsive.respond-down('mobile') {
+			gap: 12px;
+			padding: 12px;
+			border-radius: 8px;
+		}
 	}
 
 	strong {
 		display: block;
 		font-size: 18px;
 		margin-bottom: 4px;
+
+		@include responsive.respond-down('mobile') {
+			font-size: 16px;
+			margin-bottom: 2px;
+		}
 	}
 
 	p {
 		margin: 2px 0;
 		color: #4a4a4a;
+		font-size: 14px;
+
+		@include responsive.respond-down('mobile') {
+			font-size: 13px;
+			margin: 1px 0;
+		}
 	}
 }
 

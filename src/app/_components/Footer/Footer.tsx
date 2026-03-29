@@ -58,10 +58,10 @@ export const Footer = () => {
 						</Link>
 						<Link
 							className={styles.contactChip}
-							href="mailto:contact@fesmex.com"
+							href="mailto:contacto@fesmex.com"
 						>
 							<Image src="/icons/mail.svg" alt="email" width={18} height={18} />
-							<span>contact@fesmex.com</span>
+							<span>contacto@fesmex.com</span>
 						</Link>
 					</div>
 				</div>

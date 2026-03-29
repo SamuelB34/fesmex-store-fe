@@ -1,0 +1,224 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	width: 100%;
+	padding: 0 24px;
+
+	h2 {
+		color: #201e1c;
+		font-family: 'IBM Plex Sans', sans-serif;
+		font-size: 28px;
+		font-weight: 600;
+		line-height: 32px;
+		letter-spacing: 0.56px;
+		margin: 0;
+	}
+}
+
+.methodsList {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	width: 100%;
+}
+
+.methodCard {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 16px;
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+	background: #fafafa;
+	transition: all 0.2s ease;
+
+	&:hover {
+		border-color: #d3dae6;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	}
+}
+
+.cardContent {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	flex: 1;
+}
+
+.cardLogo {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 56px;
+	height: 40px;
+	border-radius: 6px;
+	background: white;
+	border: 1px solid #e5e7eb;
+	flex-shrink: 0;
+}
+
+.brandText {
+	color: #4b5563;
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	text-align: center;
+}
+
+.cardInfo {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	flex: 1;
+}
+
+.cardNumber {
+	color: #201e1c;
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 24px;
+	margin: 0;
+}
+
+.cardExpiry {
+	color: #6b7280;
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 20px;
+	margin: 0;
+}
+
+.wallet {
+	color: #0b4c8c;
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 16px;
+	margin: 0;
+	text-transform: uppercase;
+}
+
+.defaultBadge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px 12px;
+	border-radius: 999px;
+	background: #d1e7f5;
+	color: #0b4c8c;
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 16px;
+	white-space: nowrap;
+	flex-shrink: 0;
+	margin-right: 8px;
+}
+
+.actions {
+	display: flex;
+	gap: 8px;
+	flex-shrink: 0;
+}
+
+.actionBtn {
+	padding: 8px 12px;
+	border: 1px solid #d3dae6;
+	border-radius: 6px;
+	background: white;
+	color: #364b60;
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 16px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	white-space: nowrap;
+
+	&:hover {
+		border-color: #364b60;
+		background: #f0f4f8;
+	}
+
+	&:active {
+		transform: scale(0.98);
+	}
+
+	&.delete {
+		color: #dc2626;
+		border-color: #fecaca;
+
+		&:hover {
+			border-color: #dc2626;
+			background: #fef2f2;
+		}
+	}
+}
+
+.loading,
+.error,
+.empty {
+	color: #6b7280;
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 20px;
+	margin: 0;
+	padding: 16px;
+	border-radius: 8px;
+	background: #f9fafb;
+	border: 1px solid #e5e7eb;
+}
+
+.error {
+	color: #dc2626;
+	background: #fef2f2;
+	border-color: #fecaca;
+}
+
+@media (max-width: 640px) {
+	.container {
+		gap: 16px;
+
+		h2 {
+			font-size: 20px;
+			line-height: 28px;
+			letter-spacing: 0.4px;
+		}
+	}
+
+	.methodCard {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+		padding: 12px;
+	}
+
+	.cardContent {
+		width: 100%;
+		gap: 12px;
+	}
+
+	.cardInfo {
+		flex: 1;
+	}
+
+	.defaultBadge {
+		align-self: flex-start;
+		padding-right: 8px;
+	}
+
+	.actions {
+		width: 100%;
+		flex-direction: column;
+	}
+
+	.actionBtn {
+		width: 100%;
+		text-align: center;
+	}
+}

@@ -77,6 +77,11 @@
 
 				.item {
 					width: 320px;
+
+					@include responsive.respond-down('mobile') {
+						width: 100%;
+						max-width: none;
+					}
 				}
 			}
 		}

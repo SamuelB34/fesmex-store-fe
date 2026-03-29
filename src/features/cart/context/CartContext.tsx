@@ -70,6 +70,7 @@ export function CartProvider({ children }: CartProviderProps) {
 					image?: string
 					brand?: string
 					name?: string
+					stock?: number
 				}
 				return {
 					id: item.article_id,
@@ -78,7 +79,7 @@ export function CartProvider({ children }: CartProviderProps) {
 					brand: metadata.brand ?? '',
 					unitPrice: item.unit_price,
 					quantity: item.quantity,
-					stock: undefined,
+					stock: metadata.stock,
 				}
 			})
 		},

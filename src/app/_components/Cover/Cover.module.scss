@@ -96,8 +96,12 @@
 				justify-content: center;
 				align-items: center;
 				gap: var(--Spacing-small, 8px);
-							border-radius: var(--Radius-large, 16px);
-			border: var(--Stroke-regular, 1.5px) solid var(--light-gray, #EBEBEB);
+				border-radius: var(--Radius-large, 16px);
+				border: var(--Stroke-regular, 1.5px) solid var(--light-gray, #EBEBEB);
+
+				@include responsive.respond-down('mobile') {
+					width: 100%;
+				}
 			}
 		}
 

@@ -226,6 +226,7 @@ export type CreateOrderPayload = {
 	notes?: string
 	shipping_address?: ShippingAddress
 	delivery_type: DeliveryType
+	save_payment_method?: boolean
 }
 
 export type ListOrdersQuery = {
@@ -293,12 +294,20 @@ const listShippingAddresses = async () => {
 	return data.addresses
 }
 
+const updateSavePaymentMethod = async (id: string, savePaymentMethod: boolean) => {
+	const data = await unwrapOrThrow<{ order: RawOrder }>(
+		api.patch(`/orders/${id}/save-payment`, { save_payment_method: savePaymentMethod }),
+	)
+	return { order: normalizeOrder(data.order) }
+}
+
 export const ordersApi = {
 	createOrder,
 	listOrders,
 	getOrderById,
 	updateShipping,
 	listShippingAddresses,
+	updateSavePaymentMethod,
 }
 
 // Example usage:

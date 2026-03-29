@@ -31,7 +31,7 @@ export const Header = () => {
 						/>
 					</Link>
 
-					<Link className={styles.pointer} href="mailto:contact@fesmex.com">
+					<Link className={styles.pointer} href="mailto:contacto@fesmex.com">
 						<Chip
 							type={'secondary'}
 							active={false}
@@ -43,7 +43,7 @@ export const Header = () => {
 									width={24}
 								/>
 							}
-							text={'contact@fesmex.com'}
+							text={'contacto@fesmex.com'}
 						/>
 					</Link>
 				</div>

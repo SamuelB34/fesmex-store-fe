@@ -240,7 +240,9 @@ export default function CheckoutForm() {
 			payment_method: paymentMethod,
 			notes: values.notes,
 			delivery_type: deliveryType,
+			...(paymentMethod === 'CARD' ? { save_payment_method: true } : {}),
 		}
+		console.log('📦 Order payload:', payload)
 
 		if (deliveryType === 'shipping') {
 			if (selectedAddressIndex !== 'new' && addresses[selectedAddressIndex]) {
@@ -504,7 +506,6 @@ export default function CheckoutForm() {
 							onPaymentMethodChange={setPaymentMethod}
 						/>
 
-						
 						{/* NOTAS */}
 						<div className={styles.field}>
 							<label className={styles.label}>Notas (opcional)</label>
