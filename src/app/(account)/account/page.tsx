@@ -35,12 +35,16 @@ function AccountPageContent() {
 	}, [accessToken, isBootstrapping, router])
 
 	useEffect(() => {
-		fetchOrders({ page: 1, limit: 20 })
-	}, [fetchOrders])
+		if (!isBootstrapping && accessToken) {
+			fetchOrders({ page: 1, limit: 20 })
+		}
+	}, [fetchOrders, isBootstrapping, accessToken])
 
 	useEffect(() => {
-		fetchAddresses()
-	}, [fetchAddresses])
+		if (!isBootstrapping && accessToken) {
+			fetchAddresses()
+		}
+	}, [fetchAddresses, isBootstrapping, accessToken])
 
 	if (isBootstrapping) {
 		return (
