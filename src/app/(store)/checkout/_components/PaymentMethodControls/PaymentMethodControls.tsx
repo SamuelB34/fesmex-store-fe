@@ -3,15 +3,20 @@
 import Image from 'next/image'
 import { PaymentMethod } from '@/features/orders/services/orders.api'
 import styles from './PaymentMethodControls.module.scss'
+import { SavedPaymentMethods } from '@/app/(store)/checkout/_components/SavedPaymentMethods/SavedPaymentMethods'
 
 interface PaymentMethodControlsProps {
 	paymentMethod: PaymentMethod
 	onPaymentMethodChange: (method: PaymentMethod) => void
+	selectedPaymentMethodId: string | null
+	onSelectPaymentMethod: (methodId: string | null) => void
 }
 
 export const PaymentMethodControls = ({
 	paymentMethod,
 	onPaymentMethodChange,
+	selectedPaymentMethodId,
+	onSelectPaymentMethod,
 }: PaymentMethodControlsProps) => {
 	return (
 		<div className={styles.section}>
@@ -47,6 +52,14 @@ export const PaymentMethodControls = ({
 						Tarjeta de Crédito
 					</div>
 				</button>
+
+				{/* PAGO */}
+				{paymentMethod === 'CARD' && (
+					<SavedPaymentMethods
+						selectedMethodId={selectedPaymentMethodId}
+						onSelectMethod={onSelectPaymentMethod}
+					/>
+				)}
 
 				<button
 					type="button"

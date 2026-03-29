@@ -227,6 +227,7 @@ export type CreateOrderPayload = {
 	shipping_address?: ShippingAddress
 	delivery_type: DeliveryType
 	save_payment_method?: boolean
+	provider_payment_method_id?: string
 }
 
 export type ListOrdersQuery = {

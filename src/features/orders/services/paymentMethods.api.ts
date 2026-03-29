@@ -2,6 +2,7 @@ import { api } from '@/shared/api/axios'
 
 export interface PaymentMethod {
 	_id: string
+	provider_payment_method_id: string
 	brand: string
 	last4: string
 	exp_month: number

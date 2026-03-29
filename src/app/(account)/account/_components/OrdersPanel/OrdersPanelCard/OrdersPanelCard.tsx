@@ -1,3 +1,6 @@
+'use client'
+
+import { useRouter } from 'next/navigation'
 import styles from './OrdersPanelCard.module.scss'
 import { Chip } from '@/components/Chip/Chip'
 import type { OrderItem } from '@/features/orders/services/orders.api'
@@ -6,6 +9,7 @@ import { formatCurrency } from '@/shared/utils/format'
 
 interface OrdersPanelCardProps {
 	title: string
+	orderId?: string
 	items?: OrderItem[]
 	firstItem?: {
 		label: string
@@ -23,16 +27,32 @@ interface OrdersPanelCardProps {
 
 export const OrdersPanelCard = ({
 	title,
+	orderId,
 	items,
 	firstItem,
 	secondItem,
 	thirdItem,
 }: OrdersPanelCardProps) => {
+	const router = useRouter()
+
+	const handleViewMore = () => {
+		if (orderId) {
+			router.push(`/orders/${orderId}`)
+		}
+	}
+
 	return (
 		<div className={styles.card}>
 			<div className={styles.card__header}>
 				<h4 className={styles.title}>{title}</h4>
-				<Chip text={'Ver más'} />
+				<button
+					type="button"
+					onClick={handleViewMore}
+					className={styles.chipButton}
+					aria-label="Ver detalles completos de la orden"
+				>
+					<Chip text={'Ver más'} />
+				</button>
 			</div>
 
 			<div className={styles.card__details}>

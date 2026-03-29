@@ -46,6 +46,7 @@ export const OrdersPanel = ({ ordersState }: OrdersPanelProps) => {
 						<div key={order._id}>
 							<OrdersPanelCard
 								title={OrderStatusLabel[order.status]}
+								orderId={order._id}
 								items={order.items}
 								firstItem={{
 									label: 'Estado de pago',

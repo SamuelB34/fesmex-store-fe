@@ -83,6 +83,9 @@ export default function CheckoutForm() {
 	const [paymentLoaderMessage, setPaymentLoaderMessage] = useState('')
 	const [clientSecret, setClientSecret] = useState<string | null>(null)
 	const [pendingOrderId, setPendingOrderId] = useState<string | null>(null)
+	const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState<
+		string | null
+	>(null)
 
 	// Stripe Elements ref
 	const stripePaymentRef = useRef<StripePaymentSectionRef>(null)
@@ -90,7 +93,7 @@ export default function CheckoutForm() {
 	// Redirect if not logged in or account not verified
 	useEffect(() => {
 		if (isBootstrapping) return
-		
+
 		if (!accessToken) {
 			sileo.error({
 				title: 'Inicia sesión',
@@ -99,11 +102,12 @@ export default function CheckoutForm() {
 			router.push('/')
 			return
 		}
-		
+
 		if (user?.status !== 'active') {
 			sileo.error({
 				title: 'Cuenta no verificada',
-				description: 'Debes verificar tu correo electrónico para poder realizar compras.',
+				description:
+					'Debes verificar tu correo electrónico para poder realizar compras.',
 			})
 			router.push('/account')
 			return
@@ -113,6 +117,11 @@ export default function CheckoutForm() {
 	useEffect(() => {
 		fetchAddresses()
 	}, [fetchAddresses])
+
+	// Reset selected payment method when payment method changes
+	useEffect(() => {
+		setSelectedPaymentMethodId(null)
+	}, [paymentMethod])
 
 	const {
 		register,
@@ -179,9 +188,16 @@ export default function CheckoutForm() {
 			setSelectedStateId('')
 			setEstimatedShipping(0)
 		}
-	}, [selectedAddressIndex, addresses, getStateByName, calculateShipping, total])
+	}, [
+		selectedAddressIndex,
+		addresses,
+		getStateByName,
+		calculateShipping,
+		total,
+	])
 
-	const [pendingFormValues, setPendingFormValues] = useState<CheckoutFormValues | null>(null)
+	const [pendingFormValues, setPendingFormValues] =
+		useState<CheckoutFormValues | null>(null)
 
 	// Step 1: User submits form -> create order to get clientSecret
 	const onSubmit = handleSubmit(async (values) => {
@@ -241,6 +257,9 @@ export default function CheckoutForm() {
 			notes: values.notes,
 			delivery_type: deliveryType,
 			...(paymentMethod === 'CARD' ? { save_payment_method: true } : {}),
+			...(selectedPaymentMethodId
+				? { provider_payment_method_id: selectedPaymentMethodId }
+				: {}),
 		}
 		console.log('📦 Order payload:', payload)
 
@@ -273,34 +292,48 @@ export default function CheckoutForm() {
 			setIsProcessingPayment(true)
 
 			if (paymentMethod === 'CARD') {
-				// Order already created, now confirm payment with Stripe
-				if (!stripePaymentRef.current || !pendingOrderId) {
-					sileo.error({
-						title: 'Error de pago',
-						description: 'Stripe no está disponible. Recarga la página.',
-					})
-					return
-				}
+				// If using a saved payment method, backend already confirmed it
+				if (!selectedPaymentMethodId) {
+					// Order already created, now confirm payment with Stripe
+					if (!stripePaymentRef.current || !pendingOrderId) {
+						sileo.error({
+							title: 'Error de pago',
+							description: 'Stripe no está disponible. Recarga la página.',
+						})
+						return
+					}
 
-				setPaymentLoaderMessage('Procesando pago...')
+					setPaymentLoaderMessage('Procesando pago...')
 
-				// confirmPayment handles cards, Apple Pay, Google Pay automatically
-				const { success, errorType, error, intentStatus } = await stripePaymentRef.current.confirmPayment()
+					// confirmPayment handles cards, Apple Pay, Google Pay automatically
+					const { success, errorType, error, intentStatus } =
+						await stripePaymentRef.current.confirmPayment()
 
-				if (!success) {
-					handlePaymentError(errorType, error)
-					return
-				}
+					if (!success) {
+						handlePaymentError(errorType, error)
+						return
+					}
 
-				// success === true means Stripe accepted the payment
-				// intentStatus may be: 'succeeded', 'processing', or undefined (rare edge case)
-				// All cases should proceed to polling - backend is source of truth
-				if (intentStatus) {
-					console.log(`Payment intent status: ${intentStatus}`)
+					if (intentStatus) {
+						console.log(`Payment intent status: ${intentStatus}`)
+					}
+				} else {
+					console.log(
+						'💳 Using saved payment method - backend already confirmed it',
+					)
 				}
 
 				// Poll backend until payment_status = PAID (webhook processed)
 				setPaymentLoaderMessage('Verificando pago...')
+
+				if (!pendingOrderId) {
+					sileo.error({
+						title: 'Error',
+						description: 'No se pudo verificar el pago. Intenta nuevamente.',
+					})
+					return
+				}
+
 				const maxAttempts = 10
 				let attempts = 0
 				let isPaid = false
@@ -308,7 +341,8 @@ export default function CheckoutForm() {
 				while (attempts < maxAttempts && !isPaid) {
 					await new Promise((resolve) => setTimeout(resolve, 1000))
 					try {
-						const { order: updatedOrder } = await ordersApi.getOrderById(pendingOrderId)
+						const { order: updatedOrder } =
+							await ordersApi.getOrderById(pendingOrderId)
 						if (updatedOrder.payment_status === 'PAID') {
 							isPaid = true
 						}
@@ -362,7 +396,10 @@ export default function CheckoutForm() {
 	}
 
 	// Handle payment errors with appropriate sileo notifications
-	const handlePaymentError = (errorType?: PaymentErrorType, errorMessage?: string) => {
+	const handlePaymentError = (
+		errorType?: PaymentErrorType,
+		errorMessage?: string,
+	) => {
 		if (errorType === 'declined') {
 			sileo.error({
 				title: 'Pago rechazado',
@@ -485,7 +522,8 @@ export default function CheckoutForm() {
 									{estimatedShipping > 0 ? (
 										<>
 											<p className={styles.shippingCost}>
-												Envío estimado: <strong>{formatCurrency(estimatedShipping)}</strong>
+												Envío estimado:{' '}
+												<strong>{formatCurrency(estimatedShipping)}</strong>
 											</p>
 											<p className={styles.shippingNote}>
 												*El costo final se calculará al confirmar la compra
@@ -500,10 +538,11 @@ export default function CheckoutForm() {
 							</div>
 						)}
 
-							{/* PAGO */}
 						<PaymentMethodControls
 							paymentMethod={paymentMethod}
 							onPaymentMethodChange={setPaymentMethod}
+							selectedPaymentMethodId={selectedPaymentMethodId}
+							onSelectPaymentMethod={setSelectedPaymentMethodId}
 						/>
 
 						{/* NOTAS */}
@@ -556,7 +595,9 @@ export default function CheckoutForm() {
 						<SummaryActions
 							subtotal={total}
 							shippingCost={estimatedShipping}
-							shippingLabel={estimatedShipping > 0 ? 'Envío estimado' : 'Selecciona estado'}
+							shippingLabel={
+								estimatedShipping > 0 ? 'Envío estimado' : 'Selecciona estado'
+							}
 							grandTotal={grandTotal}
 							showShipping={deliveryType === 'shipping'}
 							paymentMethod={paymentMethod}
@@ -577,7 +618,9 @@ export default function CheckoutForm() {
 				onConfirm={handleConfirmOrder}
 				title={paymentMethod === 'CARD' ? 'Completar pago' : 'Confirmar pedido'}
 				message={
-					paymentMethod === 'CARD' && clientSecret ? (
+					paymentMethod === 'CARD' &&
+					clientSecret &&
+					!selectedPaymentMethodId ? (
 						<div>
 							<p style={{ marginBottom: '16px' }}>
 								Ingresa los datos de tu tarjeta para completar el pago.
