@@ -5,10 +5,10 @@ import { BrandsInitializer } from '@/features/brands/components/BrandsInitialize
 import { fetchAllCategories } from '@/features/categories/homeCategories.server'
 import { fetchHomeBrands } from '@/features/brands/homeBrands.server'
 import {
-	articlesApi,
 	getArticleImageUrl,
 	type ArticleListItem,
 } from '@/features/services/articles.api'
+import { fetchArticlesList } from '@/features/articles/articles.server'
 import type { ProductView } from '@/app/_components/Products/Products'
 import { ProductosClient } from '@/app/productos/_components/ProductosClient'
 
@@ -50,7 +50,7 @@ async function fetchInitialProducts({
 		if (searchQuery) {
 			query.q = searchQuery
 		}
-		const response = await articlesApi.list(query)
+		const response = await fetchArticlesList(query)
 		if (!response.ok || !response.data) {
 			return { products: [], total: 0 }
 		}

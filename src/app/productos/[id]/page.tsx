@@ -3,11 +3,11 @@ import styles from './ProductDetail.module.scss'
 import { ProductDetailClient } from './ProductDetailClient'
 import { ViewTracker } from './ViewTracker'
 import { ProductFeatured } from '@/app/_components/ProductsFeatured/ProductFeatured'
+import { getArticleImageUrl } from '@/features/services/articles.api'
 import {
-	articlesApi,
-	getArticleImageUrl,
-} from '@/features/services/articles.api'
-import { ApiError } from '@/shared/api/axios'
+	fetchArticleById,
+	ServerApiError,
+} from '@/features/articles/articles.server'
 import type { Product } from '@/app/mock'
 
 export const dynamic = 'force-dynamic'
@@ -21,9 +21,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
 	let articleRes
 	try {
-		articleRes = await articlesApi.getById(id)
+		articleRes = await fetchArticleById(id)
 	} catch (err) {
-		if (err instanceof ApiError && err.status === 404) {
+		if (err instanceof ServerApiError && err.status === 404) {
 			return notFound()
 		}
 		throw err
