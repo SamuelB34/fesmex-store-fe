@@ -89,6 +89,7 @@ export const ProductDetailClient = ({ product }: ProductDetailClientProps) => {
 						</div>
 
 						<Button
+							disabled={product.stock === 0}
 							onClick={handleToggleCart}
 							filled={inCart}
 							text={inCart ? 'En el carrito' : 'Agregar al carrito'}
