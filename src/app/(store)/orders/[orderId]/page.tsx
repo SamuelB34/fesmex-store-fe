@@ -30,7 +30,8 @@ export default function OrderDetailsPage() {
 				const { order: fetchedOrder } = await ordersApi.getOrderById(orderId)
 				setOrder(fetchedOrder)
 			} catch (err) {
-				const message = err instanceof Error ? err.message : 'Error al cargar la orden'
+				const message =
+					err instanceof Error ? err.message : 'Error al cargar la orden'
 				setError(message)
 				sileo.error({
 					title: 'Error',
@@ -65,8 +66,17 @@ export default function OrderDetailsPage() {
 		)
 	}
 
-	const totalItems = order.items?.reduce((sum: number, item) => sum + (item?.quantity || 0), 0) || 0
-	const subtotal = order.items?.reduce((sum: number, item) => sum + ((item?.unit_price || 0) * (item?.quantity || 0)), 0) || 0
+	const totalItems =
+		order.items?.reduce(
+			(sum: number, item) => sum + (item?.quantity || 0),
+			0,
+		) || 0
+	const subtotal =
+		order.items?.reduce(
+			(sum: number, item) =>
+				sum + (item?.unit_price || 0) * (item?.quantity || 0),
+			0,
+		) || 0
 	const shippingCost = (order as any).shipping_cost || 0 // eslint-disable-line @typescript-eslint/no-explicit-any
 	const total = subtotal + shippingCost
 
@@ -78,21 +88,29 @@ export default function OrderDetailsPage() {
 
 			<div className={styles.header}>
 				<h1 className={styles.title}>Detalles de la Orden</h1>
-				<p className={styles.orderId}>Orden #{order._id?.slice(-8).toUpperCase()}</p>
+				<p className={styles.orderId}>
+					Orden #{order._id?.slice(-8).toUpperCase()}
+				</p>
 			</div>
 
 			<div className={styles.statusSection}>
 				<div className={styles.statusCard}>
 					<span className={styles.label}>Estado de la Orden</span>
-					<span className={styles.status}>{OrderStatusLabel[order.status]}</span>
+					<span className={styles.status}>
+						{OrderStatusLabel[order.status]}
+					</span>
 				</div>
 				<div className={styles.statusCard}>
 					<span className={styles.label}>Estado de Pago</span>
-					<span className={styles.status}>{PaymentStatusLabel[order.payment_status]}</span>
+					<span className={styles.status}>
+						{PaymentStatusLabel[order.payment_status]}
+					</span>
 				</div>
 				<div className={styles.statusCard}>
 					<span className={styles.label}>Método de Pago</span>
-					<span className={styles.status}>{PaymentMethodLabel[order.payment_method]}</span>
+					<span className={styles.status}>
+						{PaymentMethodLabel[order.payment_method]}
+					</span>
 				</div>
 			</div>
 
@@ -101,18 +119,23 @@ export default function OrderDetailsPage() {
 				<div className={styles.infoGrid}>
 					<div className={styles.infoItem}>
 						<span className={styles.label}>Fecha de Creación</span>
-						<span className={styles.value}>{formatDatePT(order.created_at)}</span>
+						<span className={styles.value}>
+							{formatDatePT(order.created_at)}
+						</span>
 					</div>
 					<div className={styles.infoItem}>
 						<span className={styles.label}>Última Actualización</span>
-						<span className={styles.value}>{formatDatePT(order.updated_at)}</span>
+						<span className={styles.value}>
+							{formatDatePT(order.updated_at)}
+						</span>
 					</div>
 					{order.shipping_address && (
 						<div className={styles.infoItem}>
 							<span className={styles.label}>Dirección de Envío</span>
 							<span className={styles.value}>
 								{order.shipping_address.line1}
-								{order.shipping_address.line2 && `, ${order.shipping_address.line2}`}
+								{order.shipping_address.line2 &&
+									`, ${order.shipping_address.line2}`}
 								<br />
 								{order.shipping_address.city}, {order.shipping_address.state}
 								<br />
@@ -130,31 +153,35 @@ export default function OrderDetailsPage() {
 						order.items.map((item, index: number) => {
 							const article = item.article
 							return (
-							<div key={index} className={styles.itemCard}>
-								{article?.image && (
-									<div className={styles.itemImage}>
-										<Image
-											src={article.image}
-											alt={article.description || 'Producto'}
-											width={100}
-											height={100}
-											objectFit="cover"
-										/>
+								<div key={index} className={styles.itemCard}>
+									{article?.image && (
+										<div className={styles.itemImage}>
+											<Image
+												src={article.image}
+												alt={article.description || 'Producto'}
+												width={100}
+												height={100}
+												objectFit="cover"
+											/>
+										</div>
+									)}
+									<div className={styles.itemDetails}>
+										<h3 className={styles.itemName}>
+											{article?.description || 'Producto'}
+										</h3>
+										{article?.brand && (
+											<p className={styles.itemBrand}>{article.brand}</p>
+										)}
+										<p className={styles.itemPrice}>
+											{formatCurrency(item.unit_price)} x {item.quantity}
+										</p>
 									</div>
-								)}
-								<div className={styles.itemDetails}>
-									<h3 className={styles.itemName}>{article?.description || 'Producto'}</h3>
-									{article?.brand && <p className={styles.itemBrand}>{article.brand}</p>}
-									<p className={styles.itemPrice}>
-										{formatCurrency(item.unit_price)} x {item.quantity}
-									</p>
+									<div className={styles.itemTotal}>
+										<span className={styles.totalPrice}>
+											{formatCurrency(item.unit_price * item.quantity)}
+										</span>
+									</div>
 								</div>
-								<div className={styles.itemTotal}>
-									<span className={styles.totalPrice}>
-										{formatCurrency(item.unit_price * item.quantity)}
-									</span>
-								</div>
-							</div>
 							)
 						})
 					) : (
@@ -173,7 +200,9 @@ export default function OrderDetailsPage() {
 					{shippingCost > 0 && (
 						<div className={styles.summaryRow}>
 							<span className={styles.label}>Envío</span>
-							<span className={styles.value}>{formatCurrency(shippingCost)}</span>
+							<span className={styles.value}>
+								{formatCurrency(shippingCost)}
+							</span>
 						</div>
 					)}
 					<div className={`${styles.summaryRow} ${styles.total}`}>

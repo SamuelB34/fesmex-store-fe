@@ -4,7 +4,10 @@ import styles from './Cover.module.scss'
 import Image from 'next/image'
 import { Chip } from '@/components/Chip/Chip'
 import AsyncSelect from 'react-select/async'
-import { articlesApi, getArticleImageUrl } from '@/features/services/articles.api'
+import {
+	articlesApi,
+	getArticleImageUrl,
+} from '@/features/services/articles.api'
 import { useRouter } from 'next/navigation'
 
 interface ProductOption {

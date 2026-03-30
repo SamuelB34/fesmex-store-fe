@@ -97,7 +97,7 @@
 				align-items: center;
 				gap: var(--Spacing-small, 8px);
 				border-radius: var(--Radius-large, 16px);
-				border: var(--Stroke-regular, 1.5px) solid var(--light-gray, #EBEBEB);
+				border: var(--Stroke-regular, 1.5px) solid var(--light-gray, #ebebeb);
 
 				@include responsive.respond-down('mobile') {
 					width: 100%;
@@ -179,7 +179,7 @@
 	:global(.product-select__control) {
 		width: 100% !important;
 		border-radius: var(--Radius-large, 16px) !important;
-		border: var(--Stroke-regular, 1.5px) solid var(--light-gray, #EBEBEB) !important;
+		border: var(--Stroke-regular, 1.5px) solid var(--light-gray, #ebebeb) !important;
 		padding: 16px 32px;
 		padding-left: 16px;
 	}

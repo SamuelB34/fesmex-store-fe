@@ -26,14 +26,14 @@ Esta sección resume todos los bloques funcionales dentro de `fesmex-store-fe/sr
 
 ### 4. UI principal y componentes
 
-| Sección | Comportamiento |
-| --- | --- |
-| Entrega | Toggle entre `shipping` y `pickup`. Si es `shipping`, muestra `ShippingAddressSelector` y `NewAddressForm`. Si es `pickup`, muestra `PICKUP_LOCATIONS`. |
-| Método de envío | Sección `shippingEstimate` muestra: 1) selector de estado (nuevo `NewAddressForm`). 2) Costo estimado con nota (“El costo final...”). |
-| Método de pago | `PaymentMethodControls` permite elegir `CARD` o `TRANSFER`, mostrando instrucciones extra para transferencias. |
-| Notas | Campo libre con placeholder y `disabled={isSubmitting}`. |
-| Resumen | `SummaryActions` usa `subtotal`, `estimatedShipping`, etiqueta de envío y `grandTotal`, y valida `isFormReady`. |
-| Modal | `ConfirmModal` renderiza `<Elements>` + `StripePaymentSection` si hay `clientSecret`, o muestra texto de confirmación para transferencias. |
+| Sección         | Comportamiento                                                                                                                                          |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Entrega         | Toggle entre `shipping` y `pickup`. Si es `shipping`, muestra `ShippingAddressSelector` y `NewAddressForm`. Si es `pickup`, muestra `PICKUP_LOCATIONS`. |
+| Método de envío | Sección `shippingEstimate` muestra: 1) selector de estado (nuevo `NewAddressForm`). 2) Costo estimado con nota (“El costo final...”).                   |
+| Método de pago  | `PaymentMethodControls` permite elegir `CARD` o `TRANSFER`, mostrando instrucciones extra para transferencias.                                          |
+| Notas           | Campo libre con placeholder y `disabled={isSubmitting}`.                                                                                                |
+| Resumen         | `SummaryActions` usa `subtotal`, `estimatedShipping`, etiqueta de envío y `grandTotal`, y valida `isFormReady`.                                         |
+| Modal           | `ConfirmModal` renderiza `<Elements>` + `StripePaymentSection` si hay `clientSecret`, o muestra texto de confirmación para transferencias.              |
 
 ### 5. Nuevo flujo dinámico de shipping
 

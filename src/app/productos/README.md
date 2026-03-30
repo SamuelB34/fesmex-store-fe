@@ -33,16 +33,16 @@ Este documento describe en detalle `src/app/productos/page.tsx`, una página ser
 
 ```tsx
 <div className={styles.products}>
-  <SectionsInitializer sections={sections} />
-  <BrandsInitializer brands={brands} />
-  <ProductosClient
-    brands={brands}
-    initialProducts={initialProducts.products}
-    initialSearch={searchQuery}
-  />
-  <div className="content">
-    <IndustrialHero />
-  </div>
+	<SectionsInitializer sections={sections} />
+	<BrandsInitializer brands={brands} />
+	<ProductosClient
+		brands={brands}
+		initialProducts={initialProducts.products}
+		initialSearch={searchQuery}
+	/>
+	<div className="content">
+		<IndustrialHero />
+	</div>
 </div>
 ```
 

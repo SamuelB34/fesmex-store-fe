@@ -11,9 +11,11 @@ type VerifyStatus = 'loading' | 'success' | 'error' | 'no-token'
 function VerifyEmailContent() {
 	const searchParams = useSearchParams()
 	const token = searchParams.get('token')
-	const [status, setStatus] = useState<VerifyStatus>(token ? 'loading' : 'no-token')
+	const [status, setStatus] = useState<VerifyStatus>(
+		token ? 'loading' : 'no-token',
+	)
 	const [errorMessage, setErrorMessage] = useState<string | null>(
-		token ? null : 'Token de verificación no encontrado'
+		token ? null : 'Token de verificación no encontrado',
 	)
 	const hasVerified = useRef(false)
 

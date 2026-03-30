@@ -11,12 +11,12 @@ Breve guía para entender `fesmex-store-fe/src/app/(account)/account/page.tsx` y
 
 ## 2. UI principal
 
-| Área | Comportamiento |
-| --- | --- |
-| Header | Saluda al usuario (nombre completo o email) y expone chips que actualizan `activeTab`; el chip de órdenes muestra el total (`ordersState.total`). |
+| Área    | Comportamiento                                                                                                                                                                     |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Header  | Saluda al usuario (nombre completo o email) y expone chips que actualizan `activeTab`; el chip de órdenes muestra el total (`ordersState.total`).                                  |
 | profile | Rinde `ProfileForm` + `FiscalProfileForm` para editar datos personales y fiscales en paralelo. Ambos comparten la validación y envían cambios a la API a través de hooks internos. |
-| orders | Renderiza `OrdersPanel` con `ordersState`; el hook ya maneja paginado/fetch y la UI solo muestra cards, filtros y estados (`payment_status`, `total`, etc.). |
-| address | Lista `addressesState.addresses` o mensajes de carga/error/empty; cada `li` muestra nombre, dirección (line1/line2), ciudad/estado/CP y teléfono. |
+| orders  | Renderiza `OrdersPanel` con `ordersState`; el hook ya maneja paginado/fetch y la UI solo muestra cards, filtros y estados (`payment_status`, `total`, etc.).                       |
+| address | Lista `addressesState.addresses` o mensajes de carga/error/empty; cada `li` muestra nombre, dirección (line1/line2), ciudad/estado/CP y teléfono.                                  |
 
 ## 3. `_components` responsibilities
 

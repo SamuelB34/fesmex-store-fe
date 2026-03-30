@@ -26,12 +26,12 @@ Este README describe con detalle el comportamiento de `fesmex-store-fe/src/app/(
 
 ## 4. Pantallas según estado
 
-| Status | UI renderizada | Notas |
-| --- | --- | --- |
-| `loading` | Spinner dentro de `.iconContainer`, título `Verificando tu correo...` y descripción. Se muestra mientras llega respuesta. | Este estado solo ocurre inmediatamente después de llegar con token válido. |
-| `success` | Ícono de check, título `¡Correo verificado!`, mensaje de confirmación y link a `/` con la clase `.button`. | No hay redirección automática. El link permite volver al login. |
-| `error` | Ícono de error, título `Error de verificación`, muestra `errorMessage`, hint sobre link expirado y botón secundario a `/`. | Aquí se muestra un texto adicional `El enlace puede haber expirado...` para guiar al usuario. |
-| `no-token` | Se comporta igual que `error` con mensaje `Token de verificación no encontrado` (estado inicial cuando falta query param). | La UI idéntica ayuda a reutilizar el layout. |
+| Status     | UI renderizada                                                                                                             | Notas                                                                                         |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `loading`  | Spinner dentro de `.iconContainer`, título `Verificando tu correo...` y descripción. Se muestra mientras llega respuesta.  | Este estado solo ocurre inmediatamente después de llegar con token válido.                    |
+| `success`  | Ícono de check, título `¡Correo verificado!`, mensaje de confirmación y link a `/` con la clase `.button`.                 | No hay redirección automática. El link permite volver al login.                               |
+| `error`    | Ícono de error, título `Error de verificación`, muestra `errorMessage`, hint sobre link expirado y botón secundario a `/`. | Aquí se muestra un texto adicional `El enlace puede haber expirado...` para guiar al usuario. |
+| `no-token` | Se comporta igual que `error` con mensaje `Token de verificación no encontrado` (estado inicial cuando falta query param). | La UI idéntica ayuda a reutilizar el layout.                                                  |
 
 ## 5. Estilos y estructura
 

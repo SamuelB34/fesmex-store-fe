@@ -76,7 +76,8 @@ export function PaymentMethodsPanel() {
 			<div className={styles.container}>
 				<h2>Mis Métodos de Pago</h2>
 				<p className={styles.empty}>
-					No tienes métodos de pago guardados. Puedes guardar una tarjeta durante el proceso de compra.
+					No tienes métodos de pago guardados. Puedes guardar una tarjeta
+					durante el proceso de compra.
 				</p>
 			</div>
 		)
@@ -105,10 +106,14 @@ export function PaymentMethodsPanel() {
 
 							<div className={styles.cardInfo}>
 								<p className={styles.cardNumber}>
-									<span style={{ textTransform: 'capitalize' }}>{method.brand}</span> •••• {method.last4}
+									<span style={{ textTransform: 'capitalize' }}>
+										{method.brand}
+									</span>{' '}
+									•••• {method.last4}
 								</p>
 								<p className={styles.cardExpiry}>
-									Vence: {String(method.exp_month).padStart(2, '0')}/{method.exp_year}
+									Vence: {String(method.exp_month).padStart(2, '0')}/
+									{method.exp_year}
 								</p>
 								{method.wallet && (
 									<p className={styles.wallet}>

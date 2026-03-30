@@ -2,7 +2,10 @@
 
 import { useEffect, useState, useRef } from 'react'
 import styles from './SavedPaymentMethods.module.scss'
-import { paymentMethodsApi, type PaymentMethod } from '@/features/orders/services/paymentMethods.api'
+import {
+	paymentMethodsApi,
+	type PaymentMethod,
+} from '@/features/orders/services/paymentMethods.api'
 import Image from 'next/image'
 
 interface SavedPaymentMethodsProps {
@@ -36,7 +39,8 @@ export const SavedPaymentMethods = ({
 					}
 				}
 			} catch (err) {
-				const message = err instanceof Error ? err.message : 'Error al cargar métodos de pago'
+				const message =
+					err instanceof Error ? err.message : 'Error al cargar métodos de pago'
 				setError(message)
 				console.error('Error fetching payment methods:', err)
 			} finally {
@@ -92,13 +96,12 @@ export const SavedPaymentMethods = ({
 											}}
 										/>
 									</div>
-									<span className={styles.cardNumber}>
-										•••• {method.last4}
-									</span>
+									<span className={styles.cardNumber}>•••• {method.last4}</span>
 								</div>
 
 								<span className={styles.expiry}>
-									Vence: {String(method.exp_month).padStart(2, '0')}/{method.exp_year}
+									Vence: {String(method.exp_month).padStart(2, '0')}/
+									{method.exp_year}
 								</span>
 							</div>
 
@@ -117,7 +120,9 @@ export const SavedPaymentMethods = ({
 				onClick={(e) => {
 					e.preventDefault()
 					e.stopPropagation()
-					console.log(' Usar una tarjeta nueva - resetting selectedPaymentMethodId')
+					console.log(
+						' Usar una tarjeta nueva - resetting selectedPaymentMethodId',
+					)
 					onSelectMethod(null)
 				}}
 				className={styles.useNewCard}

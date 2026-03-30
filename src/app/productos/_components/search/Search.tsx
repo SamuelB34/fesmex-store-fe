@@ -18,7 +18,7 @@ export const Search = ({ onSearch, initialValue = '' }: SearchProps) => {
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const newValue = event.target.value
 		setValue(newValue)
-		
+
 		if (newValue === '') {
 			onSearch('')
 		}

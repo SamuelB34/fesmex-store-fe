@@ -38,7 +38,11 @@ function ProductosClientContent({
 	return (
 		<>
 			<Search key={urlQuery} onSearch={handleSearch} initialValue={urlQuery} />
-			<HomeProducts brands={brands} initialProducts={initialProducts} totalProducts={totalProducts} />
+			<HomeProducts
+				brands={brands}
+				initialProducts={initialProducts}
+				totalProducts={totalProducts}
+			/>
 		</>
 	)
 }

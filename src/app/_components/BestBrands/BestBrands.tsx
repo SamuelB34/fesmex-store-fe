@@ -35,8 +35,16 @@ export const BestBrands = () => {
 			</div>
 
 			<div className={styles.best_brands__brands}>
-				<LogosMarquee logos={firstGroupLogos} direction={'right'} onBrandClick={handleBrandClick} />
-				<LogosMarquee logos={secondGroupLogos} direction={'left'} onBrandClick={handleBrandClick} />
+				<LogosMarquee
+					logos={firstGroupLogos}
+					direction={'right'}
+					onBrandClick={handleBrandClick}
+				/>
+				<LogosMarquee
+					logos={secondGroupLogos}
+					direction={'left'}
+					onBrandClick={handleBrandClick}
+				/>
 			</div>
 
 			<Link href={'/productos'}>

@@ -70,10 +70,9 @@ async function fetchInitialProducts({
 	}
 }
 
-export default async function Productos({
-	searchParams,
-}: ProductosPageProps) {
-	const params = await (searchParams || Promise.resolve({} as Record<string, string | string[] | undefined>))
+export default async function Productos({ searchParams }: ProductosPageProps) {
+	const params = await (searchParams ||
+		Promise.resolve({} as Record<string, string | string[] | undefined>))
 	const categoryParam = params.category
 	const brandParam = params.brand
 	const searchParam = params.q
@@ -91,17 +90,19 @@ export default async function Productos({
 	// Ignore 'all-brands' as it means no brand filter
 	const finalBrandId = brandId === 'all-brands' ? undefined : brandId
 
-	const [sections, brands, initialProducts, unfileredTotal] = await Promise.all([
-		fetchAllCategories(),
-		fetchHomeBrands(),
-		fetchInitialProducts({
-			categoryId,
-			brandId: finalBrandId,
-			searchQuery: searchQuery || undefined,
-		}),
-		// Always fetch total without any filters for accurate "Todos los productos" count
-		fetchInitialProducts({}).then((result) => result.total),
-	])
+	const [sections, brands, initialProducts, unfileredTotal] = await Promise.all(
+		[
+			fetchAllCategories(),
+			fetchHomeBrands(),
+			fetchInitialProducts({
+				categoryId,
+				brandId: finalBrandId,
+				searchQuery: searchQuery || undefined,
+			}),
+			// Always fetch total without any filters for accurate "Todos los productos" count
+			fetchInitialProducts({}).then((result) => result.total),
+		],
+	)
 
 	return (
 		<div className={styles.products}>
