@@ -59,6 +59,7 @@
 		display: contents;
 
 		@include responsive.respond-down('mobile') {
+			padding-bottom: 32px;
 			display: flex;
 			align-items: center;
 			width: 100%;
