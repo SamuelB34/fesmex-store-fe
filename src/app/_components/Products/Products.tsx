@@ -22,7 +22,11 @@ interface ProductProps {
 	brands?: Section[]
 	types?: Section[]
 	products: ProductView[]
+	totalProducts?: number
 	isLoading: boolean
+	onLoadMore?: () => void
+	isLoadingMore?: boolean
+	hasMoreProducts?: boolean
 	onSectionSelect?: (sectionId: string) => void
 	onBrandSelect?: (brandId: string) => void
 	onSelectProduct?: (productId: string) => void
@@ -33,7 +37,11 @@ export const Products = ({
 	brands,
 	types,
 	products,
+	totalProducts = 0,
 	isLoading,
+	onLoadMore,
+	isLoadingMore = false,
+	hasMoreProducts = false,
 	onSectionSelect,
 	onBrandSelect,
 	onSelectProduct,
@@ -179,7 +187,7 @@ export const Products = ({
 					<span className={styles.products_list__title}>
 						{isLoading
 							? 'Cargando productos...'
-							: `${products.length} Productos`}
+							: `${totalProducts > 0 ? totalProducts : products.length} Productos`}
 					</span>
 					<div className={styles.products_list__content}>
 						{products.map((product) => (
@@ -192,6 +200,17 @@ export const Products = ({
 							</div>
 						))}
 					</div>
+					{hasMoreProducts && (
+						<div className={styles.products_list__footer}>
+							<button
+								className={styles.load_more_btn}
+								onClick={onLoadMore}
+								disabled={isLoadingMore}
+							>
+								{isLoadingMore ? 'Cargando...' : 'Cargar más'}
+							</button>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>

@@ -35,8 +35,9 @@ const HomeProductsContent = ({
 	const router = useRouter()
 	const searchParams = useSearchParams()
 	const { sections } = useSections()
-	const { items, isLoading, fetchArticles } = useArticles()
+	const { items, isLoading, fetchArticles, total: filteredTotal, page, totalPages } = useArticles()
 	const [hasFetched, setHasFetched] = useState(false)
+	const [isLoadingMore, setIsLoadingMore] = useState(false)
 
 	const urlCategoryId = searchParams.get('category')
 	const urlBrandId = searchParams.get('brand')
@@ -96,6 +97,8 @@ const HomeProductsContent = ({
 	const brandFilter =
 		activeBrandId && activeBrandId !== 'all-brands' ? activeBrandId : null
 
+	const hasFilters = categoryFilter || brandFilter || urlSearchQuery
+
 	useEffect(() => {
 		const query: ListArticlesQuery & { category_id?: string } = {
 			page: 1,
@@ -113,6 +116,33 @@ const HomeProductsContent = ({
 		void fetchArticles(query).then(() => setHasFetched(true))
 	}, [fetchArticles, categoryFilter, brandFilter, urlSearchQuery])
 
+	const displayTotal = hasFilters ? filteredTotal : totalProducts
+
+	const handleLoadMore = async () => {
+		setIsLoadingMore(true)
+		const nextPage = page + 1
+		const query: ListArticlesQuery & { category_id?: string } = {
+			page: nextPage,
+			limit: 12,
+		}
+		if (categoryFilter) {
+			query.category_id = categoryFilter
+		}
+		if (brandFilter) {
+			query.brand = brandFilter
+		}
+		if (urlSearchQuery) {
+			query.q = urlSearchQuery
+		}
+		try {
+			await fetchArticles(query)
+		} finally {
+			setIsLoadingMore(false)
+		}
+	}
+
+	const hasMoreProducts = page < totalPages
+
 	const handleSelectProduct = (productId: string) => {
 		router.push(`/productos/${productId}`)
 	}
@@ -123,7 +153,11 @@ const HomeProductsContent = ({
 			brands={computedBrands}
 			types={types}
 			products={products}
+			totalProducts={displayTotal}
 			isLoading={isLoading}
+			onLoadMore={handleLoadMore}
+			isLoadingMore={isLoadingMore}
+			hasMoreProducts={hasMoreProducts}
 			onSectionSelect={setUserSelectedCategory}
 			onBrandSelect={setUserSelectedBrand}
 			onSelectProduct={handleSelectProduct}

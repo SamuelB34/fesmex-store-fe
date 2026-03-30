@@ -36,15 +36,16 @@ export function useArticles() {
 			const res = await articlesApi.list(query)
 			if (res.ok && res.data) {
 				const data: ArticlesListResponse = res.data
-				setState({
-					items: data.items,
+				const isLoadMore = query?.page && query.page > 1
+				setState((prev) => ({
+					items: isLoadMore ? [...prev.items, ...data.items] : data.items,
 					page: data.page,
 					limit: data.limit,
 					total: data.total,
 					totalPages: data.totalPages,
 					isLoading: false,
 					error: null,
-				})
+				}))
 			} else {
 				setState((prev) => ({
 					...prev,
