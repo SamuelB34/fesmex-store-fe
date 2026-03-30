@@ -6,8 +6,7 @@ import axios, {
 	InternalAxiosRequestConfig,
 } from 'axios'
 
-const API_BASE_URL =
-	process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001'
+const API_BASE_URL = '/api'
 
 export class ApiError extends Error {
 	constructor(
