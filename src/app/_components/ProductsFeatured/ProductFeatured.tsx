@@ -63,9 +63,9 @@ export const ProductFeatured = () => {
 		<div className={styles.products_featured}>
 			<div className={styles.products_featured__discount}>
 				<div className={styles.discounts}>
-					<span className={styles.discounts__title}>Hasta</span>
-					<span className={styles.discounts__title_2}>50%</span>
-					<span className={styles.discounts__discount}>de descuento</span>
+					<span className={styles.discounts__title}>Envio</span>
+					<span className={styles.discounts__title_2}>GRATIS</span>
+					<span className={styles.discounts__discount}>en compras mayores a $50k</span>
 				</div>
 
 				<div className={styles.last}>
