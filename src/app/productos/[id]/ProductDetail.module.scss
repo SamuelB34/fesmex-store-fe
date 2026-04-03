@@ -71,6 +71,11 @@
 	gap: var(--Spacing-large, 32px);
 	padding-top: 32px;
 
+	@include responsive.respond-down('mobile') {
+		gap: 24px;
+		padding-top: 24px;
+	}
+
 	&__content {
 		display: flex;
 		justify-content: center;
@@ -83,6 +88,8 @@
 		@include responsive.respond-down('mobile') {
 			padding: 0;
 			flex-direction: column;
+			align-items: stretch;
+			gap: 24px;
 		}
 
 		.detail__image {
@@ -92,9 +99,12 @@
 			min-width: 600px;
 
 			@include responsive.respond-down('mobile') {
-				min-width: 327px;
-				width: 327px;
-				height: 327px;
+				min-width: 0;
+				width: 100%;
+				max-width: 327px;
+				height: auto;
+				aspect-ratio: 1 / 1;
+				margin: 0 auto;
 			}
 		}
 
@@ -113,9 +123,12 @@
 			text-align: center;
 			min-width: 600px;
 			@include responsive.respond-down('mobile') {
-				width: 327px;
-				height: 327px;
-				min-width: 327px;
+				width: 100%;
+				max-width: 327px;
+				height: auto;
+				aspect-ratio: 1 / 1;
+				min-width: 0;
+				margin: 0 auto;
 			}
 		}
 
@@ -167,17 +180,31 @@
 	flex-direction: column;
 	gap: 32px;
 	padding: 32px;
+	min-width: 0;
+
+	@include responsive.respond-down('mobile') {
+		gap: 24px;
+		padding: 0 var(--Spacing-big, 24px);
+	}
 
 	.name_brand {
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
+
+		@include responsive.respond-down('mobile') {
+			gap: 4px;
+		}
 	}
 
 	.sale_details {
 		display: flex;
 		flex-direction: column;
 		gap: 16px;
+
+		@include responsive.respond-down('mobile') {
+			gap: 12px;
+		}
 
 		&__line {
 			display: flex;
@@ -188,6 +215,10 @@
 			font-style: normal;
 			font-weight: 400;
 			line-height: var(--Line-Height-regular, 24px);
+
+			@include responsive.respond-down('mobile') {
+				align-items: flex-start;
+			}
 
 			.icon {
 				filter: brightness(0) saturate(100%) invert(0%) sepia(0%)
@@ -240,11 +271,13 @@
 	@include responsive.respond-down('mobile') {
 		color: var(--high-contrast-b, #201e1c);
 		font-family: 'IBM Plex Sans';
-		font-size: var(--Font-Size-giant, 40px);
+		font-size: var(--Font-Size-huge, 32px);
 		font-style: normal;
 		font-weight: 600;
-		line-height: var(--Line-Height-wide, 40px); /* 100% */
-		letter-spacing: 0.8px;
+		line-height: var(--Line-Height-loose, 32px);
+		letter-spacing: 0.64px;
+		overflow-wrap: anywhere;
+		word-break: break-word;
 	}
 }
 
@@ -256,12 +289,23 @@
 	font-weight: 600;
 	line-height: var(--Line-Height-loose, 32px); /* 100% */
 	letter-spacing: 0.64px;
+
+	@include responsive.respond-down('mobile') {
+		font-size: var(--Font-Size-large, 24px);
+		line-height: var(--Line-Height-regular, 24px);
+	}
 }
 
 .prices {
 	display: flex;
 	align-items: center;
 	gap: 16px;
+
+	@include responsive.respond-down('mobile') {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+	}
 }
 
 .price {
@@ -276,6 +320,11 @@
 	align-items: center;
 	gap: 4px;
 
+	@include responsive.respond-down('mobile') {
+		font-size: var(--Font-Size-huge, 32px);
+		line-height: var(--Line-Height-loose, 32px);
+	}
+
 	&__currency {
 		color: var(--text, #201e1c);
 		font-family: 'IBM Plex Sans', sans-serif;
@@ -284,6 +333,11 @@
 		font-weight: 600;
 		line-height: var(--Line-Height-regular, 24px); /* 100% */
 		letter-spacing: 0.48px;
+
+		@include responsive.respond-down('mobile') {
+			font-size: var(--Font-Size-medium, 16px);
+			line-height: var(--Line-Height-regular, 24px);
+		}
 	}
 }
 
@@ -296,6 +350,11 @@
 	line-height: var(--Line-Height-loose, 32px); /* 100% */
 	letter-spacing: 0.64px;
 	text-decoration-line: line-through;
+
+	@include responsive.respond-down('mobile') {
+		font-size: var(--Font-Size-huge, 32px);
+		line-height: var(--Line-Height-loose, 32px);
+	}
 }
 
 .stock {
@@ -317,4 +376,8 @@
 	width: 100%;
 	display: flex;
 	justify-content: right;
+
+	@include responsive.respond-down('mobile') {
+		justify-content: stretch;
+	}
 }

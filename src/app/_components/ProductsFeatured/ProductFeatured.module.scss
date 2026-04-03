@@ -135,6 +135,13 @@
 		overflow-x: scroll;
 		width: 100%;
 
+		@include responsive.respond-down('mobile') {
+			flex-direction: column;
+			gap: 16px;
+			overflow-x: hidden;
+			align-items: stretch;
+		}
+
 		.loading {
 			background-color: #d7d7ea;
 			width: 327px;
@@ -142,6 +149,12 @@
 			height: 628px;
 			border-radius: 4px;
 			overflow: hidden;
+
+			@include responsive.respond-down('mobile') {
+				width: 100%;
+				max-width: none;
+				height: 469px;
+			}
 
 			&__skeleton {
 				width: 0;

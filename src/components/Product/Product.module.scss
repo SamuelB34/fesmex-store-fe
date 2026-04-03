@@ -17,7 +17,10 @@
 	@include responsive.respond-down('mobile') {
 		width: 100%;
 		max-width: none;
-		min-width: 320px;
+		min-width: 0;
+		height: 469px;
+		padding: 20px;
+		gap: 12px;
 	}
 
 	&__image {
@@ -30,6 +33,10 @@
 		width: 100%;
 		height: 240px;
 		position: relative;
+
+		@include responsive.respond-down('mobile') {
+			height: 180px;
+		}
 	}
 
 	&__image_wrapper {
@@ -54,6 +61,10 @@
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.6px;
+
+		@include responsive.respond-down('mobile') {
+			height: 180px;
+		}
 	}
 
 	&__stock {
@@ -65,6 +76,10 @@
 		border-radius: var(--Radius-huge, 24px);
 		border: 1px solid var(--medium-gray, #6b7280);
 		width: fit-content;
+
+		@include responsive.respond-down('mobile') {
+			padding: 6px 12px;
+		}
 
 		.txt {
 			color: var(--secondary-text, #6b7280);
@@ -80,6 +95,11 @@
 			align-items: center;
 			gap: 6px;
 			cursor: pointer;
+
+			@include responsive.respond-down('mobile') {
+				font-size: var(--Font-Size-small, 12px);
+				line-height: var(--Line-Height-tight, 16px);
+			}
 
 			&__bold {
 				font-weight: 700;
@@ -144,6 +164,10 @@
 		gap: 6px;
 		cursor: pointer;
 
+		@include responsive.respond-down('mobile') {
+			gap: 4px;
+		}
+
 		.name {
 			color: #000;
 			font-family: 'IBM Plex Sans', sans-serif;
@@ -157,6 +181,13 @@
 			-webkit-line-clamp: 3;
 			line-clamp: 3;
 			-webkit-box-orient: vertical;
+
+			@include responsive.respond-down('mobile') {
+				font-size: var(--Font-Size-medium, 16px);
+				line-height: var(--Line-Height-regular, 24px);
+				-webkit-line-clamp: 2;
+				line-clamp: 2;
+			}
 		}
 
 		.brand {
@@ -167,11 +198,20 @@
 			font-weight: 700;
 			line-height: var(--Line-Height-tight, 16px); /* 114.286% */
 			letter-spacing: 0.28px;
+
+			@include responsive.respond-down('mobile') {
+				font-size: var(--Font-Size-small, 12px);
+				line-height: var(--Line-Height-tight, 16px);
+			}
 		}
 	}
 
 	&__btn {
 		padding-top: 16px;
+
+		@include responsive.respond-down('mobile') {
+			padding-top: 8px;
+		}
 
 		.icon {
 			filter: brightness(0) saturate(100%) invert(100%) sepia(100%) saturate(0%)
