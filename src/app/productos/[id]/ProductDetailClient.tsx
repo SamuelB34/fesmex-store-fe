@@ -8,7 +8,7 @@ import type { Product } from '@/app/mock'
 import { Button } from '@/components/Button/Button'
 import { Chip } from '@/components/Chip/Chip'
 import { useCart } from '@/features/cart/context/CartContext'
-import { formatCurrency } from '@/shared/utils/format'
+import { formatCurrency, formatProductName } from '@/shared/utils/format'
 
 interface ProductDetailClientProps {
 	product: Product
@@ -17,6 +17,7 @@ interface ProductDetailClientProps {
 export const ProductDetailClient = ({ product }: ProductDetailClientProps) => {
 	const [quantity, setQuantity] = useState(1)
 	const { addItem, removeItem, items } = useCart()
+	const formattedName = useMemo(() => formatProductName(product.name), [product.name])
 
 	const inCart = useMemo(
 		() => items.some((i) => i.id === product.id),
@@ -47,7 +48,7 @@ export const ProductDetailClient = ({ product }: ProductDetailClientProps) => {
 				{product.image ? (
 					<Image
 						src={product.image}
-						alt={product.name}
+						alt={formattedName}
 						width={600}
 						height={600}
 						className={styles.detail__image}
@@ -58,7 +59,7 @@ export const ProductDetailClient = ({ product }: ProductDetailClientProps) => {
 
 				<div className={styles.detail__info}>
 					<div className={styles.name_brand}>
-						<h1 className={styles.title}>{product.name}</h1>
+						<h1 className={styles.title}>{formattedName}</h1>
 						<p className={styles.brand}>{product.brand}</p>
 					</div>
 

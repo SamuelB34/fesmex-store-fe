@@ -6,7 +6,7 @@ import { Button } from '@/components/Button/Button'
 import type { Product as ProductType } from '@/app/mock'
 import { MouseEvent, useMemo } from 'react'
 import { useCart } from '@/features/cart/context/CartContext'
-import { formatCurrency } from '@/shared/utils/format'
+import { formatCurrency, formatProductName } from '@/shared/utils/format'
 import { sileo } from 'sileo'
 
 interface ProductProps {
@@ -17,6 +17,11 @@ interface ProductProps {
 
 export const Product = ({ product, short, onSelect }: ProductProps) => {
 	const { addItem, removeItem, items } = useCart()
+
+	const formattedName = useMemo(
+		() => formatProductName(product.name),
+		[product.name],
+	)
 
 	const inCartItem = useMemo(
 		() => items.find((i) => i.id === product.id),
@@ -83,8 +88,8 @@ export const Product = ({ product, short, onSelect }: ProductProps) => {
 			{/*</div>*/}
 
 			<div className={styles.product__info}>
-				<span className={styles.name} title={product.name}>
-					{product.name}
+				<span className={styles.name} title={formattedName}>
+					{formattedName}
 				</span>
 				<span className={styles.brand}>{product.brand}</span>
 

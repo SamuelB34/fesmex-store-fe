@@ -44,6 +44,10 @@ export const formatNumber = (
 	}).format(value)
 }
 
+export function formatProductName(name: string): string {
+	return name.replace(/,\s*(?=\S)/g, ', ')
+}
+
 export type DateFormatOptions = {
 	locale?: string
 	options?: Intl.DateTimeFormatOptions
