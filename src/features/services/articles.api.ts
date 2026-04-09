@@ -29,6 +29,12 @@ export type ArticleFiles = {
 	datasheets?: ArticleFile[]
 }
 
+export type ArticleContent = {
+	details?: string | null
+	applications?: string | null
+	technical_sheet_url?: string | null
+}
+
 export type Article = {
 	_id: string
 	name: string
@@ -41,6 +47,7 @@ export type Article = {
 	barcode?: string
 	image_url?: string
 	files?: ArticleFiles
+	content?: ArticleContent | null
 	stock_web?: ArticleStockWeb | null
 	created_at?: string
 	updated_at?: string

@@ -58,6 +58,24 @@
 					line-height: var(--Line-Height-regular, 24px); /* 150% */
 				}
 			}
+
+			&__list {
+				margin: 0;
+				padding-left: 20px;
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				color: var(--text, #201e1c);
+				font-family: 'IBM Plex Sans', sans-serif;
+				font-size: var(--Font-Size-medium, 16px);
+				font-style: normal;
+				font-weight: 400;
+				line-height: var(--Line-Height-regular, 24px);
+			}
+
+			&__item {
+				list-style: disc;
+			}
 		}
 	}
 }

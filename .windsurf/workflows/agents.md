@@ -278,6 +278,8 @@ type DeliveryType = 'shipping' | 'pickup'
 
 - **Listado:** `productos/page.tsx` (Server) → `fetchInitialProducts()` → `ProductosClient` (Client).
 - **Detalle:** `productos/[id]/page.tsx` (Server) → `articlesApi.getById()` → `ProductDetailClient` (Client).
+  - El server debe pasar `article.content?.details` al `product` prop.
+  - El client renderiza el bloque `Overview` a partir de ese markdown o del texto `Uso General`.
 - **Búsqueda:** Query params `?q=`, `?category=`, `?brand=` en URL.
 
 ### Tipos de Artículo

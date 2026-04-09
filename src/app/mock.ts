@@ -16,6 +16,9 @@ export type Product = {
 	currency: string
 	stock: number
 	image: string
+	content?: {
+		details?: string | null
+	}
 }
 
 export const sections: Section[] = [

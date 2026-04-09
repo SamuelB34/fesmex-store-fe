@@ -18,6 +18,16 @@ export const ProductDetailClient = ({ product }: ProductDetailClientProps) => {
 	const [quantity, setQuantity] = useState(1)
 	const { addItem, removeItem, items } = useCart()
 	const formattedName = useMemo(() => formatProductName(product.name), [product.name])
+	const details = product.content?.details?.trim() ?? ''
+	const detailItems = useMemo(() => {
+		if (!details) return []
+		if (details === 'Uso General') return [details]
+
+		return details
+			.split('\n')
+			.map((line) => line.replace(/^[-*]\s*/, '').trim())
+			.filter(Boolean)
+	}, [details])
 
 	const inCart = useMemo(
 		() => items.some((i) => i.id === product.id),
@@ -160,30 +170,28 @@ export const ProductDetailClient = ({ product }: ProductDetailClientProps) => {
 
 				{/*Overview*/}
 				<div className={styles.specs}>
-					<div className={styles.specs__row}>
-						<span className={styles.title}>
-							Alta eficiencia y bajo mantenimiento:
-						</span>
-						<span className={styles.paragraph}>
-							Reduce tiempos de inactividad y costos operativos, garantizando
-							funcionamiento continuo en entornos severos.
-						</span>
-					</div>
-
-					<div className={styles.specs__row}>
-						<span className={styles.title}>Aplicaciones:</span>
-						<p className={styles.paragraph}>
-							Ideales para industrias de servicio severo y aplicaciones
-							extremas, como: <br />
-							Plantas químicas. <br />
-							Fábricas de pulpa y papel. <br />
-							Refinerías. <br />
-							Minas a cielo abierto. <br />
-							Procesamiento de alimentos. <br />
-							Fundiciones. <br />
-							Tras operaciones de alta exigencia y ciclo prolongado.
-						</p>
-					</div>
+					{detailItems.length > 0 ? (
+						<div className={styles.specs__row}>
+							<span className={styles.title}>Detalles:</span>
+							{detailItems.length === 1 && details === 'Uso General' ? (
+								<span className={styles.paragraph}>{detailItems[0]}</span>
+							) : (
+								<ul className={styles.specs__list}>
+									{detailItems.map((item) => (
+										<li key={item} className={styles.specs__item}>
+											{item}
+										</li>
+									))}
+								</ul>
+							)}
+						</div>
+					) : (
+						<div className={styles.specs__row}>
+							<span className={styles.paragraph}>
+								No hay detalles disponibles para este producto.
+							</span>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>

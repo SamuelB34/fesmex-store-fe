@@ -49,6 +49,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 		currency: 'MXN',
 		stock,
 		image,
+		content: {
+			details: article.content?.details ?? null,
+		},
 	}
 
 	return (

@@ -349,6 +349,23 @@ Para rutas con layout compartido, usar route groups:
 - `(account)/account/` → URL: `/account`
 - `(auth)/login/` → URL: `/login`
 
+### Receta: mostrar `article.content.details` en el detalle de producto
+
+**Cuándo:** El backend ya devuelve `content.details` y quieres mostrarlo en `productos/[id]`.
+
+**Flujo recomendado:**
+1. En el Server Component (`page.tsx`), leer `article.content?.details` desde la respuesta del API.
+2. Pasarlo dentro del `product` prop al `ProductDetailClient`.
+3. En el Client Component, normalizar el texto:
+   - Si es `Uso General`, renderizarlo como texto simple.
+   - Si viene como lista Markdown, dividir por saltos de línea y pintar `<ul><li>`.
+4. Dar estilo con SCSS Modules para mantener la convención visual del proyecto.
+
+**Reglas:**
+- No introducir una librería nueva si el contenido es solo texto/viñetas simples.
+- Mantener el fallback cuando `details` no exista.
+- Seguir usando `ProductDetail.module.scss` para el bloque `Overview`.
+
 ---
 
 ## Skill 7: Agregar Producto al Carrito
