@@ -312,7 +312,8 @@
 
 .summaryItem {
 	display: flex;
-	height: 189px;
+	height: auto;
+	min-height: 189px;
 	padding: 24px 24px 32px 24px;
 	align-items: flex-start;
 	gap: 32px;
@@ -363,9 +364,27 @@
 .itemInfo {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
-	max-width: 130px;
-	width: 130px;
+	gap: 8px;
+	flex: 1;
+	min-width: 0;
+}
+
+.itemCounter {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-top: 4px;
+}
+
+.quantityLabel {
+	color: #6b7280;
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: 16px;
+	letter-spacing: 0.24px;
+	text-transform: uppercase;
 }
 
 .itemName {
@@ -445,9 +464,9 @@
 .itemInfo {
 	display: flex;
 	flex-direction: column;
-	gap: 0.15rem;
-	max-width: 130px;
-	width: 130px;
+	gap: 8px;
+	flex: 1;
+	min-width: 0;
 }
 
 .itemName {
@@ -466,6 +485,24 @@
 
 	.summaryCard {
 		position: static;
+	}
+
+	.summaryItem {
+		flex-direction: column;
+		height: auto;
+		gap: 16px;
+	}
+
+	.itemInfo {
+		width: 100%;
+	}
+
+	.itemCounter {
+		width: 100%;
+	}
+
+	.itemPrice {
+		align-self: flex-end;
 	}
 }
 

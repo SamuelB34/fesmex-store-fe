@@ -1,11 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { ordersApi, type Order } from '@/features/orders/services/orders.api'
 import { sileo } from 'sileo'
 import Image from 'next/image'
 import styles from './OrderDetails.module.scss'
+import { Counter } from '@/components/Counter/Counter'
+import { useCart } from '@/features/cart/context/CartContext'
 import {
 	OrderStatusLabel,
 	PaymentMethodLabel,
@@ -17,8 +19,10 @@ export default function OrderDetailsPage() {
 	const params = useParams()
 	const router = useRouter()
 	const orderId = params.orderId as string
+	const { addItem, removeItem, updateQuantity, items: cartItems } = useCart()
 
 	const [order, setOrder] = useState<Order | null>(null)
+	const [editableItems, setEditableItems] = useState<Order['items']>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
 
@@ -29,6 +33,11 @@ export default function OrderDetailsPage() {
 				setError(null)
 				const { order: fetchedOrder } = await ordersApi.getOrderById(orderId)
 				setOrder(fetchedOrder)
+				setEditableItems(
+					fetchedOrder.items.map((item) => ({
+						...item,
+					})),
+				)
 			} catch (err) {
 				const message =
 					err instanceof Error ? err.message : 'Error al cargar la orden'
@@ -46,6 +55,76 @@ export default function OrderDetailsPage() {
 			fetchOrder()
 		}
 	}, [orderId])
+
+	useEffect(() => {
+		if (order) {
+			setEditableItems(
+				order.items.map((item) => ({
+					...item,
+				})),
+			)
+		}
+	}, [order])
+
+	const totalItems = useMemo(
+		() =>
+			editableItems.reduce(
+				(sum: number, item) => sum + (item?.quantity || 0),
+				0,
+			),
+		[editableItems],
+	)
+
+	const subtotal = useMemo(
+		() =>
+			editableItems.reduce(
+				(sum: number, item) =>
+					sum + (item?.unit_price || 0) * (item?.quantity || 0),
+				0,
+			),
+		[editableItems],
+	)
+
+	const shippingCost = (order as any)?.shipping_cost || 0 // eslint-disable-line @typescript-eslint/no-explicit-any
+	const total = subtotal + shippingCost
+
+	const handleQuantityChange = (articleId: string, quantity: number) => {
+		setEditableItems((prev) =>
+			prev.map((item) =>
+				item.article_id === articleId ? { ...item, quantity } : item,
+			),
+		)
+
+		const editableItem = editableItems.find((item) => item.article_id === articleId)
+		if (!editableItem) return
+
+		if (quantity <= 0) {
+			removeItem(articleId)
+			return
+		}
+
+		const cartItem = cartItems.find((item) => item.id === articleId)
+		if (cartItem) {
+			updateQuantity(articleId, quantity)
+			return
+		}
+
+		addItem(
+			{
+				id: articleId,
+				image: editableItem.article?.image ?? '',
+				name: editableItem.article?.description ?? 'Producto',
+				brand: editableItem.article?.brand ?? '',
+				unitPrice: editableItem.unit_price,
+				quantity,
+			},
+		)
+	}
+
+	const handleRemoveItem = (articleId: string) => {
+		setEditableItems((prev) => prev.filter((item) => item.article_id !== articleId))
+		removeItem(articleId)
+	}
 
 	if (isLoading) {
 		return (
@@ -65,20 +144,6 @@ export default function OrderDetailsPage() {
 			</div>
 		)
 	}
-
-	const totalItems =
-		order.items?.reduce(
-			(sum: number, item) => sum + (item?.quantity || 0),
-			0,
-		) || 0
-	const subtotal =
-		order.items?.reduce(
-			(sum: number, item) =>
-				sum + (item?.unit_price || 0) * (item?.quantity || 0),
-			0,
-		) || 0
-	const shippingCost = (order as any).shipping_cost || 0 // eslint-disable-line @typescript-eslint/no-explicit-any
-	const total = subtotal + shippingCost
 
 	return (
 		<div className={styles.container}>
@@ -149,11 +214,11 @@ export default function OrderDetailsPage() {
 			<div className={styles.section}>
 				<h2 className={styles.sectionTitle}>Productos ({totalItems})</h2>
 				<div className={styles.itemsList}>
-					{order.items && order.items.length > 0 ? (
-						order.items.map((item, index: number) => {
+					{editableItems.length > 0 ? (
+						editableItems.map((item) => {
 							const article = item.article
 							return (
-								<div key={index} className={styles.itemCard}>
+								<div key={item.article_id} className={styles.itemCard}>
 									{article?.image && (
 										<div className={styles.itemImage}>
 											<Image
@@ -175,6 +240,16 @@ export default function OrderDetailsPage() {
 										<p className={styles.itemPrice}>
 											{formatCurrency(item.unit_price)} x {item.quantity}
 										</p>
+										<div className={styles.itemCounter}>
+											<span className={styles.quantityLabel}>Cantidad</span>
+											<Counter
+												value={item.quantity}
+												onChange={(value) =>
+													handleQuantityChange(item.article_id, value)
+												}
+												onMinReached={() => handleRemoveItem(item.article_id)}
+											/>
+										</div>
 									</div>
 									<div className={styles.itemTotal}>
 										<span className={styles.totalPrice}>

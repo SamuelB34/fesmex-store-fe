@@ -22,6 +22,7 @@ export const Counter = ({
 }: CounterProps) => {
 	const safeMin = min ?? 1
 	const safeMax = max ?? Number.MAX_SAFE_INTEGER
+	const isAtMinimum = value <= safeMin
 
 	const handleChange = (next: number) => {
 		if (next > safeMax) {
@@ -37,10 +38,14 @@ export const Counter = ({
 	return (
 		<div className={styles.counter}>
 			{/*Minus*/}
-			<button className={styles.btn} onClick={() => handleChange(value - 1)}>
+			<button
+				type="button"
+				className={styles.btn}
+				onClick={() => handleChange(value - 1)}
+			>
 				<Image
-					src={'/icons/minus.svg'}
-					alt={'minus'}
+					src={isAtMinimum ? '/icons/delete.svg' : '/icons/minus.svg'}
+					alt={isAtMinimum ? 'delete' : 'minus'}
 					width={24}
 					height={24}
 					className={styles.counter__btn}
@@ -58,7 +63,11 @@ export const Counter = ({
 				}}
 			/>
 			{/*Plus*/}
-			<button className={styles.btn} onClick={() => handleChange(value + 1)}>
+			<button
+				type="button"
+				className={styles.btn}
+				onClick={() => handleChange(value + 1)}
+			>
 				<Image
 					src={'/icons/plus.svg'}
 					alt={'plus'}

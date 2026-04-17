@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { sileo } from 'sileo'
 import { Elements } from '@stripe/react-stripe-js'
 import styles from './Checkout.module.scss'
+import { Counter } from '@/components/Counter/Counter'
 import {
 	useCreateOrder,
 	useShippingAddresses,
@@ -55,7 +56,7 @@ type CheckoutFormValues = {
 export default function CheckoutForm() {
 	const router = useRouter()
 	const { user, accessToken, isBootstrapping } = useAuth()
-	const { items, total, clearCart } = useCart()
+	const { items, total, clearCart, updateQuantity, removeItem } = useCart()
 	const { createOrder, isSubmitting } = useCreateOrder()
 	const {
 		addresses,
@@ -168,6 +169,13 @@ export default function CheckoutForm() {
 		const newShipping = calculateShipping(stateId, total)
 		setEstimatedShipping(newShipping)
 	}
+
+	useEffect(() => {
+		if (deliveryType !== 'shipping' || !selectedStateId) return
+
+		const newShipping = calculateShipping(selectedStateId, total)
+		setEstimatedShipping(newShipping)
+	}, [deliveryType, selectedStateId, total, calculateShipping])
 
 	// Handle existing address selection - recalculate shipping based on address state
 	useEffect(() => {
@@ -572,8 +580,6 @@ export default function CheckoutForm() {
 										height={133}
 										className={styles.img}
 									/>
-
-									<div className={styles.itemBadge}>{item.quantity}</div>
 								</div>
 
 								<div className={styles.itemInfo}>
@@ -582,10 +588,32 @@ export default function CheckoutForm() {
 									</p>
 
 									<span className={styles.itemBrand}>{item.brand}</span>
+
+									<div className={styles.itemCounter}>
+										<span className={styles.quantityLabel}>Cantidad</span>
+										<Counter
+											value={item.quantity}
+											max={item.stock}
+											onChange={(value) => {
+												updateQuantity(item.id, value, {
+													maxStock: item.stock,
+												})
+											}}
+											onMinReached={() => removeItem(item.id)}
+											onMaxReached={() => {
+												sileo.error({
+													title: 'Stock máximo alcanzado',
+													description: item.stock
+														? `Solo hay ${item.stock} unidades disponibles`
+														: 'No hay más unidades disponibles',
+												})
+											}}
+										/>
+									</div>
 								</div>
 
 								<span className={styles.itemPrice}>
-									{formatCurrency(item.unitPrice)}
+									{formatCurrency(item.unitPrice * item.quantity)}
 									<span>MXN</span>
 								</span>
 							</div>
