@@ -2,7 +2,9 @@ import type { NextConfig } from 'next'
 
 const API_PROXY_TARGET =
 	process.env.NEXT_PUBLIC_API_PROXY_TARGET ||
-	'https://fesmex-store-be-api-production.up.railway.app'
+	(process.env.NODE_ENV === 'development'
+		? 'http://localhost:5001'
+		: 'https://fesmex-store-be-api-production.up.railway.app')
 
 const nextConfig: NextConfig = {
 	images: {

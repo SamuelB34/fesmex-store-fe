@@ -3,12 +3,16 @@
 import styles from './Cover.module.scss'
 import Image from 'next/image'
 import { Chip } from '@/components/Chip/Chip'
-import AsyncSelect from 'react-select/async'
+import Select from 'react-select'
+import { useDebounce } from '@/shared/hooks/useDebounce'
+import { useEffect, useRef, useState } from 'react'
 import {
 	articlesApi,
 	getArticleImageUrl,
 } from '@/features/services/articles.api'
+import { listTags } from '@/features/services/tags.api'
 import { useRouter } from 'next/navigation'
+import type { SelectInstance } from 'react-select'
 
 interface ProductOption {
 	value: string
@@ -17,17 +21,74 @@ interface ProductOption {
 	description?: string
 }
 
+const DEFAULT_TAGS = [
+	'HVAC',
+	'Actuadores',
+	'Bombas',
+	'Motores',
+	'Valvulas',
+	'Ventiladores',
+]
+
 export const Cover = () => {
 	const router = useRouter()
+	const selectRef = useRef<SelectInstance<ProductOption, false> | null>(null)
+	const [topTags, setTopTags] = useState<string[]>(DEFAULT_TAGS)
+	const [inputValue, setInputValue] = useState('')
+	const [searchOptions, setSearchOptions] = useState<ProductOption[]>([])
+	const [isSearching, setIsSearching] = useState(false)
+	const debouncedInputValue = useDebounce(inputValue, 500)
 
-	const loadOptions = async (inputValue: string): Promise<ProductOption[]> => {
-		if (!inputValue || inputValue.trim().length < 2) {
+	useEffect(() => {
+		let isMounted = true
+
+		const loadTopTags = async () => {
+			try {
+				const response = await listTags({
+					is_active: true,
+					type: 'filter',
+					limit: 6,
+				})
+
+				if (!response.ok || !response.data?.items?.length) {
+					return
+				}
+
+				const sortedTags = response.data.items
+					.filter((tag) => tag.name.trim().length > 0)
+					.sort((a, b) => {
+						const aTime = a.updated_at ? new Date(a.updated_at).getTime() : 0
+						const bTime = b.updated_at ? new Date(b.updated_at).getTime() : 0
+						return bTime - aTime
+					})
+					.map((tag) => tag.name.trim())
+					.filter((tag, index, self) => self.indexOf(tag) === index)
+					.slice(0, 6)
+
+				if (isMounted && sortedTags.length > 0) {
+					setTopTags([...sortedTags, ...DEFAULT_TAGS].filter((tag, index, self) => self.indexOf(tag) === index).slice(0, 6))
+				}
+			} catch (error) {
+				console.error('Error fetching tags for cover:', error)
+			}
+		}
+
+		void loadTopTags()
+
+		return () => {
+			isMounted = false
+		}
+	}, [])
+
+	const fetchOptions = async (query: string): Promise<ProductOption[]> => {
+		const normalizedQuery = query.trim()
+		if (normalizedQuery.length < 2) {
 			return []
 		}
 
 		try {
 			const response = await articlesApi.list({
-				q: inputValue,
+				q: normalizedQuery,
 				limit: 8,
 				page: 1,
 			})
@@ -48,10 +109,55 @@ export const Cover = () => {
 		}
 	}
 
+	useEffect(() => {
+		let isMounted = true
+
+		const loadDebouncedOptions = async () => {
+			const query = debouncedInputValue.trim()
+
+			if (query.length < 2) {
+				setSearchOptions([])
+				setIsSearching(false)
+				return
+			}
+
+			setIsSearching(true)
+			const options = await fetchOptions(query)
+
+			if (isMounted) {
+				setSearchOptions(options)
+				setIsSearching(false)
+			}
+		}
+
+		void loadDebouncedOptions()
+
+		return () => {
+			isMounted = false
+		}
+	}, [debouncedInputValue])
+
 	const handleSelectProduct = (option: ProductOption | null) => {
 		if (option) {
 			router.push(`/productos/${option.value}`)
 		}
+	}
+
+	const handleChipClick = (tag: string) => {
+		setInputValue(tag)
+		selectRef.current?.focus()
+	}
+
+	const handleInputChange = (newValue: string, actionMeta: { action: string }) => {
+		if (actionMeta.action === 'input-change') {
+			setInputValue(newValue)
+		}
+
+		if (actionMeta.action === 'menu-close') {
+			return inputValue
+		}
+
+		return newValue
 	}
 
 	const formatOptionLabel = (option: ProductOption) => (
@@ -101,18 +207,23 @@ export const Cover = () => {
 				<div className={styles.search_container}>
 					<div className={styles.search}>
 						<div className={styles.selectWrapper}>
-							<AsyncSelect
+							<Select
+								ref={selectRef}
 								instanceId="product-search"
-								cacheOptions
-								loadOptions={loadOptions}
+								options={searchOptions}
 								onChange={handleSelectProduct}
+								inputValue={inputValue}
+								onInputChange={handleInputChange}
+								isLoading={isSearching}
 								placeholder={'¿Que buscas? Accesorios de bombeo, motores....'}
 								isClearable
 								isSearchable
+								openMenuOnFocus
 								formatOptionLabel={formatOptionLabel}
 								noOptionsMessage={() => 'Sin resultados'}
 								loadingMessage={() => 'Buscando...'}
 								classNamePrefix="product-select"
+								filterOption={null}
 								styles={{
 									control: (base) => ({
 										...base,
@@ -161,12 +272,17 @@ export const Cover = () => {
 						<span className={styles.products__txt}>PRODUCTOS MÁS BUSCADOS</span>
 
 						<div className={styles.products__chips}>
-							<Chip type={'primary'} text={'HVAC'} />
-							<Chip type={'primary'} text={'Actuadores'} />
-							<Chip type={'primary'} text={'Bombas'} />
-							<Chip type={'primary'} text={'Motores'} />
-							<Chip type={'primary'} text={'Valvulas'} />
-							<Chip type={'primary'} text={'Ventiladores'} />
+							{topTags.slice(0, 6).map((tag) => (
+								<button
+									key={tag}
+									type="button"
+									className={styles.chipButton}
+									onClick={() => handleChipClick(tag)}
+									aria-label={`Buscar por ${tag}`}
+								>
+									<Chip type={'primary'} text={tag} />
+								</button>
+							))}
 						</div>
 					</div>
 				</div>
