@@ -32,7 +32,6 @@
 			.header {
 				display: flex;
 				justify-content: space-between;
-				align-items: center;
 				width: 100%;
 
 				&__title {
@@ -78,6 +77,29 @@
 						font-weight: 700;
 						line-height: var(--Line-Height-regular, 24px); /* 133.333% */
 						letter-spacing: 0.36px;
+					}
+				}
+
+				.forgot_password {
+					width: 100%;
+					display: flex;
+					justify-content: flex-end;
+
+					span {
+						text-decoration: underline;
+						cursor: pointer;
+						color: var(--secondary-text, #6b7280);
+					}
+				}
+
+				.forgot_actions {
+					display: flex;
+					flex-direction: column;
+					gap: 12px;
+					width: 100%;
+
+					button {
+						width: 100%;
 					}
 				}
 			}
