@@ -1,3 +1,5 @@
+@use '@/styles/responsive' as responsive;
+
 .login {
 	position: fixed;
 	inset: 0;
@@ -7,8 +9,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-
-	z-index: 1000;
+	z-index: 10;
 
 	&__modal {
 		border-radius: var(--Radius-regular, 8px);
@@ -21,6 +22,10 @@
 		gap: 64px;
 		max-height: 750px;
 		overflow-y: auto;
+
+		@include responsive.respond-down('mobile') {
+			max-height: 550px;
+		}
 
 		.form {
 			display: flex;
