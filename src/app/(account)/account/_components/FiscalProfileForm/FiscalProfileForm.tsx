@@ -10,6 +10,125 @@ import {
 } from '@/features/services/fiscalProfile.api'
 import { sileo } from 'sileo'
 
+const CFDI_USAGE_OPTIONS = [
+	{ value: 'G01', label: 'G01 - Adquisición de mercancías' },
+	{ value: 'G02', label: 'G02 - Devoluciones, descuentos o bonificaciones' },
+	{ value: 'G03', label: 'G03 - Gastos en general' },
+	{ value: 'I01', label: 'I01 - Construcciones' },
+	{ value: 'I02', label: 'I02 - Mobiliario y equipo de oficina por inversiones' },
+	{ value: 'I03', label: 'I03 - Equipo de transporte' },
+	{ value: 'I04', label: 'I04 - Equipo de cómputo y accesorios' },
+	{
+		value: 'I05',
+		label: 'I05 - Dados, troqueles, moldes, matrices y herramental',
+	},
+	{ value: 'I06', label: 'I06 - Comunicaciones telefónicas' },
+	{ value: 'I07', label: 'I07 - Comunicaciones satelitales' },
+	{ value: 'I08', label: 'I08 - Otra maquinaria y equipo' },
+	{ value: 'D01', label: 'D01 - Honorarios médicos, dentales y gastos hospitalarios' },
+	{ value: 'D02', label: 'D02 - Gastos médicos por incapacidad o discapacidad' },
+	{ value: 'D03', label: 'D03 - Gastos funerales' },
+	{ value: 'D04', label: 'D04 - Donativos' },
+	{ value: 'D05', label: 'D05 - Intereses reales pagados por créditos hipotecarios' },
+	{ value: 'D06', label: 'D06 - Aportaciones voluntarias al SAR' },
+	{ value: 'D07', label: 'D07 - Primas por seguros de gastos médicos' },
+	{ value: 'D08', label: 'D08 - Gastos de transportación escolar obligatoria' },
+	{ value: 'D09', label: 'D09 - Depósitos en cuentas para ahorro / planes de pensiones' },
+	{ value: 'D10', label: 'D10 - Pagos por servicios educativos / colegiaturas' },
+	{ value: 'CP01', label: 'CP01 - Pagos' },
+	{ value: 'CN01', label: 'CN01 - Nómina' },
+	{ value: 'S01', label: 'S01 - Sin efectos fiscales' },
+] as const
+
+const CFDI_REGIME_OPTIONS = [
+	{ value: '601', label: '601 - General de Ley Personas Morales' },
+	{ value: '603', label: '603 - Personas Morales con Fines no Lucrativos' },
+	{ value: '605', label: '605 - Sueldos y Salarios e Ingresos Asimilados a Salarios' },
+	{ value: '606', label: '606 - Arrendamiento' },
+	{ value: '607', label: '607 - Régimen de Enajenación o Adquisición de Bienes' },
+	{ value: '608', label: '608 - Demás ingresos' },
+	{
+		value: '610',
+		label: '610 - Residentes en el Extranjero sin Establecimiento Permanente en México',
+	},
+	{ value: '611', label: '611 - Ingresos por Dividendos / socios y accionistas' },
+	{
+		value: '612',
+		label: '612 - Personas Físicas con Actividades Empresariales y Profesionales',
+	},
+	{ value: '614', label: '614 - Ingresos por intereses' },
+	{ value: '615', label: '615 - Régimen de los ingresos por obtención de premios' },
+	{ value: '616', label: '616 - Sin obligaciones fiscales' },
+	{
+		value: '620',
+		label: '620 - Sociedades Cooperativas de Producción que optan por diferir sus ingresos',
+	},
+	{ value: '621', label: '621 - Incorporación Fiscal' },
+	{
+		value: '622',
+		label: '622 - Actividades Agrícolas, Ganaderas, Silvícolas y Pesqueras',
+	},
+	{ value: '623', label: '623 - Opcional para Grupos de Sociedades' },
+	{ value: '624', label: '624 - Coordinados' },
+	{
+		value: '625',
+		label: '625 - Actividades Empresariales con ingresos a través de Plataformas Tecnológicas',
+	},
+	{ value: '626', label: '626 - Régimen Simplificado de Confianza — RESICO' },
+	{ value: '628', label: '628 - Hidrocarburos' },
+	{
+		value: '629',
+		label: '629 - De los Regímenes Fiscales Preferentes y de las Empresas Multinacionales',
+	},
+	{ value: '630', label: '630 - Enajenación de acciones en bolsa de valores' },
+] as const
+
+const normalizeUsoCfdi = (value: string) => {
+	const trimmed = value.trim()
+	if (!trimmed) {
+		return ''
+	}
+
+	const byExactCode = CFDI_USAGE_OPTIONS.find((option) => option.value === trimmed)
+	if (byExactCode) {
+		return byExactCode.value
+	}
+
+	const codeFromLegacyValue = trimmed.match(/^[A-Z0-9]{3,4}/)?.[0]
+	if (!codeFromLegacyValue) {
+		return trimmed
+	}
+
+	const matchedCode = CFDI_USAGE_OPTIONS.find(
+		(option) => option.value === codeFromLegacyValue,
+	)
+	return matchedCode?.value ?? trimmed
+}
+
+const normalizeRegimenFiscal = (value: string) => {
+	const trimmed = value.trim()
+	if (!trimmed) {
+		return ''
+	}
+
+	const byExactCode = CFDI_REGIME_OPTIONS.find(
+		(option) => option.value === trimmed,
+	)
+	if (byExactCode) {
+		return byExactCode.value
+	}
+
+	const codeFromLegacyValue = trimmed.match(/^[0-9]{3}/)?.[0]
+	if (!codeFromLegacyValue) {
+		return trimmed
+	}
+
+	const matchedCode = CFDI_REGIME_OPTIONS.find(
+		(option) => option.value === codeFromLegacyValue,
+	)
+	return matchedCode?.value ?? trimmed
+}
+
 export const FiscalProfileForm = () => {
 	const [fiscalProfile, setFiscalProfile] = useState<FiscalProfile | null>(null)
 	const [isLoading, setIsLoading] = useState(true)
@@ -39,18 +158,20 @@ export const FiscalProfileForm = () => {
 			const res = await fiscalProfileApi.getFiscalProfile()
 			if (res.ok) {
 				const profile = res.fiscalProfile
+				const normalizedUsoCfdi = normalizeUsoCfdi(profile.uso_cfdi)
+				const normalizedRegimenFiscal = normalizeRegimenFiscal(profile.regimen_fiscal)
 				setFiscalProfile(profile)
 				setInitialValues({
 					rfc: profile.rfc,
 					razon_social: profile.razon_social,
-					uso_cfdi: profile.uso_cfdi,
-					regimen_fiscal: profile.regimen_fiscal,
+					uso_cfdi: normalizedUsoCfdi,
+					regimen_fiscal: normalizedRegimenFiscal,
 					cp: profile.cp,
 				})
 				setRfc(profile.rfc)
 				setRazonSocial(profile.razon_social)
-				setUsoCfdi(profile.uso_cfdi)
-				setRegimenFiscal(profile.regimen_fiscal)
+				setUsoCfdi(normalizedUsoCfdi)
+				setRegimenFiscal(normalizedRegimenFiscal)
 				setCp(profile.cp)
 			}
 		} catch (err) {
@@ -190,28 +311,38 @@ export const FiscalProfileForm = () => {
 
 				<div className={styles.field}>
 					<label htmlFor="uso-cfdi">Uso CFDI</label>
-					<Input
+					<select
 						id="uso-cfdi"
-						type="text"
 						value={usoCfdi}
 						onChange={(event) => setUsoCfdi(event.target.value)}
 						required
 						disabled={isSubmitting}
-						placeholder="Ej: G03 - Gastos en general"
-					/>
+					>
+						<option value="">Selecciona un uso de CFDI</option>
+						{CFDI_USAGE_OPTIONS.map((option) => (
+							<option key={option.value} value={option.value}>
+								{option.label}
+							</option>
+						))}
+					</select>
 				</div>
 
 				<div className={styles.field}>
 					<label htmlFor="regimen-fiscal">Régimen Fiscal</label>
-					<Input
+					<select
 						id="regimen-fiscal"
-						type="text"
 						value={regimenFiscal}
 						onChange={(event) => setRegimenFiscal(event.target.value)}
 						required
 						disabled={isSubmitting}
-						placeholder="Ej: 601 - General de Ley Personas Morales"
-					/>
+					>
+						<option value="">Selecciona un régimen fiscal</option>
+						{CFDI_REGIME_OPTIONS.map((option) => (
+							<option key={option.value} value={option.value}>
+								{option.label}
+							</option>
+						))}
+					</select>
 				</div>
 
 				<div className={styles.field}>
