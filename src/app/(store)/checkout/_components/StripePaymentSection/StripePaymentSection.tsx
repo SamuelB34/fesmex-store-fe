@@ -14,7 +14,12 @@ export type PaymentIntentStatus =
 	| 'canceled'
 
 export interface StripePaymentSectionRef {
-	confirmPayment: () => Promise<{
+	validatePaymentDetails: () => Promise<{
+		success: boolean
+		errorType?: PaymentErrorType
+		error?: string
+	}>
+	confirmPayment: (clientSecret: string) => Promise<{
 		success: boolean
 		errorType?: PaymentErrorType
 		error?: string
@@ -32,9 +37,31 @@ export const StripePaymentSection = forwardRef<StripePaymentSectionRef, object>(
 		const [isReady, setIsReady] = useState(false)
 		const [error, setError] = useState<string | null>(null)
 
+		const mapConfirmError = (confirmError: {
+			type?: string
+			code?: string
+			message?: string | null
+		}) => {
+			let errorType: PaymentErrorType = 'generic'
+
+			if (confirmError.type === 'card_error') {
+				errorType = 'declined'
+			} else if (
+				confirmError.code === 'payment_intent_authentication_failure' ||
+				confirmError.message?.toLowerCase().includes('cancel')
+			) {
+				errorType = 'canceled'
+			}
+
+			return {
+				errorType,
+				error: confirmError.message || 'Payment failed',
+			}
+		}
+
 		useImperativeHandle(ref, () => ({
 			isReady,
-			confirmPayment: async () => {
+			validatePaymentDetails: async () => {
 				if (!stripe || !elements) {
 					return {
 						success: false,
@@ -43,9 +70,41 @@ export const StripePaymentSection = forwardRef<StripePaymentSectionRef, object>(
 					}
 				}
 
+				const { error: submitError } = await elements.submit()
+				if (submitError) {
+					setError(submitError.message ?? 'Payment failed')
+					return {
+						success: false,
+						errorType: 'generic' as const,
+						error: submitError.message,
+					}
+				}
+
+				setError(null)
+
+				return { success: true }
+			},
+			confirmPayment: async (clientSecret: string) => {
+				if (!stripe || !elements) {
+					return {
+						success: false,
+						errorType: 'generic' as const,
+						error: 'Stripe not loaded',
+					}
+				}
+
+				if (!clientSecret) {
+					return {
+						success: false,
+						errorType: 'generic' as const,
+						error: 'Missing payment client secret',
+					}
+				}
+
 				// Submit elements first to validate
 				const { error: submitError } = await elements.submit()
 				if (submitError) {
+					setError(submitError.message ?? 'Payment failed')
 					return {
 						success: false,
 						errorType: 'generic' as const,
@@ -57,6 +116,7 @@ export const StripePaymentSection = forwardRef<StripePaymentSectionRef, object>(
 				const { error: confirmError, paymentIntent } =
 					await stripe.confirmPayment({
 						elements,
+						clientSecret,
 						confirmParams: {
 							return_url: window.location.href,
 						},
@@ -64,24 +124,16 @@ export const StripePaymentSection = forwardRef<StripePaymentSectionRef, object>(
 					})
 
 				if (confirmError) {
-					// Determine error type for appropriate UI feedback
-					let errorType: PaymentErrorType = 'generic'
-
-					if (confirmError.type === 'card_error') {
-						errorType = 'declined'
-					} else if (
-						confirmError.code === 'payment_intent_authentication_failure' ||
-						confirmError.message?.toLowerCase().includes('cancel')
-					) {
-						errorType = 'canceled'
-					}
-
+					const { errorType, error } = mapConfirmError(confirmError)
+					setError(error ?? 'Payment failed')
 					return {
 						success: false,
 						errorType,
-						error: confirmError.message,
+						error,
 					}
 				}
+
+				setError(null)
 
 				// No error from Stripe = payment accepted
 				// paymentIntent may be undefined in rare cases (e.g., redirect flows)

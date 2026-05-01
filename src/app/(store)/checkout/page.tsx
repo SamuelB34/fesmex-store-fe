@@ -82,11 +82,10 @@ export default function CheckoutForm() {
 	const [showConfirmModal, setShowConfirmModal] = useState(false)
 	const [isProcessingPayment, setIsProcessingPayment] = useState(false)
 	const [paymentLoaderMessage, setPaymentLoaderMessage] = useState('')
-	const [clientSecret, setClientSecret] = useState<string | null>(null)
-	const [pendingOrderId, setPendingOrderId] = useState<string | null>(null)
 	const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState<
 		string | null
 	>(null)
+	const confirmOrderLockRef = useRef(false)
 
 	// Stripe Elements ref
 	const stripePaymentRef = useRef<StripePaymentSectionRef>(null)
@@ -145,6 +144,27 @@ export default function CheckoutForm() {
 	const grandTotal = useMemo(
 		() => total + (deliveryType === 'shipping' ? estimatedShipping : 0),
 		[total, estimatedShipping, deliveryType],
+	)
+
+	const grandTotalInCents = useMemo(
+		() => Math.max(Math.round(grandTotal * 100), 0),
+		[grandTotal],
+	)
+
+	const stripeElementsOptions = useMemo(
+		() => ({
+			mode: 'payment' as const,
+			amount: grandTotalInCents,
+			currency: 'mxn' as const,
+			paymentMethodCreation: 'manual' as const,
+			appearance: {
+				theme: 'stripe' as const,
+				variables: {
+					colorPrimary: '#0066cc',
+				},
+			},
+		}),
+		[grandTotalInCents],
 	)
 
 	const isFormReady = useMemo(() => {
@@ -207,50 +227,12 @@ export default function CheckoutForm() {
 	const [pendingFormValues, setPendingFormValues] =
 		useState<CheckoutFormValues | null>(null)
 
-	// Step 1: User submits form -> create order to get clientSecret
+	// Step 1: User submits form -> open confirmation modal.
+	// The order is created only when the user confirms payment.
 	const onSubmit = handleSubmit(async (values) => {
 		if (paymentMethod === 'CARD') {
-			// For card payments, create order first to get clientSecret
-			try {
-				setIsProcessingPayment(true)
-				setPaymentLoaderMessage('Preparando pago...')
-
-				const payload = buildOrderPayload(values)
-				const result = await createOrder(payload)
-
-				if (!result) {
-					sileo.error({
-						title: 'Error al crear el pedido',
-						description: 'No se pudo crear el pedido. Intenta nuevamente.',
-					})
-					return
-				}
-
-				const { order, paymentIntent } = result
-
-				if (!paymentIntent?.client_secret) {
-					sileo.error({
-						title: 'Error de pago',
-						description: 'No se pudo inicializar el pago.',
-					})
-					return
-				}
-
-				// Store order ID and clientSecret, then show payment form
-				setPendingOrderId(order._id)
-				setClientSecret(paymentIntent.client_secret)
-				setPendingFormValues(values)
-				setShowConfirmModal(true)
-			} catch (error) {
-				console.error('Error creating order:', error)
-				sileo.error({
-					title: 'Error al procesar tu pedido',
-					description: 'Ocurrió un error inesperado. Intenta nuevamente.',
-				})
-			} finally {
-				setIsProcessingPayment(false)
-				setPaymentLoaderMessage('')
-			}
+			setPendingFormValues(values)
+			setShowConfirmModal(true)
 		} else {
 			// For TRANSFER, show confirm modal directly
 			setPendingFormValues(values)
@@ -291,31 +273,68 @@ export default function CheckoutForm() {
 		return payload
 	}
 
-	// Step 2: User confirms -> for CARD, confirm payment; for TRANSFER, create order
+	// Step 2: User confirms -> create order and then confirm payment for CARD,
+	// or create order directly for TRANSFER.
 	const handleConfirmOrder = async () => {
 		if (!pendingFormValues) return
+		if (confirmOrderLockRef.current) return
 		const values = pendingFormValues
+		confirmOrderLockRef.current = true
 
 		try {
 			setIsProcessingPayment(true)
+			setPaymentLoaderMessage(
+				paymentMethod === 'CARD' ? 'Procesando pago...' : 'Procesando pedido...',
+			)
 
 			if (paymentMethod === 'CARD') {
-				// If using a saved payment method, backend already confirmed it
-				if (!selectedPaymentMethodId) {
-					// Order already created, now confirm payment with Stripe
-					if (!stripePaymentRef.current || !pendingOrderId) {
+				const paymentMethodId = selectedPaymentMethodId
+				const paymentRef = stripePaymentRef.current
+
+				if (!paymentMethodId && !paymentRef) {
+					sileo.error({
+						title: 'Error de pago',
+						description: 'Stripe no está disponible. Recarga la página.',
+					})
+					return
+				}
+
+				if (!paymentMethodId) {
+					const validation = await paymentRef!.validatePaymentDetails()
+					if (!validation.success) {
+						handlePaymentError(validation.errorType, validation.error)
+						return
+					}
+				}
+
+				const payload = buildOrderPayload(values)
+				const result = await createOrder(payload)
+
+				if (!result) {
+					sileo.error({
+						title: 'Error al crear el pedido',
+						description: 'No se pudo crear el pedido. Intenta nuevamente.',
+					})
+					return
+				}
+
+				const { order, paymentIntent } = result
+
+				if (paymentMethodId) {
+					console.log('💳 Using saved payment method - backend already confirmed it')
+				} else {
+					if (!paymentIntent?.client_secret) {
 						sileo.error({
 							title: 'Error de pago',
-							description: 'Stripe no está disponible. Recarga la página.',
+							description: 'No se pudo inicializar el pago.',
 						})
 						return
 					}
 
-					setPaymentLoaderMessage('Procesando pago...')
-
-					// confirmPayment handles cards, Apple Pay, Google Pay automatically
 					const { success, errorType, error, intentStatus } =
-						await stripePaymentRef.current.confirmPayment()
+						await paymentRef!.confirmPayment(
+							paymentIntent.client_secret,
+						)
 
 					if (!success) {
 						handlePaymentError(errorType, error)
@@ -325,22 +344,10 @@ export default function CheckoutForm() {
 					if (intentStatus) {
 						console.log(`Payment intent status: ${intentStatus}`)
 					}
-				} else {
-					console.log(
-						'💳 Using saved payment method - backend already confirmed it',
-					)
 				}
 
 				// Poll backend until payment_status = PAID (webhook processed)
 				setPaymentLoaderMessage('Verificando pago...')
-
-				if (!pendingOrderId) {
-					sileo.error({
-						title: 'Error',
-						description: 'No se pudo verificar el pago. Intenta nuevamente.',
-					})
-					return
-				}
 
 				const maxAttempts = 10
 				let attempts = 0
@@ -349,8 +356,9 @@ export default function CheckoutForm() {
 				while (attempts < maxAttempts && !isPaid) {
 					await new Promise((resolve) => setTimeout(resolve, 1000))
 					try {
-						const { order: updatedOrder } =
-							await ordersApi.getOrderById(pendingOrderId)
+						const { order: updatedOrder } = await ordersApi.getOrderById(
+							order._id,
+						)
 						if (updatedOrder.payment_status === 'PAID') {
 							isPaid = true
 						}
@@ -386,8 +394,6 @@ export default function CheckoutForm() {
 			})
 			setShowConfirmModal(false)
 			setPendingFormValues(null)
-			setClientSecret(null)
-			setPendingOrderId(null)
 			setTimeout(() => {
 				router.push('/account?tab=orders')
 			}, 500)
@@ -398,6 +404,7 @@ export default function CheckoutForm() {
 				description: 'Ocurrió un error inesperado. Intenta nuevamente.',
 			})
 		} finally {
+			confirmOrderLockRef.current = false
 			setIsProcessingPayment(false)
 			setPaymentLoaderMessage('')
 		}
@@ -640,31 +647,20 @@ export default function CheckoutForm() {
 				isOpen={showConfirmModal}
 				onClose={() => {
 					setShowConfirmModal(false)
-					setClientSecret(null)
-					setPendingOrderId(null)
+					setPendingFormValues(null)
 				}}
 				onConfirm={handleConfirmOrder}
 				title={paymentMethod === 'CARD' ? 'Completar pago' : 'Confirmar pedido'}
 				message={
-					paymentMethod === 'CARD' &&
-					clientSecret &&
-					!selectedPaymentMethodId ? (
+					paymentMethod === 'CARD' && !selectedPaymentMethodId ? (
 						<div>
 							<p style={{ marginBottom: '16px' }}>
 								Ingresa los datos de tu tarjeta para completar el pago.
 							</p>
-							{/* PaymentElement renders inside modal with clientSecret */}
+							{/* Deferred Stripe Elements: the PaymentIntent is created on confirm */}
 							<Elements
 								stripe={stripePromise}
-								options={{
-									clientSecret,
-									appearance: {
-										theme: 'stripe',
-										variables: {
-											colorPrimary: '#0066cc',
-										},
-									},
-								}}
+								options={stripeElementsOptions}
 							>
 								<StripePaymentSection ref={stripePaymentRef} />
 							</Elements>
