@@ -32,6 +32,8 @@ import { useShippingStates } from '@/features/shipping'
 
 type DeliveryType = 'shipping' | 'pickup'
 
+const STRIPE_MIN_CARD_AMOUNT_MXN = 10
+
 const PICKUP_LOCATIONS = [
 	{
 		id: 'mxli',
@@ -85,6 +87,7 @@ export default function CheckoutForm() {
 	const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState<
 		string | null
 	>(null)
+	const [savePaymentMethod, setSavePaymentMethod] = useState(false)
 	const confirmOrderLockRef = useRef(false)
 
 	// Stripe Elements ref
@@ -121,7 +124,14 @@ export default function CheckoutForm() {
 	// Reset selected payment method when payment method changes
 	useEffect(() => {
 		setSelectedPaymentMethodId(null)
+		setSavePaymentMethod(false)
 	}, [paymentMethod])
+
+	useEffect(() => {
+		if (selectedPaymentMethodId) {
+			setSavePaymentMethod(false)
+		}
+	}, [selectedPaymentMethodId])
 
 	const {
 		register,
@@ -146,26 +156,15 @@ export default function CheckoutForm() {
 		[total, estimatedShipping, deliveryType],
 	)
 
-	const grandTotalInCents = useMemo(
-		() => Math.max(Math.round(grandTotal * 100), 0),
-		[grandTotal],
-	)
+	const showStripeMinimumAmountError = () => {
+		sileo.error({
+			title: 'Monto mínimo no alcanzado',
+			description: `Stripe requiere un mínimo de ${formatCurrency(STRIPE_MIN_CARD_AMOUNT_MXN)} MXN para pagos con tarjeta. Ajusta tu carrito o usa transferencia bancaria.`,
+		})
+	}
 
-	const stripeElementsOptions = useMemo(
-		() => ({
-			mode: 'payment' as const,
-			amount: grandTotalInCents,
-			currency: 'mxn' as const,
-			paymentMethodCreation: 'manual' as const,
-			appearance: {
-				theme: 'stripe' as const,
-				variables: {
-					colorPrimary: '#0066cc',
-				},
-			},
-		}),
-		[grandTotalInCents],
-	)
+	const shouldSavePaymentMethod =
+		paymentMethod === 'CARD' && !selectedPaymentMethodId && savePaymentMethod
 
 	const isFormReady = useMemo(() => {
 		// Card validation happens in modal, so form is ready based on address only
@@ -231,6 +230,11 @@ export default function CheckoutForm() {
 	// The order is created only when the user confirms payment.
 	const onSubmit = handleSubmit(async (values) => {
 		if (paymentMethod === 'CARD') {
+			if (grandTotal < STRIPE_MIN_CARD_AMOUNT_MXN) {
+				showStripeMinimumAmountError()
+				return
+			}
+
 			setPendingFormValues(values)
 			setShowConfirmModal(true)
 		} else {
@@ -246,7 +250,7 @@ export default function CheckoutForm() {
 			payment_method: paymentMethod,
 			notes: values.notes,
 			delivery_type: deliveryType,
-			...(paymentMethod === 'CARD' ? { save_payment_method: true } : {}),
+			...(shouldSavePaymentMethod ? { save_payment_method: true } : {}),
 			...(selectedPaymentMethodId
 				? { provider_payment_method_id: selectedPaymentMethodId }
 				: {}),
@@ -282,6 +286,11 @@ export default function CheckoutForm() {
 		confirmOrderLockRef.current = true
 
 		try {
+			if (paymentMethod === 'CARD' && grandTotal < STRIPE_MIN_CARD_AMOUNT_MXN) {
+				showStripeMinimumAmountError()
+				return
+			}
+
 			setIsProcessingPayment(true)
 			setPaymentLoaderMessage(
 				paymentMethod === 'CARD' ? 'Procesando pago...' : 'Procesando pedido...',
@@ -657,13 +666,25 @@ export default function CheckoutForm() {
 							<p style={{ marginBottom: '16px' }}>
 								Ingresa los datos de tu tarjeta para completar el pago.
 							</p>
-							{/* Deferred Stripe Elements: the PaymentIntent is created on confirm */}
-							<Elements
-								stripe={stripePromise}
-								options={stripeElementsOptions}
-							>
+
+							<Elements stripe={stripePromise}>
 								<StripePaymentSection ref={stripePaymentRef} />
 							</Elements>
+							<div className={styles.checkboxField} style={{ marginBottom: '16px' }}>
+								<label className={styles.checkboxLabel}>
+									<input
+										type="checkbox"
+										checked={savePaymentMethod}
+										onChange={(event) => setSavePaymentMethod(event.target.checked)}
+										className={styles.checkboxInput}
+										disabled={isSubmitting}
+									/>
+									<span>Guardar este método de pago para futuras compras</span>
+								</label>
+								<p className={styles.checkboxHint}>
+									Si lo marcas, Stripe guardará la tarjeta para usarla después.
+								</p>
+							</div>
 						</div>
 					) : (
 						'¿Estás seguro de que deseas enviar este pedido? Se te enviará un correo de confirmación.'

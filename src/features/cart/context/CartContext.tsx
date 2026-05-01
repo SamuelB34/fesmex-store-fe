@@ -179,7 +179,6 @@ export function CartProvider({ children }: CartProviderProps) {
 					await cartApi.addItem({
 						article_id: item.id,
 						quantity: delta,
-						unit_price: item.unitPrice,
 					})
 					// Refresh from backend to ensure consistency
 					await refreshCart()
@@ -268,7 +267,6 @@ export function CartProvider({ children }: CartProviderProps) {
 					await cartApi.addItem({
 						article_id: item.id,
 						quantity: item.quantity,
-						unit_price: item.unitPrice,
 					})
 				} catch (err) {
 					console.warn(`Could not migrate item ${item.id} to backend`, err)

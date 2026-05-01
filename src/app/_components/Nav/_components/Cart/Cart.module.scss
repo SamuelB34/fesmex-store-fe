@@ -158,6 +158,7 @@
 			display: flex;
 			flex-direction: column;
 			gap: 16px;
+			max-width: 170px;
 
 			.cartItem_mobile {
 				display: none;

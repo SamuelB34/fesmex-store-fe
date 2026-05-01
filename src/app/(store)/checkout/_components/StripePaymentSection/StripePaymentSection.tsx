@@ -1,7 +1,16 @@
 'use client'
 
 import { useState, forwardRef, useImperativeHandle } from 'react'
-import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
+import {
+	CardElement,
+	useElements,
+	useStripe,
+} from '@stripe/react-stripe-js'
+import type {
+	StripeCardElement,
+	StripeCardElementChangeEvent,
+	StripeCardElementOptions,
+} from '@stripe/stripe-js'
 import styles from './StripePaymentSection.module.scss'
 
 export type PaymentErrorType = 'declined' | 'canceled' | 'generic'
@@ -28,13 +37,13 @@ export interface StripePaymentSectionRef {
 	isReady: boolean
 }
 
-// PaymentElement supports Apple Pay, Google Pay, and cards automatically
-// when PaymentIntent has automatic_payment_methods.enabled = true
+// CardElement keeps the checkout limited to card payments only.
 export const StripePaymentSection = forwardRef<StripePaymentSectionRef, object>(
 	function StripePaymentSection(_, ref) {
 		const stripe = useStripe()
 		const elements = useElements()
 		const [isReady, setIsReady] = useState(false)
+		const [isComplete, setIsComplete] = useState(false)
 		const [error, setError] = useState<string | null>(null)
 
 		const mapConfirmError = (confirmError: {
@@ -70,13 +79,12 @@ export const StripePaymentSection = forwardRef<StripePaymentSectionRef, object>(
 					}
 				}
 
-				const { error: submitError } = await elements.submit()
-				if (submitError) {
-					setError(submitError.message ?? 'Payment failed')
+				if (!isComplete) {
+					setError('Completa los datos de tu tarjeta')
 					return {
 						success: false,
 						errorType: 'generic' as const,
-						error: submitError.message,
+						error: 'Completa los datos de tu tarjeta',
 					}
 				}
 
@@ -101,26 +109,31 @@ export const StripePaymentSection = forwardRef<StripePaymentSectionRef, object>(
 					}
 				}
 
-				// Submit elements first to validate
-				const { error: submitError } = await elements.submit()
-				if (submitError) {
-					setError(submitError.message ?? 'Payment failed')
+				if (!isComplete) {
+					setError('Completa los datos de tu tarjeta')
 					return {
 						success: false,
 						errorType: 'generic' as const,
-						error: submitError.message,
+						error: 'Completa los datos de tu tarjeta',
 					}
 				}
 
-				// confirmPayment handles all payment methods (cards, Apple Pay, Google Pay)
+				const cardElement = elements.getElement(CardElement)
+				if (!cardElement) {
+					return {
+						success: false,
+						errorType: 'generic' as const,
+						error: 'Card element not ready',
+					}
+				}
+
+				const typedCardElement = cardElement as StripeCardElement
+
 				const { error: confirmError, paymentIntent } =
-					await stripe.confirmPayment({
-						elements,
-						clientSecret,
-						confirmParams: {
-							return_url: window.location.href,
+					await stripe.confirmCardPayment(clientSecret, {
+						payment_method: {
+							card: typedCardElement,
 						},
-						redirect: 'if_required',
 					})
 
 				if (confirmError) {
@@ -171,16 +184,28 @@ export const StripePaymentSection = forwardRef<StripePaymentSectionRef, object>(
 
 		return (
 			<div className={styles.stripeSection}>
-				<PaymentElement
-					options={{
-						layout: 'tabs',
-						wallets: {
-							applePay: 'auto',
-							googlePay: 'auto',
-						},
-					}}
+				<CardElement
+					options={
+						{
+							hidePostalCode: true,
+							style: {
+								base: {
+									fontSize: '16px',
+									color: '#201e1c',
+									fontFamily: 'IBM Plex Sans, sans-serif',
+									'::placeholder': {
+										color: '#94a3b8',
+									},
+								},
+								invalid: {
+									color: '#ef4444',
+								},
+							},
+						} as StripeCardElementOptions
+					}
 					onReady={() => setIsReady(true)}
-					onChange={(event) => {
+					onChange={(event: StripeCardElementChangeEvent) => {
+						setIsComplete(event.complete)
 						if (event.complete) {
 							setError(null)
 						}

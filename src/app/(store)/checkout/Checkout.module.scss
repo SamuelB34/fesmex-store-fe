@@ -92,6 +92,49 @@
 	gap: 0.35rem;
 }
 
+.checkboxField {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	padding: 16px;
+	border: 1px solid #d3dae6;
+	border-radius: 12px;
+	background: #f8fbff;
+	margin-top: 24px;
+}
+
+.checkboxLabel {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	color: var(--high-contrast-b, #201e1c);
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: var(--Font-Size-medium, 16px);
+	font-style: normal;
+	font-weight: 500;
+	line-height: var(--Line-Height-regular, 24px);
+	cursor: pointer;
+	user-select: none;
+}
+
+.checkboxInput {
+	width: 18px;
+	height: 18px;
+	margin: 0;
+	accent-color: #0066cc;
+	flex-shrink: 0;
+}
+
+.checkboxHint {
+	margin: 0;
+	color: var(--primary-shade, #59738c);
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: var(--Font-Size-regular, 14px);
+	font-style: normal;
+	font-weight: 400;
+	line-height: var(--Line-Height-tight, 16px);
+}
+
 .price {
 	color: var(--primary, #364b60);
 	font-family: 'IBM Plex Sans', sans-serif;
