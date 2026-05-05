@@ -10,6 +10,7 @@ import { CartProvider } from '@/features/cart/context/CartContext'
 import { SectionsProvider } from '@/features/categories/context/SectionsContext'
 import { BrandsProvider } from '@/features/brands/context/BrandsContext'
 import { Toaster } from 'sileo'
+import Script from 'next/script'
 import { LoginModalProvider } from '@/shared/login-modal/LoginModalProvider'
 import { LoginModalRenderer } from '@/shared/login-modal/LoginModalRenderer'
 
@@ -43,6 +44,16 @@ export default function RootLayout({
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} ${IBMPlexSans.variable}`}
 			>
+				<Script
+					src="https://www.googletagmanager.com/gtag/js?id=AW-842448825"
+					strategy="afterInteractive"
+				/>
+				<Script id="google-ads-gtag-init" strategy="afterInteractive">
+					{`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-842448825');`}
+				</Script>
 				<Toaster position="top-center" theme="light" />
 				<Providers>
 					<SectionsProvider>
