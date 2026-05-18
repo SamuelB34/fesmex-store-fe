@@ -91,6 +91,7 @@ export const ProductFeatured = () => {
 function mapArticleToProduct(article: ArticleListItem): ProductType {
 	return {
 		id: article._id,
+		article_number: article.article_number || article._id,
 		name: article.name || article.description || 'Producto',
 		brand: article.brand || '',
 		price: Number(article.price) || 0,

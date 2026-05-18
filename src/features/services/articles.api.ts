@@ -40,6 +40,7 @@ export type Article = {
 	name: string
 	description?: string
 	brand?: string
+	article_number?: string
 	unit?: string
 	price: number
 	group_id?: string

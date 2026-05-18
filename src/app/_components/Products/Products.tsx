@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation'
 
 export interface ProductView {
 	id: string
+	article_number: string
 	name: string
 	brand: string
 	price: number

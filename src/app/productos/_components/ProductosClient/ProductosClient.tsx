@@ -59,6 +59,7 @@ export const ProductosClient = ({
 		}
 		return items.map((item) => ({
 			id: item._id,
+			article_number: item.article_number || item._id,
 			name: item.description || item.name,
 			brand: item.brand || '',
 			price: item.price,

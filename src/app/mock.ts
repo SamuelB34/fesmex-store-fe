@@ -9,6 +9,7 @@ export type Section = {
 
 export type Product = {
 	id: string
+	article_number: string
 	name: string
 	brand: string
 	price: number
@@ -76,6 +77,7 @@ export const sections: Section[] = [
 export const products: Product[] = [
 	{
 		id: 'p-1',
+		article_number: 'p-1',
 		name: 'Motor Globetrotter Propósito general',
 		brand: 'Marathon',
 		price: 127,
@@ -86,6 +88,7 @@ export const products: Product[] = [
 	},
 	{
 		id: 'p-2',
+		article_number: 'p-2',
 		name: 'Ventilador industrial de alto flujo',
 		brand: 'Big Ass Fans',
 		price: 980,
@@ -96,6 +99,7 @@ export const products: Product[] = [
 	},
 	{
 		id: 'p-3',
+		article_number: 'p-3',
 		name: 'Motor para uso agrícola',
 		brand: 'Marathon',
 		price: 410,
@@ -105,6 +109,7 @@ export const products: Product[] = [
 	},
 	{
 		id: 'p-4',
+		article_number: 'p-4',
 		name: 'Motor de Velocidad Variable',
 		brand: 'Marathon',
 		price: 1450,

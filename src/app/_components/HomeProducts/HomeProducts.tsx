@@ -11,6 +11,7 @@ import type { ListArticlesQuery } from '@/features/services/articles.api'
 
 interface ProductView {
 	id: string
+	article_number: string
 	name: string
 	brand: string
 	price: number
@@ -69,6 +70,7 @@ const HomeProductsContent = ({
 		}
 		return items.map((item) => ({
 			id: item._id,
+			article_number: item.article_number || item._id,
 			name: item.description || item.name,
 			brand: item.brand || '',
 			price: item.price,

@@ -91,7 +91,8 @@ export const Product = ({ product, short, onSelect }: ProductProps) => {
 				<span className={styles.name} title={formattedName}>
 					{formattedName}
 				</span>
-				<span className={styles.brand}>{product.brand}</span>
+				{/* <span className={styles.brand}>{product.brand}</span> */}
+				<span className={styles.brand}>{product.article_number}</span>
 
 				<div className={styles.prices}>
 					<div className={styles.prices__original_price}>

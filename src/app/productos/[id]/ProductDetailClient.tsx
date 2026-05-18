@@ -70,7 +70,7 @@ export const ProductDetailClient = ({ product }: ProductDetailClientProps) => {
 				<div className={styles.detail__info}>
 					<div className={styles.name_brand}>
 						<h1 className={styles.title}>{formattedName}</h1>
-						<p className={styles.brand}>{product.brand}</p>
+						<p className={styles.brand}>{product.article_number}</p>
 					</div>
 
 					<div className={styles.prices}>

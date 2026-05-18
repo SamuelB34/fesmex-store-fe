@@ -56,6 +56,7 @@ async function fetchInitialProducts({
 		}
 		const products = response.data.items.map((article: ArticleListItem) => ({
 			id: article._id,
+			article_number: article.article_number || article._id,
 			name: article.description || article.name,
 			brand: article.brand || '',
 			price: article.price,
