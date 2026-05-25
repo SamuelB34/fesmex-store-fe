@@ -280,19 +280,19 @@
 .title {
 	color: var(--high-contrast-b, #201e1c);
 	font-family: 'IBM Plex Sans', sans-serif;
-	font-size: var(--Font-Size-giant, 40px);
+	font-size: 28px;
 	font-style: normal;
 	font-weight: 600;
-	line-height: var(--Line-Height-wide, 40px); /* 100% */
+	line-height: var(--Line-Height-wide, 28px); /* 100% */
 	letter-spacing: 0.8px;
 
 	@include responsive.respond-down('mobile') {
 		color: var(--high-contrast-b, #201e1c);
 		font-family: 'IBM Plex Sans';
-		font-size: var(--Font-Size-huge, 32px);
+		font-size: var(--Font-Size-huge, 24px);
 		font-style: normal;
 		font-weight: 600;
-		line-height: var(--Line-Height-loose, 32px);
+		line-height: var(--Line-Height-loose, 24px);
 		letter-spacing: 0.64px;
 		overflow-wrap: anywhere;
 		word-break: break-word;
@@ -302,15 +302,15 @@
 .brand {
 	color: var(--secondary-text, #6b7280);
 	font-family: 'IBM Plex Sans', sans-serif;
-	font-size: var(--Font-Size-huge, 32px);
+	font-size: var(--Font-Size-huge, 24px);
 	font-style: normal;
 	font-weight: 600;
-	line-height: var(--Line-Height-loose, 32px); /* 100% */
+	line-height: var(--Line-Height-loose, 24px); /* 100% */
 	letter-spacing: 0.64px;
 
 	@include responsive.respond-down('mobile') {
-		font-size: var(--Font-Size-large, 24px);
-		line-height: var(--Line-Height-regular, 24px);
+		font-size: var(--Font-Size-large, 18px);
+		line-height: var(--Line-Height-regular, 18px);
 	}
 }
 
