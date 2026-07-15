@@ -1,5 +1,6 @@
-import { AxiosResponse } from 'axios'
 import { api, AuthRequestConfig } from '@/shared/api/axios'
+import type { ApiResponse } from '@/shared/types'
+import { unwrap } from '@/shared/api/utils'
 
 export type AuthUser = {
 	id?: string
@@ -37,22 +38,9 @@ export type EmailTokenPayload = {
 	token: string
 }
 
-type ApiResponse<T> = {
-	ok: boolean
-	data?: T
-	error?: { code?: string; message?: string; requestId?: string }
-}
-
 type UserResponse = ApiResponse<{ user: AuthUser } | AuthUser>
 
 type CustomerResponse = ApiResponse<{ customer: AuthUser } | AuthUser>
-
-const unwrap = async <T>(
-	promise: Promise<AxiosResponse<ApiResponse<T>>>,
-): Promise<ApiResponse<T>> => {
-	const res = await promise
-	return res.data
-}
 
 const register = (payload: RegisterPayload) =>
 	unwrap<{

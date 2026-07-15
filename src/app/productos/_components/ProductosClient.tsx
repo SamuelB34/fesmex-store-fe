@@ -4,7 +4,7 @@ import { Suspense } from 'react'
 import { Search } from '@/app/productos/_components/search/Search'
 import { HomeProducts } from '@/app/_components/HomeProducts/HomeProducts'
 import { useRouter, useSearchParams } from 'next/navigation'
-import type { Section } from '@/app/mock'
+import type { Section } from '@/shared/types'
 import type { ProductView } from '@/app/_components/Products/Products'
 
 interface ProductosClientProps {

@@ -8,7 +8,7 @@ import {
 	useState,
 	type ReactNode,
 } from 'react'
-import type { Section } from '@/app/mock'
+import type { Section } from '@/shared/types'
 
 export type BrandsContextValue = {
 	brands: Section[]

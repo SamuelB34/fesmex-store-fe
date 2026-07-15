@@ -160,8 +160,9 @@ export function CartProvider({ children }: CartProviderProps) {
 			const safeQuantity = Math.max(1, maxQuantity)
 			const delta = safeQuantity - (existing?.quantity ?? 0)
 
-			// Optimistic update
+			// Optimistic update with rollback
 			const stockValue = item.stock ?? options?.maxStock
+			const prevItems = itemsRef.current
 			setItems((prev) => {
 				if (existing) {
 					return prev.map((i) =>
@@ -184,6 +185,7 @@ export function CartProvider({ children }: CartProviderProps) {
 					await refreshCart()
 				} catch (error) {
 					console.error('Failed to sync added item to backend cart', error)
+					setItems(prevItems)
 				}
 			}
 		},
@@ -193,7 +195,8 @@ export function CartProvider({ children }: CartProviderProps) {
 	// Remove item and sync with backend
 	const removeItem = useCallback(
 		async (id: string) => {
-			// Optimistic update
+			// Optimistic update with rollback
+			const prevItems = itemsRef.current
 			setItems((prev) => prev.filter((i) => i.id !== id))
 
 			// Sync with backend
@@ -202,6 +205,7 @@ export function CartProvider({ children }: CartProviderProps) {
 					await cartApi.deleteItem(id)
 				} catch (error) {
 					console.error('Failed to remove item from backend cart', error)
+					setItems(prevItems)
 				}
 			}
 		},
@@ -216,7 +220,8 @@ export function CartProvider({ children }: CartProviderProps) {
 				: quantity
 			const safeQuantity = Math.max(1, maxQuantity)
 
-			// Optimistic update
+			// Optimistic update with rollback
+			const prevItems = itemsRef.current
 			setItems((prev) =>
 				prev.map((i) => (i.id === id ? { ...i, quantity: safeQuantity } : i)),
 			)
@@ -227,6 +232,7 @@ export function CartProvider({ children }: CartProviderProps) {
 					await cartApi.updateItem({ article_id: id, quantity: safeQuantity })
 				} catch (error) {
 					console.error('Failed to sync quantity update to backend cart', error)
+					setItems(prevItems)
 				}
 			}
 		},

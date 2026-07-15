@@ -120,15 +120,12 @@ export const SavedPaymentMethods = ({
 				onClick={(e) => {
 					e.preventDefault()
 					e.stopPropagation()
-					console.log(
-						' Usar una tarjeta nueva - resetting selectedPaymentMethodId',
-					)
-					onSelectMethod(null)
-				}}
-				className={styles.useNewCard}
-			>
-				Usar una tarjeta nueva
-			</button>
-		</div>
-	)
+				onSelectMethod(null)
+			}}
+			className={styles.useNewCard}
+		>
+			Usar una tarjeta nueva
+		</button>
+	</div>
+)
 }

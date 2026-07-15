@@ -6,7 +6,7 @@ import { useArticles } from '@/features/articles/hooks/useArticles'
 import { Products } from '@/app/_components/Products/Products'
 import { getArticleImageUrl } from '@/features/services/articles.api'
 import { useSections } from '@/features/categories/context/SectionsContext'
-import type { Section } from '@/app/mock'
+import type { Section } from '@/shared/types'
 import type { ListArticlesQuery } from '@/features/services/articles.api'
 import type { ProductView } from '@/app/_components/Products/Products'
 

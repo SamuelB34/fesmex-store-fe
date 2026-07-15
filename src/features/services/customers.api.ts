@@ -1,5 +1,5 @@
-import { AxiosResponse } from 'axios'
 import { api } from '@/shared/api/axios'
+import { unwrap } from '@/shared/api/utils'
 
 export type CustomerStatus = 'active' | 'inactive' | 'banned'
 
@@ -19,19 +19,6 @@ export type UpdateCustomerPayload = {
 	password?: string
 	mobile?: string
 	status?: CustomerStatus
-}
-
-type ApiResponse<T> = {
-	ok: boolean
-	data?: T
-	error?: { code?: string; message?: string; requestId?: string }
-}
-
-const unwrap = async <T>(
-	promise: Promise<AxiosResponse<ApiResponse<T>>>,
-): Promise<ApiResponse<T>> => {
-	const res = await promise
-	return res.data
 }
 
 const getMe = () =>

@@ -1,5 +1,5 @@
-import { AxiosResponse } from 'axios'
 import { api } from '@/shared/api/axios'
+import { unwrap } from '@/shared/api/utils'
 
 export type Tag = {
 	_id: string
@@ -11,12 +11,6 @@ export type Tag = {
 	updated_at?: string
 }
 
-type ApiResponse<T> = {
-	ok: boolean
-	data?: T
-	error?: { code?: string; message?: string; requestId?: string }
-}
-
 export type TagsListResponse = {
 	items: Tag[]
 }
@@ -25,11 +19,6 @@ export type TagsListQuery = {
 	is_active?: boolean
 	type?: 'filter' | 'sidebar'
 	limit?: number
-}
-
-const unwrap = async <T>(promise: Promise<AxiosResponse<ApiResponse<T>>>): Promise<ApiResponse<T>> => {
-	const res = await promise
-	return res.data
 }
 
 export const listTags = async (query?: TagsListQuery) => {

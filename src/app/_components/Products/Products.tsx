@@ -3,20 +3,11 @@
 import styles from './Products.module.scss'
 import { Brand } from '@/components/Brand/Brand'
 import { Product } from '@/components/Product/Product'
-import type { Section } from '@/app/mock'
+import type { Section, ProductView } from '@/shared/types'
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-export interface ProductView {
-	id: string
-	article_number: string
-	name: string
-	brand: string
-	price: number
-	currency: string
-	stock: number
-	image: string
-}
+export type { ProductView }
 
 interface ProductProps {
 	sections: Section[]

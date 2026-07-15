@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import styles from './Brand.module.scss'
 
 interface BrandProps {
@@ -8,7 +9,7 @@ interface BrandProps {
 	onSelect?: () => void
 }
 
-export const Brand = ({ text, number, type, active, onSelect }: BrandProps) => {
+export const Brand = memo(function Brand({ text, number, type, active, onSelect }: BrandProps) {
 	const normalizedType = type === 'subcategory' ? 'subCategory' : type
 	const state =
 		normalizedType === 'disabled'
@@ -34,4 +35,4 @@ export const Brand = ({ text, number, type, active, onSelect }: BrandProps) => {
 			<span className={styles[`${state}__number`]}>({number})</span>
 		</div>
 	)
-}
+})

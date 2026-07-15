@@ -1,5 +1,6 @@
 import { api } from '@/shared/api/axios'
 import { AxiosResponse } from 'axios'
+import type { ApiResponse } from '@/shared/types'
 
 export type ShippingState = {
 	_id: string
@@ -7,12 +8,6 @@ export type ShippingState = {
 	code?: string
 	percentage: number
 	is_active: boolean
-}
-
-type ApiResponse<T> = {
-	ok: boolean
-	data?: T
-	error?: { code?: string; message?: string; requestId?: string }
 }
 
 export class ShippingApiError extends Error {

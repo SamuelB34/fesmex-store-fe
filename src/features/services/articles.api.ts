@@ -1,11 +1,5 @@
-import { AxiosResponse } from 'axios'
 import { api } from '@/shared/api/axios'
-
-type ApiResponse<T> = {
-	ok: boolean
-	data?: T
-	error?: { code?: string; message?: string; requestId?: string }
-}
+import { unwrap } from '@/shared/api/utils'
 
 export type ArticleStock = {
 	count: number
@@ -76,13 +70,6 @@ export type ArticlesListResponse = {
 	limit: number
 	total: number
 	totalPages: number
-}
-
-const unwrap = async <T>(
-	promise: Promise<AxiosResponse<ApiResponse<T>>>,
-): Promise<ApiResponse<T>> => {
-	const res = await promise
-	return res.data
 }
 
 const list = (query?: ListArticlesQuery) =>

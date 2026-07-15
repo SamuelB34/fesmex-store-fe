@@ -30,8 +30,28 @@ const IBMPlexSans = IBM_Plex_Sans({
 })
 
 export const metadata: Metadata = {
-	title: 'FESMEX - Tienda',
-	description: 'FESMEX - Tienda en linea',
+	title: {
+		default: 'FESMEX - Tienda',
+		template: '%s | FESMEX',
+	},
+	description: 'FESMEX - Tienda en línea de productos industriales: motores, bombas, válvulas, HVAC y más.',
+	metadataBase: new URL('https://fesmex.com'),
+	openGraph: {
+		type: 'website',
+		locale: 'es_MX',
+		siteName: 'FESMEX Store',
+		title: 'FESMEX - Tienda',
+		description: 'Productos industriales: motores, bombas, válvulas, HVAC y más.',
+	},
+	twitter: {
+		card: 'summary_large_image',
+		title: 'FESMEX - Tienda',
+		description: 'Productos industriales: motores, bombas, válvulas, HVAC y más.',
+	},
+	robots: {
+		index: true,
+		follow: true,
+	},
 }
 
 export default function RootLayout({
@@ -40,7 +60,7 @@ export default function RootLayout({
 	children: ReactNode
 }>) {
 	return (
-		<html lang="en">
+		<html lang="es">
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} ${IBMPlexSans.variable}`}
 			>

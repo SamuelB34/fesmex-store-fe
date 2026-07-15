@@ -104,14 +104,14 @@ export const Nav = () => {
 				<div className={styles.overlay} onClick={closeAll} />
 			)}
 			<div className={styles.nav}>
-				<div className={styles.hamburger} onClick={toggleMobileMenu}>
+				<button type="button" className={styles.hamburger} onClick={toggleMobileMenu} aria-label="Abrir menú" aria-expanded={isMobileMenuOpen}>
 					<Image
 						src={'/icons/hamburger.svg'}
 						alt={'hamburger'}
 						width="24"
 						height="24"
 					/>
-				</div>
+				</button>
 
 				{/* Mobile Menu */}
 				<div
@@ -223,7 +223,7 @@ export const Nav = () => {
 						)}
 					</div>
 
-					<button className={styles.mobileCloseBtn} onClick={toggleMobileMenu}>
+					<button type="button" className={styles.mobileCloseBtn} onClick={toggleMobileMenu} aria-label="Cerrar menú">
 						<Image
 							src={'/icons/close.svg'}
 							alt={'close'}

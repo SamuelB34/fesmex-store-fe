@@ -1,4 +1,5 @@
 import styles from './Products.module.scss'
+import type { Metadata } from 'next'
 import { IndustrialHero } from '@/app/_components/IndustrialHero/IndustrialHero'
 import { SectionsInitializer } from '@/features/categories/components/SectionsInitializer'
 import { BrandsInitializer } from '@/features/brands/components/BrandsInitializer'
@@ -11,6 +12,11 @@ import {
 import { fetchArticlesList } from '@/features/articles/articles.server'
 import type { ProductView } from '@/app/_components/Products/Products'
 import { ProductosClient } from '@/app/productos/_components/ProductosClient'
+
+export const metadata: Metadata = {
+	title: 'Productos industriales',
+	description: 'Explora nuestro catálogo de productos industriales: motores, bombas, válvulas, HVAC, control y automatización.',
+}
 
 interface InitialProductsResult {
 	products: ProductView[]

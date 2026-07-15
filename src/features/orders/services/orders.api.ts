@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios'
 import { api } from '@/shared/api/axios'
+import type { ApiResponse } from '@/shared/types'
 
 export type OrderStatus =
 	| 'pending'
@@ -98,12 +99,6 @@ type RawOrder = {
 	notes?: string | null
 	created_at?: string
 	updated_at?: string | null
-}
-
-type ApiResponse<T> = {
-	ok: boolean
-	data?: T
-	error?: { code?: string; message?: string; requestId?: string }
 }
 
 export class ApiRequestError extends Error {

@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
 import styles from './ProductDetail.module.scss'
 import { ProductDetailClient } from './ProductDetailClient'
 import { ViewTracker } from './ViewTracker'
@@ -8,9 +9,41 @@ import {
 	fetchArticleById,
 	ServerApiError,
 } from '@/features/articles/articles.server'
-import type { Product } from '@/app/mock'
+import type { Product } from '@/shared/types'
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata({
+	params,
+}: ProductPageProps): Promise<Metadata> {
+	const { id } = await params
+
+	try {
+		const articleRes = await fetchArticleById(id)
+		const article = articleRes.data?.article
+		if (!article) return {}
+
+		const name =
+			(article.description as string) || (article.name as string) || 'Producto'
+		const brand = (article.brand as string) || ''
+		const price = articleRes.data?.price ?? article.price ?? 0
+		const image = getArticleImageUrl(article)
+
+		return {
+			title: `${name}${brand ? ` - ${brand}` : ''}`,
+			description: `${name} por ${brand || 'FESMEX'}. Precio: ${price.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}. Disponible en línea.`,
+			openGraph: {
+				type: 'website',
+				locale: 'es_MX',
+				title: `${name} | FESMEX`,
+				description: `${name} por ${brand || 'FESMEX'}.`,
+				images: image ? [{ url: image, alt: name }] : [],
+			},
+		}
+	} catch {
+		return {}
+	}
+}
 
 interface ProductPageProps {
 	params: Promise<{ id: string }>

@@ -5,12 +5,7 @@ import type {
 	ArticlesListResponse,
 	ListArticlesQuery,
 } from '@/features/services/articles.api'
-
-type ApiResponse<T> = {
-	ok: boolean
-	data?: T
-	error?: { code?: string; message?: string; requestId?: string }
-}
+import type { ApiResponse } from '@/shared/types'
 
 export class ServerApiError extends Error {
 	constructor(

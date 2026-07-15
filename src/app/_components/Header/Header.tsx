@@ -61,7 +61,7 @@ export const Header = () => {
 								<span className={styles.text}>Mi perfil</span>
 							</Link>
 							<div className={styles.separator}></div>
-							<span className={styles.row} onClick={logout}>
+							<button type="button" className={styles.row} onClick={logout} aria-label="Cerrar sesión">
 								<Image
 									src={'/icons/exit.svg'}
 									alt={'exit'}
@@ -69,7 +69,7 @@ export const Header = () => {
 									height={24}
 								/>
 								Salir
-							</span>
+							</button>
 						</div>
 					) : (
 						<>

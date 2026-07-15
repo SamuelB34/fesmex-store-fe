@@ -1,4 +1,4 @@
-import type { Section } from '@/app/mock'
+import type { Section } from '@/shared/types'
 
 interface Category {
 	_id: string

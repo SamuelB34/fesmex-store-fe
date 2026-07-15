@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useSections } from '@/features/categories/context/SectionsContext'
-import type { Section } from '@/app/mock'
+import type { Section } from '@/shared/types'
 
 interface SectionsInitializerProps {
 	sections: Section[]

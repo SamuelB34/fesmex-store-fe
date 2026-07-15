@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useBrands } from '@/features/brands/context/BrandsContext'
-import type { Section } from '@/app/mock'
+import type { Section } from '@/shared/types'
 
 interface BrandsInitializerProps {
 	brands: Section[]

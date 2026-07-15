@@ -1,11 +1,5 @@
-import { AxiosResponse } from 'axios'
 import { api } from '@/shared/api/axios'
-
-type ApiResponse<T> = {
-	ok: boolean
-	data?: T
-	error?: { code?: string; message?: string; requestId?: string }
-}
+import { unwrap } from '@/shared/api/utils'
 
 export type CartItem = {
 	article_id: string
@@ -36,13 +30,6 @@ export type CartItemPayload = {
 export type CartUpdatePayload = {
 	article_id: string
 	quantity: number
-}
-
-const unwrap = async <T>(
-	promise: Promise<AxiosResponse<ApiResponse<T>>>,
-): Promise<ApiResponse<T>> => {
-	const res = await promise
-	return res.data
 }
 
 const createOrGetCart = () => unwrap<{ cart: Cart }>(api.post('/cart', {}))

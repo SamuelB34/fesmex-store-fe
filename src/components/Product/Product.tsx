@@ -3,8 +3,8 @@
 import styles from './Product.module.scss'
 import Image from 'next/image'
 import { Button } from '@/components/Button/Button'
-import type { Product as ProductType } from '@/app/mock'
-import { MouseEvent, useMemo } from 'react'
+import type { Product as ProductType } from '@/shared/types'
+import { memo, MouseEvent, useMemo } from 'react'
 import { useCart } from '@/features/cart/context/CartContext'
 import { formatCurrency, formatProductName } from '@/shared/utils/format'
 import { sileo } from 'sileo'
@@ -15,7 +15,7 @@ interface ProductProps {
 	onSelect?: (productId: string) => void
 }
 
-export const Product = ({ product, short, onSelect }: ProductProps) => {
+export const Product = memo(function Product({ product, short, onSelect }: ProductProps) {
 	const { addItem, removeItem, items } = useCart()
 
 	const formattedName = useMemo(
@@ -67,7 +67,7 @@ export const Product = ({ product, short, onSelect }: ProductProps) => {
 	const altText = product.name || product.brand || 'Producto'
 
 	return (
-		<div className={styles.product} onClick={handleSelect} role={'button'}>
+		<div className={styles.product} onClick={handleSelect} role={'button'} tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') handleSelect() }}>
 			<div className={styles.product__image_container}>
 				{product.image ? (
 					<Image
@@ -135,4 +135,4 @@ export const Product = ({ product, short, onSelect }: ProductProps) => {
 			</div>
 		</div>
 	)
-}
+})

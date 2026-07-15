@@ -8,7 +8,7 @@ import {
 	articlesApi,
 	type ArticleListItem,
 } from '@/features/services/articles.api'
-import type { Product as ProductType } from '@/app/mock'
+import type { Product as ProductType } from '@/shared/types'
 
 export const ProductFeatured = () => {
 	const router = useRouter()

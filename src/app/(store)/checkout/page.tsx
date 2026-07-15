@@ -1,450 +1,54 @@
 'use client'
 
-import { useEffect, useMemo, useState, useRef } from 'react'
+import { useRef } from 'react'
+import dynamic from 'next/dynamic'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
 import { sileo } from 'sileo'
 import { Elements } from '@stripe/react-stripe-js'
 import styles from './Checkout.module.scss'
 import { Counter } from '@/components/Counter/Counter'
-import {
-	useCreateOrder,
-	useShippingAddresses,
-} from '@/features/orders/hooks/useOrders'
-import { PaymentMethod, ordersApi } from '@/features/orders/services/orders.api'
-import { useCart } from '@/features/cart/context/CartContext'
 import { formatCurrency } from '@/shared/utils/format'
-import { useForm } from 'react-hook-form'
 import { ShippingAddressSelector } from './_components/ShippingAddressSelector/ShippingAddressSelector'
 import { NewAddressForm } from './_components/NewAddressForm/NewAddressForm'
 import { PaymentMethodControls } from './_components/PaymentMethodControls/PaymentMethodControls'
 import { SummaryActions } from './_components/SummaryActions/SummaryActions'
 import { ConfirmModal } from '@/components/ConfirmModal/ConfirmModal'
-import { useAuth } from '@/shared/auth/AuthProvider'
-import { stripePromise } from '@/lib/stripe'
-import {
-	StripePaymentSection,
-	type StripePaymentSectionRef,
-	type PaymentErrorType,
-} from './_components/StripePaymentSection/StripePaymentSection'
+import { stripePromise, isStripeConfigured } from '@/lib/stripe'
+import type { StripePaymentSectionRef } from './_components/StripePaymentSection/StripePaymentSection'
 import { PaymentLoader } from '@/components/PaymentLoader/PaymentLoader'
-import { useShippingStates } from '@/features/shipping'
+import {
+	useCheckoutState,
+	PICKUP_LOCATIONS,
+} from './_hooks/useCheckoutState'
+import { useCheckoutPayment } from './_hooks/useCheckoutPayment'
 
-type DeliveryType = 'shipping' | 'pickup'
-
-const STRIPE_MIN_CARD_AMOUNT_MXN = 10
-
-const PICKUP_LOCATIONS = [
-	{
-		id: 'mxli',
-		name: 'Almacén Mexicali',
-		address:
-			'Blvd. Adolfo López Mateos 2292-4, Zona Industrial, 21389 Mexicali, B.C.',
-		delivery: 'ENTREGA INMEDIATA',
-	},
-]
-
-type CheckoutFormValues = {
-	fullName: string
-	phone: string
-	line1: string
-	line2: string
-	city: string
-	state: string
-	postalCode: string
-	notes: string
-}
+const StripePaymentSection = dynamic(
+	() => import('./_components/StripePaymentSection/StripePaymentSection').then((m) => m.StripePaymentSection),
+	{ ssr: false },
+)
 
 export default function CheckoutForm() {
-	const router = useRouter()
-	const { user, accessToken, isBootstrapping } = useAuth()
-	const { items, total, clearCart, updateQuantity, removeItem } = useCart()
-	const { createOrder, isSubmitting } = useCreateOrder()
-	const {
-		addresses,
-		isLoading: isLoadingAddresses,
-		fetchAddresses,
-	} = useShippingAddresses()
-	const {
-		stateOptions,
-		isLoading: isLoadingStates,
-		getStateByName,
-		calculateShipping,
-	} = useShippingStates()
-
-	const [deliveryType, setDeliveryType] = useState<DeliveryType>('shipping')
-	const [selectedAddressIndex, setSelectedAddressIndex] = useState<
-		number | 'new'
-	>('new')
-
-	const [pickupLocation, setPickupLocation] = useState<string>('mxli')
-	const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CARD')
-	const [estimatedShipping, setEstimatedShipping] = useState<number>(0)
-	const [selectedStateId, setSelectedStateId] = useState<string>('')
-	const [showConfirmModal, setShowConfirmModal] = useState(false)
-	const [isProcessingPayment, setIsProcessingPayment] = useState(false)
-	const [paymentLoaderMessage, setPaymentLoaderMessage] = useState('')
-	const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState<
-		string | null
-	>(null)
-	const [savePaymentMethod, setSavePaymentMethod] = useState(false)
-	const confirmOrderLockRef = useRef(false)
-
-	// Stripe Elements ref
+	const checkout = useCheckoutState()
 	const stripePaymentRef = useRef<StripePaymentSectionRef>(null)
 
-	// Redirect if not logged in or account not verified
-	useEffect(() => {
-		if (isBootstrapping) return
-
-		if (!accessToken) {
-			sileo.error({
-				title: 'Inicia sesión',
-				description: 'Debes iniciar sesión para continuar con tu compra.',
-			})
-			router.push('/')
-			return
-		}
-
-		if (user?.status !== 'active') {
-			sileo.error({
-				title: 'Cuenta no verificada',
-				description:
-					'Debes verificar tu correo electrónico para poder realizar compras.',
-			})
-			router.push('/account')
-			return
-		}
-	}, [accessToken, user, isBootstrapping, router])
-
-	useEffect(() => {
-		fetchAddresses()
-	}, [fetchAddresses])
-
-	// Reset selected payment method when payment method changes
-	useEffect(() => {
-		setSelectedPaymentMethodId(null)
-		setSavePaymentMethod(false)
-	}, [paymentMethod])
-
-	useEffect(() => {
-		if (selectedPaymentMethodId) {
-			setSavePaymentMethod(false)
-		}
-	}, [selectedPaymentMethodId])
-
 	const {
-		register,
-		handleSubmit,
-		formState: { errors, isValid },
-	} = useForm<CheckoutFormValues>({
-		mode: 'onChange',
-		defaultValues: {
-			fullName: '',
-			phone: '',
-			line1: '',
-			line2: '',
-			city: '',
-			state: '',
-			postalCode: '',
-			notes: '',
-		},
+		isSubmitting,
+		isProcessingPayment,
+		paymentLoaderMessage,
+		handleConfirmOrder,
+	} = useCheckoutPayment({
+		paymentMethod: checkout.paymentMethod,
+		selectedPaymentMethodId: checkout.selectedPaymentMethodId,
+		grandTotal: checkout.grandTotal,
+		stripePaymentRef,
+		buildOrderPayload: checkout.buildOrderPayload,
+		clearCart: checkout.clearCart,
+		showStripeMinimumAmountError: checkout.showStripeMinimumAmountError,
 	})
-
-	const grandTotal = useMemo(
-		() => total + (deliveryType === 'shipping' ? estimatedShipping : 0),
-		[total, estimatedShipping, deliveryType],
-	)
-
-	const showStripeMinimumAmountError = () => {
-		sileo.error({
-			title: 'Monto mínimo no alcanzado',
-			description: `Stripe requiere un mínimo de ${formatCurrency(STRIPE_MIN_CARD_AMOUNT_MXN)} MXN para pagos con tarjeta. Ajusta tu carrito o usa transferencia bancaria.`,
-		})
-	}
-
-	const shouldSavePaymentMethod =
-		paymentMethod === 'CARD' && !selectedPaymentMethodId && savePaymentMethod
-
-	const isFormReady = useMemo(() => {
-		// Card validation happens in modal, so form is ready based on address only
-		let isAddressValid = false
-		if (deliveryType === 'pickup') {
-			isAddressValid = true
-		} else if (selectedAddressIndex !== 'new') {
-			// For existing address, check if we have a valid state
-			const addr = addresses[selectedAddressIndex]
-			isAddressValid = Boolean(addr)
-		} else {
-			// For new address, form must be valid AND state must be selected
-			isAddressValid = isValid && Boolean(selectedStateId)
-		}
-		return isAddressValid
-	}, [deliveryType, selectedAddressIndex, isValid, selectedStateId, addresses])
-
-	// Handle state change from NewAddressForm
-	const handleNewAddressStateChange = (stateId: string) => {
-		setSelectedStateId(stateId)
-		const newShipping = calculateShipping(stateId, total)
-		setEstimatedShipping(newShipping)
-	}
-
-	useEffect(() => {
-		if (deliveryType !== 'shipping' || !selectedStateId) return
-
-		const newShipping = calculateShipping(selectedStateId, total)
-		setEstimatedShipping(newShipping)
-	}, [deliveryType, selectedStateId, total, calculateShipping])
-
-	// Handle existing address selection - recalculate shipping based on address state
-	useEffect(() => {
-		if (selectedAddressIndex !== 'new' && addresses[selectedAddressIndex]) {
-			const addr = addresses[selectedAddressIndex]
-			const state = getStateByName(addr.state)
-			if (state) {
-				setSelectedStateId(state._id)
-				const newShipping = calculateShipping(state._id, total)
-				setEstimatedShipping(newShipping)
-			} else {
-				console.warn(`State not found for address: ${addr.state}`)
-				setSelectedStateId('')
-				setEstimatedShipping(0)
-			}
-		} else if (selectedAddressIndex === 'new') {
-			// Reset when switching to new address
-			setSelectedStateId('')
-			setEstimatedShipping(0)
-		}
-	}, [
-		selectedAddressIndex,
-		addresses,
-		getStateByName,
-		calculateShipping,
-		total,
-	])
-
-	const [pendingFormValues, setPendingFormValues] =
-		useState<CheckoutFormValues | null>(null)
-
-	// Step 1: User submits form -> open confirmation modal.
-	// The order is created only when the user confirms payment.
-	const onSubmit = handleSubmit(async (values) => {
-		if (paymentMethod === 'CARD') {
-			if (grandTotal < STRIPE_MIN_CARD_AMOUNT_MXN) {
-				showStripeMinimumAmountError()
-				return
-			}
-
-			setPendingFormValues(values)
-			setShowConfirmModal(true)
-		} else {
-			// For TRANSFER, show confirm modal directly
-			setPendingFormValues(values)
-			setShowConfirmModal(true)
-		}
-	})
-
-	// Build order payload from form values
-	const buildOrderPayload = (values: CheckoutFormValues) => {
-		const payload: Parameters<typeof createOrder>[0] = {
-			payment_method: paymentMethod,
-			notes: values.notes,
-			delivery_type: deliveryType,
-			...(shouldSavePaymentMethod ? { save_payment_method: true } : {}),
-			...(selectedPaymentMethodId
-				? { provider_payment_method_id: selectedPaymentMethodId }
-				: {}),
-		}
-		console.log('📦 Order payload:', payload)
-
-		if (deliveryType === 'shipping') {
-			if (selectedAddressIndex !== 'new' && addresses[selectedAddressIndex]) {
-				payload.shipping_address = addresses[selectedAddressIndex]
-			} else {
-				payload.shipping_address = {
-					full_name: values.fullName,
-					phone: values.phone,
-					line1: values.line1,
-					line2: values.line2,
-					city: values.city,
-					state: values.state,
-					postal_code: values.postalCode,
-					country: 'MX',
-				}
-			}
-		}
-
-		return payload
-	}
-
-	// Step 2: User confirms -> create order and then confirm payment for CARD,
-	// or create order directly for TRANSFER.
-	const handleConfirmOrder = async () => {
-		if (!pendingFormValues) return
-		if (confirmOrderLockRef.current) return
-		const values = pendingFormValues
-		confirmOrderLockRef.current = true
-
-		try {
-			if (paymentMethod === 'CARD' && grandTotal < STRIPE_MIN_CARD_AMOUNT_MXN) {
-				showStripeMinimumAmountError()
-				return
-			}
-
-			setIsProcessingPayment(true)
-			setPaymentLoaderMessage(
-				paymentMethod === 'CARD' ? 'Procesando pago...' : 'Procesando pedido...',
-			)
-
-			if (paymentMethod === 'CARD') {
-				const paymentMethodId = selectedPaymentMethodId
-				const paymentRef = stripePaymentRef.current
-
-				if (!paymentMethodId && !paymentRef) {
-					sileo.error({
-						title: 'Error de pago',
-						description: 'Stripe no está disponible. Recarga la página.',
-					})
-					return
-				}
-
-				if (!paymentMethodId) {
-					const validation = await paymentRef!.validatePaymentDetails()
-					if (!validation.success) {
-						handlePaymentError(validation.errorType, validation.error)
-						return
-					}
-				}
-
-				const payload = buildOrderPayload(values)
-				const result = await createOrder(payload)
-
-				if (!result) {
-					sileo.error({
-						title: 'Error al crear el pedido',
-						description: 'No se pudo crear el pedido. Intenta nuevamente.',
-					})
-					return
-				}
-
-				const { order, paymentIntent } = result
-
-				if (paymentMethodId) {
-					console.log('💳 Using saved payment method - backend already confirmed it')
-				} else {
-					if (!paymentIntent?.client_secret) {
-						sileo.error({
-							title: 'Error de pago',
-							description: 'No se pudo inicializar el pago.',
-						})
-						return
-					}
-
-					const { success, errorType, error, intentStatus } =
-						await paymentRef!.confirmPayment(
-							paymentIntent.client_secret,
-						)
-
-					if (!success) {
-						handlePaymentError(errorType, error)
-						return
-					}
-
-					if (intentStatus) {
-						console.log(`Payment intent status: ${intentStatus}`)
-					}
-				}
-
-				// Poll backend until payment_status = PAID (webhook processed)
-				setPaymentLoaderMessage('Verificando pago...')
-
-				const maxAttempts = 10
-				let attempts = 0
-				let isPaid = false
-
-				while (attempts < maxAttempts && !isPaid) {
-					await new Promise((resolve) => setTimeout(resolve, 1000))
-					try {
-						const { order: updatedOrder } = await ordersApi.getOrderById(
-							order._id,
-						)
-						if (updatedOrder.payment_status === 'PAID') {
-							isPaid = true
-						}
-					} catch {
-						// Continue polling
-					}
-					attempts++
-				}
-
-				if (!isPaid) {
-					console.warn('Payment confirmed but webhook not yet processed')
-				}
-			} else {
-				// TRANSFER: create order now
-				const payload = buildOrderPayload(values)
-				const result = await createOrder(payload)
-
-				if (!result) {
-					sileo.error({
-						title: 'Error al crear el pedido',
-						description: 'No se pudo crear el pedido. Intenta nuevamente.',
-					})
-					return
-				}
-			}
-
-			// Clear cart only after payment confirmed
-			clearCart()
-
-			sileo.success({
-				title: '¡Pedido creado exitosamente!',
-				description: 'Se te enviará un correo de confirmación',
-			})
-			setShowConfirmModal(false)
-			setPendingFormValues(null)
-			setTimeout(() => {
-				router.push('/account?tab=orders')
-			}, 500)
-		} catch (error) {
-			console.error('Error creating order:', error)
-			sileo.error({
-				title: 'Error al procesar tu pedido',
-				description: 'Ocurrió un error inesperado. Intenta nuevamente.',
-			})
-		} finally {
-			confirmOrderLockRef.current = false
-			setIsProcessingPayment(false)
-			setPaymentLoaderMessage('')
-		}
-	}
-
-	// Handle payment errors with appropriate sileo notifications
-	const handlePaymentError = (
-		errorType?: PaymentErrorType,
-		errorMessage?: string,
-	) => {
-		if (errorType === 'declined') {
-			sileo.error({
-				title: 'Pago rechazado',
-				description: 'Tu banco rechazó la operación. Intenta nuevamente.',
-			})
-		} else if (errorType === 'canceled') {
-			sileo.warning({
-				title: 'Autenticación cancelada',
-				description: 'No se completó la verificación bancaria.',
-			})
-		} else {
-			sileo.error({
-				title: 'Error en el pago',
-				description: errorMessage || 'No se pudo procesar el pago.',
-			})
-		}
-	}
 
 	return (
 		<div className={styles.checkoutWrapper}>
-			<form onSubmit={onSubmit} className={styles.checkoutGrid}>
+			<form onSubmit={checkout.handleSubmit} className={styles.checkoutGrid}>
 				<section className={styles.formColumn}>
 					<div className={styles.form}>
 						{/* ENTREGA */}
@@ -455,16 +59,16 @@ export default function CheckoutForm() {
 								<div className={styles.deliveryToggle}>
 									<button
 										type="button"
-										className={deliveryType === 'shipping' ? styles.active : ''}
-										onClick={() => setDeliveryType('shipping')}
+										className={checkout.deliveryType === 'shipping' ? styles.active : ''}
+										onClick={() => checkout.setDeliveryType('shipping')}
 									>
 										Envío por flete
 									</button>
 
 									<button
 										type="button"
-										className={deliveryType === 'pickup' ? styles.active : ''}
-										onClick={() => setDeliveryType('pickup')}
+										className={checkout.deliveryType === 'pickup' ? styles.active : ''}
+										onClick={() => checkout.setDeliveryType('pickup')}
 									>
 										Recoger en almacén
 									</button>
@@ -472,23 +76,23 @@ export default function CheckoutForm() {
 							</div>
 
 							{/* DIRECCIÓN */}
-							{deliveryType === 'shipping' && (
+							{checkout.deliveryType === 'shipping' && (
 								<div className={styles.radioGroup}>
 									<ShippingAddressSelector
-										addresses={addresses}
-										isLoading={isLoadingAddresses}
-										selectedIndex={selectedAddressIndex}
-										onSelectAddress={setSelectedAddressIndex}
+										addresses={checkout.addresses}
+										isLoading={checkout.isLoadingAddresses}
+										selectedIndex={checkout.selectedAddressIndex}
+										onSelectAddress={checkout.handleSelectAddress}
 									/>
 
-									{selectedAddressIndex === 'new' && (
+									{checkout.selectedAddressIndex === 'new' && (
 										<NewAddressForm
-											register={register}
-											errors={errors}
-											isRequired={selectedAddressIndex === 'new'}
-											stateOptions={stateOptions}
-											isLoadingStates={isLoadingStates}
-											onStateChange={handleNewAddressStateChange}
+											register={checkout.register}
+											errors={checkout.errors}
+											isRequired={checkout.selectedAddressIndex === 'new'}
+											stateOptions={checkout.stateOptions}
+											isLoadingStates={checkout.isLoadingStates}
+											onStateChange={checkout.handleNewAddressStateChange}
 										/>
 									)}
 								</div>
@@ -496,16 +100,16 @@ export default function CheckoutForm() {
 
 							{/* PICKUP */}
 
-							{deliveryType === 'pickup' && (
+							{checkout.deliveryType === 'pickup' && (
 								<div className={styles.pickupList}>
 									{PICKUP_LOCATIONS.map((loc) => (
 										<button
 											key={loc.id}
 											type="button"
 											className={`${styles.pickupOption} ${
-												pickupLocation === loc.id ? styles.active : ''
+												checkout.pickupLocation === loc.id ? styles.active : ''
 											}`}
-											onClick={() => setPickupLocation(loc.id)}
+											onClick={() => checkout.setPickupLocation(loc.id)}
 										>
 											<div className={styles.left}>
 												<div className={styles.radioBtn}>
@@ -525,7 +129,7 @@ export default function CheckoutForm() {
 						</div>
 
 						{/* COSTO DE ENVÍO ESTIMADO */}
-						{deliveryType === 'shipping' && (
+						{checkout.deliveryType === 'shipping' && (
 							<div className={styles.section}>
 								<div className={styles.sectionHeader}>
 									<p className={styles.sectionSubtitle}>Costo de envío</p>
@@ -543,11 +147,11 @@ export default function CheckoutForm() {
 								</div>
 
 								<div className={styles.shippingEstimate}>
-									{estimatedShipping > 0 ? (
+									{checkout.estimatedShipping > 0 ? (
 										<>
 											<p className={styles.shippingCost}>
 												Envío estimado:{' '}
-												<strong>{formatCurrency(estimatedShipping)}</strong>
+												<strong>{formatCurrency(checkout.estimatedShipping)}</strong>
 											</p>
 											<p className={styles.shippingNote}>
 												*El costo final se calculará al confirmar la compra
@@ -563,10 +167,10 @@ export default function CheckoutForm() {
 						)}
 
 						<PaymentMethodControls
-							paymentMethod={paymentMethod}
-							onPaymentMethodChange={setPaymentMethod}
-							selectedPaymentMethodId={selectedPaymentMethodId}
-							onSelectPaymentMethod={setSelectedPaymentMethodId}
+							paymentMethod={checkout.paymentMethod}
+							onPaymentMethodChange={checkout.handlePaymentMethodChange}
+							selectedPaymentMethodId={checkout.selectedPaymentMethodId}
+							onSelectPaymentMethod={checkout.setSelectedPaymentMethodId}
 						/>
 
 						{/* NOTAS */}
@@ -575,7 +179,7 @@ export default function CheckoutForm() {
 							<textarea
 								className={styles.input}
 								style={{ minHeight: '120px', resize: 'none' }}
-								{...register('notes')}
+								{...checkout.register('notes')}
 								disabled={isSubmitting}
 								placeholder="Entregar en recepción"
 							/>
@@ -586,7 +190,7 @@ export default function CheckoutForm() {
 				{/* RESUMEN */}
 				<aside className={styles.summaryColumn}>
 					<div className={styles.summaryCard}>
-						{items.map((item, index) => (
+						{checkout.items.map((item, index) => (
 							<div className={styles.summaryItem} key={item.id + index}>
 								<div className={styles.itemThumb}>
 									<Image
@@ -611,11 +215,11 @@ export default function CheckoutForm() {
 											value={item.quantity}
 											max={item.stock}
 											onChange={(value) => {
-												updateQuantity(item.id, value, {
+												checkout.updateQuantity(item.id, value, {
 													maxStock: item.stock,
 												})
 											}}
-											onMinReached={() => removeItem(item.id)}
+											onMinReached={() => checkout.removeItem(item.id)}
 											onMaxReached={() => {
 												sileo.error({
 													title: 'Stock máximo alcanzado',
@@ -637,15 +241,15 @@ export default function CheckoutForm() {
 
 						{/*Summary Totals*/}
 						<SummaryActions
-							subtotal={total}
-							shippingCost={estimatedShipping}
+							subtotal={checkout.total}
+							shippingCost={checkout.estimatedShipping}
 							shippingLabel={
-								estimatedShipping > 0 ? 'Envío estimado' : 'Selecciona estado'
+								checkout.estimatedShipping > 0 ? 'Envío estimado' : 'Selecciona estado'
 							}
-							grandTotal={grandTotal}
-							showShipping={deliveryType === 'shipping'}
-							paymentMethod={paymentMethod}
-							isFormReady={isFormReady}
+							grandTotal={checkout.grandTotal}
+							showShipping={checkout.deliveryType === 'shipping'}
+							paymentMethod={checkout.paymentMethod}
+							isFormReady={checkout.isFormReady}
 							isSubmitting={isSubmitting}
 						/>
 					</div>
@@ -653,29 +257,44 @@ export default function CheckoutForm() {
 			</form>
 
 			<ConfirmModal
-				isOpen={showConfirmModal}
+				isOpen={checkout.showConfirmModal}
 				onClose={() => {
-					setShowConfirmModal(false)
-					setPendingFormValues(null)
+					checkout.setShowConfirmModal(false)
+					checkout.setPendingFormValues(null)
 				}}
-				onConfirm={handleConfirmOrder}
-				title={paymentMethod === 'CARD' ? 'Completar pago' : 'Confirmar pedido'}
+				onConfirm={() => {
+					if (checkout.pendingFormValues) {
+						handleConfirmOrder(checkout.pendingFormValues, () => {
+							checkout.setShowConfirmModal(false)
+							checkout.setPendingFormValues(null)
+						})
+					}
+				}}
+				title={checkout.paymentMethod === 'CARD' ? 'Completar pago' : 'Confirmar pedido'}
 				message={
-					paymentMethod === 'CARD' && !selectedPaymentMethodId ? (
+					checkout.paymentMethod === 'CARD' && !checkout.selectedPaymentMethodId ? (
 						<div>
-							<p style={{ marginBottom: '16px' }}>
-								Ingresa los datos de tu tarjeta para completar el pago.
-							</p>
+							{!isStripeConfigured ? (
+								<p style={{ color: 'var(--accent)', marginBottom: '16px' }}>
+									Pago con tarjeta no disponible en este momento. Usa transferencia bancaria o contacta soporte.
+								</p>
+							) : (
+								<>
+									<p style={{ marginBottom: '16px' }}>
+										Ingresa los datos de tu tarjeta para completar el pago.
+									</p>
 
-							<Elements stripe={stripePromise}>
-								<StripePaymentSection ref={stripePaymentRef} />
-							</Elements>
+									<Elements stripe={stripePromise}>
+										<StripePaymentSection ref={stripePaymentRef} />
+									</Elements>
+								</>
+							)}
 							<div className={styles.checkboxField} style={{ marginBottom: '16px' }}>
 								<label className={styles.checkboxLabel}>
 									<input
 										type="checkbox"
-										checked={savePaymentMethod}
-										onChange={(event) => setSavePaymentMethod(event.target.checked)}
+										checked={checkout.savePaymentMethod}
+										onChange={(event) => checkout.setSavePaymentMethod(event.target.checked)}
 										className={styles.checkboxInput}
 										disabled={isSubmitting}
 									/>
@@ -690,7 +309,7 @@ export default function CheckoutForm() {
 						'¿Estás seguro de que deseas enviar este pedido? Se te enviará un correo de confirmación.'
 					)
 				}
-				confirmText={paymentMethod === 'CARD' ? 'Pagar ahora' : 'Enviar pedido'}
+				confirmText={checkout.paymentMethod === 'CARD' ? 'Pagar ahora' : 'Enviar pedido'}
 				cancelText="Cancelar"
 				isLoading={isSubmitting || isProcessingPayment}
 			/>

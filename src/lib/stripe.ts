@@ -1,9 +1,9 @@
-import { loadStripe } from '@stripe/stripe-js'
+import { loadStripe, type Stripe } from '@stripe/stripe-js'
 
 const STRIPE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 
-if (!STRIPE_PUBLISHABLE_KEY) {
-	throw new Error('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is not defined')
-}
+export const stripePromise: Promise<Stripe | null> = STRIPE_PUBLISHABLE_KEY
+	? loadStripe(STRIPE_PUBLISHABLE_KEY)
+	: Promise.resolve(null)
 
-export const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY)
+export const isStripeConfigured = Boolean(STRIPE_PUBLISHABLE_KEY)
